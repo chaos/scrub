@@ -1,0 +1,27 @@
+==== Scrub Release 1.7 2007-02-14 ====
+
+This version is a significant rewrite since version 1.6.
+Major changes in addition to general cleanup and better documentation:
+
+1) Patterns updated
+
+The old scrub patterns satisfied DoD 5220.22-M, but were most appropriate
+for older MFM/RLL drive encodings.  The new scrub patterns satisfy
+NNSA Policy Letter NAP-14.x, and are appropriate for modern PRML/EPRML
+drive encodings.  The old scrub pattern as well as a set of patterns
+that minimally satisfies DoD 5220.22-M are selectable via command line option.
+
+2) Random passes improved
+
+The algorithm for generating random bytes has been made more efficient and
+more random using an AES counter mode algorithm.
+
+3) Better determination of device size
+
+Prior versions of scrub would determine the capacity of a device by writing
+until any error was encountered.  This version determines capacity
+using OS-specific ioctls.  The size is overrideable on the command line.
+
+4) OS X improvements
+
+A file's resource fork is scrubbed if it exists.

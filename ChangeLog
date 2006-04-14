@@ -1,0 +1,188 @@
+2006-02-15 Jim Garlick <garlick@llnl.gov>
+
+	* filldentry.c: on AIX, call sync() not fsync() after rename.
+
+2006-02-14 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.spec: additional fixes for Fedora standards [Ben Woodard]
+
+	* scrub.c: change dirent_pattern[] so it will work on OS X.
+
+2006-02-13 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c: force char special file on !linux, allow char or blk 
+	special file on linux.
+
+	* scrub.c: refactored main().
+
+	* scrub.c: write first pattern while filling up disk with -X.
+
+	* fillfile.c: growfile() now takes pattern buffer.
+
+2006-02-09 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c: replace lseek algorithm (not portable!) with arch-
+	specific ioctls.
+
+2006-02-01 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.spec: fixed some problems uncovered by rpmlint [Ben Woodard]
+
+2006-01-30 Jim Garlick <garlick@llnl.gov>
+
+	* util.[ch]: use uint8_t * instead of void * to avoid warnings
+	  with solaris cc. [Review: John]
+
+	* scrub.c: replace BLKSIZE macro with blksize function with no
+	  power of two constraints, also more readable. [Review: Jimmy]
+
+	* Makefile: fix rule for genrand test. [Review: Jimmy]
+
+	* genrand.c: fix incorrect buffer calculation in genrand().
+
+	* scrub.c: added -p nnsa|dod|old option. [Review: Jimmy]
+
+	* scrub.c: removed -o option.
+
+	* scrub.1: updated to reflect option changes and make the three
+	  scrub modes more explicit. [Review: Jimmy]
+
+	* */*.c: include stdint.h only ifdef __FreeBSD__. [Review: Jimmy]
+
+2006-01-20 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c: Apple OS X: scrub HFS resource fork if present.
+	  Ref: SourceForge SRM feature request 668257. [Review: Jimmy, Chuck]
+
+	* scrub.c: refuse to play if file to be scrubbed is zero length.
+
+	* scrub.c: change checks for random verify and 0/random filldentry
+	  into assertions.
+
+	* fillfile.c: open file O_WRONLY intead of O_RDWR.
+
+2005-12-13 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c: give -D an argument which will be the new name for
+	the file.
+
+	* scrub.1: reference NNSA document
+
+2005-11-24 Jim Garlick <garlick@llnl.gov>
+
+	* util.[ch]: New
+
+	* genrand.c, fillfile.c: make short reads/writes non-fatal.
+
+	* scrub.c, filldentry.c: use libc dirname(), basename().
+
+2005-11-23 Jim Garlick <garlick@llnl.gov>
+
+	* aes.[ch]: New.
+
+	* md5.[ch]: Removed.
+
+	* scrub.c: 
+	- replace md5 with aes algorithm for generating random content
+	- change passes to r,r,r,r,0,v which is better for modern drives
+	- added -o option to get the old algorithm.
+
+2005-11-22 Jim Garlick <garlick@llnl.gov>
+
+	* fillfile.[ch]: New.  Functions to fill file with pattern, 
+	verify file contains pattern, and create a file and append to 
+	it until ENOSPC.
+
+	* filldentry.[ch]: New.  Scrub directory entry.
+
+	* getsize.[ch]: New.  Determine the size of a special file by
+	lseeking until EINVAL is returned.
+
+	* progress.[ch]: New.  General ASCII progress bar thingie.
+
+	* scrub.c:  Refactored and cleaned up:
+	- Remove the -d option (debug).
+	- Remove the -x option (write one block past size of file).
+	- If file contains a partial fs block, round up to scrub full blocks.
+	- Write 8K blocks unless overriden by new -b command line option.
+	- Determine the size of the device ahead of time using lseek instead
+	  of treating write failures as normal "end of file" while scrubbing.
+	- Remove the -r option (disable random pass).  Always do random pass.
+	- Display the amount of data to be scrubbed at the beginning, and
+	  show uniformly sized progress bars for every pass.
+	- After scrubbing a dirent with -D, open the directory and fsync(2).
+
+2005-11-21 Jim Garlick <garlick@llnl.gov>
+
+	* md5.[ch]: replaced RSA MD5 code with md5.h 1.20 md5.c 1.22 
+	from gnulib CVS repo http://www.gnu.org/software/gnulib/. These 
+	versions are licensed under the GPL as opposed to RSA's license.
+
+	* genrand.c: cleaned up and fixed for md5.[ch] update.
+
+	* shred.1: caveats 
+
+2003-08-26 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.1: cleanup.
+
+2003-08-26 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.spec: add %defattr(-,root,root)
+
+	* : tag scrub-1-6-1
+
+2003-05-10 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c: define large file support for solaris.
+
+	* scrub.c: if -X option, do not show number of blocks that will be
+	written.  Progress is shown in MB not percent (which crashed with -X). 
+	Show when fsync is being called.
+
+	* scrub.c: fixed bug where scrubfile() would enter endless loop after
+	filesystem filled up.  Comparison of write() return value of -1 was 
+	always succeding.
+
+	* : tag drop_to_paul_clayton
+
+	* scrub.c: make activity() take a long long megabytes arg and display 
+	three digits of MB/GB/TB to indicate progress.
+
+	* scrub.c: set file mode to 644 for O_CREAT in -X.
+
+2003-01-21 Jim Garlick <garlick@llnl.gov>
+
+	* : Finally getting around to public release
+
+	* : Tagged scrub-1-5-1
+
+2002-12-08 Jim Garlick <garlick@llnl.gov>
+
+	* : Update source headers, COPYING and DISCLAIMER file for re-release 
+	under GPL.
+
+	* Make-rpm.mk: Update to latest
+
+	* : Ran through "indent --no-tabs -kr *.[ch]" (except md5.[ch])
+	and installed standard vi footers.
+
+	* scrub.c: Made scrub large-file aware on Linux
+
+	* scrub.c: Show propellers and percentage instead of dots to 
+	indicate progress
+
+	* scrub.c: Eliminate -q (quiet) option and show progress only if 
+	stdout is a tty
+
+	* Makefile: Add -Wall to CFLAGS and silence warnings.
+
+	* scrub.c: Fixed bug in basename() function.
+
+	* : Tagged scrub-1-4-1chaos
+
+2001-04-25 Jim Garlick <garlick@llnl.gov>
+
+	* : Initial import to CVS.
+
+	* : Tagged scrub-1-3

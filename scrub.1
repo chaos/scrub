@@ -1,0 +1,149 @@
+\." $Id: scrub.1 81 2006-02-15 01:26:32Z garlick $
+.\"
+.TH SCRUB 1 "Release 1.7" "LLNL" "SCRUB"
+.SH NAME
+scrub \- write patterns on disk/file
+.SH SYNOPSIS
+.B scrub
+.I "[-p nnsa|dod|old] [-X] [-D newname] [-b blocksize] [-s size] file"
+.br
+.SH DESCRIPTION
+.B Scrub
+iteratively writes patterns on files or disk devices
+to make retrieving the data more difficult.  
+.B Scrub 
+operates in one of three modes: 
+.LP
+1) The special file corresponding to an entire disk is scrubbed and
+all data on it is destroyed.  This mode is selected if 
+.I "file"
+is a character or block special file.  This is the most effective method.
+.LP
+2) A regular file is scrubbed and only the data in the file (and optionally
+its name in the directory entry) is destroyed.  
+The file size is rounded up to fill out the last file system block.
+This mode is selected if 
+.I "file"
+is a regular file.  
+See CAVEATS below.
+.LP
+3) 
+.I "file"
+is created, expanded until the file system is full, then scrubbed as 
+in 2). This mode is selected with the
+.I "-X" 
+option.
+See CAVEATS below.
+.LP
+.B Scrub 
+accepts the following options:
+.TP
+.I "-p nnsa|dod|old"
+Select the patterns to write.
+.I "nnsa"
+selects patterns compliant with NNSA Policy Letter NAP-14.x;
+.I "dod"
+selects patterns compliant with DoD 5220.22-M; and
+.I "old"
+selects pre-version 1.7 scrub patterns.
+See STANDARDS below for more detail.  Default: nnsa.
+.TP
+.I "-b blocksize"
+Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
+Default: 8192.
+.TP
+.I "-X"
+Create specified regular file and keep appending to it until 
+write returns ENOSPC (file system full), then scrub it as usual.
+.TP
+.I "-D newname"
+After scrubbing the file, scrub its name in the directory entry, 
+then rename it to the new name.  
+The scrub patterns used on the directory entry are constrained by the 
+operating system and thus are not compliant with cited standards.
+.TP
+.I "-s size"
+Override the device size.  Without this option,
+.B scrub
+determines media capacity using OS-specific ioctl(2) calls, which may not
+be accurate.
+.SH CAVEATS
+.B Scrub 
+may be insufficient to thwart heroic efforts to recover data 
+in an appropriately equipped lab.
+.PP
+.B Scrub
+.I "nnsa"
+patterns are reasonable for sanitizing modern PRML/EPRML encoded disk devices.
+For older MFM/RLL encoded drives, the shred(1) program from GNU binutils 
+does a more thorough and scientific (but more I/O intensive) job of secure 
+deletion, as described in Guttman below.
+.PP
+.B Scrub 
+makes no attempt to disable write caching on the disk device or deal 
+with spare blocks.  RAID and other more sophisticated storage devices may 
+require special handling.
+.PP
+The effectiveness of scrubbing regular files through a file system
+will be limited by the OS and file system.  File systems that are
+known to be problematic are journaled, log structured, copy-on-write, 
+versioned, and network file systems.  If in doubt, scrub the raw disk device.
+.PP
+Scrubbing free blocks in a file system with the
+.I "-X"
+method is subject to the same caveats as scrubbing regular files,
+and in addition, is only useful to the extent the file system allows 
+you to reallocate the target blocks as data blocks in a new file.
+If in doubt, scrub the raw disk device.
+.PP
+[MacOS X HFS file system] 
+.B Scrub 
+attempts to overwrite a file's resource fork if it exists.
+Although MacOS X will support additional named forks in the future,
+.B scrub 
+is only aware of the traditional data and resource forks.
+.SH STANDARDS
+The 
+.I "dod"
+.B scrub
+sequence is compliant with the DoD 5220.22-M procedure for sanitizing 
+removeable and non-removeable rigid disks which requires overwriting
+all addressable locations with a character, its complement, then a random
+character, and verify.  
+Please refer to the DoD document for additional constraints.
+.PP
+The 
+.I "nnsa"
+(default)
+.B scrub
+sequence is compliant with a Dec. 2005 draft of
+NNSA Policy Letter NAP-14.x (see reference below) for sanitizing removable
+and non-removable hard disks, which requires overwriting all locations with
+a pseudorandom pattern twice and then with a known pattern.
+Please refer to the NNSA document for additional constraints.
+.PP
+Please consult local authorities regarding your site policy for
+disk sanitization.
+.SH AUTHOR
+Jim Garlick <garlick@llnl.gov>
+.LP
+This work was produced at the University of California, 
+Lawrence Livermore National Laboratory under Contract
+No. W-7405-ENG-48 with the DOE.
+Designated UCRL-CODE-2003-006, scrub is licensed under terms of the GNU 
+General Public License.
+.SH SEE ALSO
+DoD 5220.22-M, "National Industrial Security Program Operating Manual", 
+Chapter 8, 01/1995.
+.LP
+NNSA Policy Letter: NAP-14.x, "Clearing, Sanitizing, and 
+Destroying Information System Storage Media, Memory Devices, and other 
+Related Hardware", Unpublished Draft, 2005
+.LP
+"Secure Deletion of Data from Magnetic and Solid-State Memory", by Peter 
+Gutmann, Sixth USENIX Security Symposium, San Jose, CA, July 22-25, 1996.
+.LP
+Darik's boot and Nuke FAQ: 
+http://dban.sourceforge.net/faq/index.html
+.LP
+shred(1)
