@@ -1,6 +1,17 @@
+2006-05-17 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c: add code for AIX [Dave Fox]
+
+	* fillfile.c: on AIX, don't call fsync() on special file.
+
+	* scrub.c: added -p fastold option which is like old without 
+	  the random pass.
+
 2006-02-15 Jim Garlick <garlick@llnl.gov>
 
 	* filldentry.c: on AIX, call sync() not fsync() after rename.
+
+	* : tag scrub-1.7
 
 2006-02-14 Jim Garlick <garlick@llnl.gov>
 

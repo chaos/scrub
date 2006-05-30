@@ -38,14 +38,16 @@ See CAVEATS below.
 .B Scrub 
 accepts the following options:
 .TP
-.I "-p nnsa|dod|old"
+.I "-p nnsa|dod|old|fastold"
 Select the patterns to write.
 .I "nnsa"
 selects patterns compliant with NNSA Policy Letter NAP-14.x;
 .I "dod"
-selects patterns compliant with DoD 5220.22-M; and
+selects patterns compliant with DoD 5220.22-M;
 .I "old"
-selects pre-version 1.7 scrub patterns.
+selects pre-version 1.7 scrub patterns; and
+.I "fastold"
+is old without the random pass.  
 See STANDARDS below for more detail.  Default: nnsa.
 .TP
 .I "-b blocksize"

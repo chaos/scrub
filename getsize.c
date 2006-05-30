@@ -154,6 +154,42 @@ getsize(char *path)
 
     return (off_t)blockcount * blocksize;
 }
+#elif defined(_AIX)
+/* contributed by Dave Fox */
+#include <sys/ioctl.h>
+#include <sys/devinfo.h>
+
+off_t 
+getsize(char *path)
+{
+    int fd;
+    struct devinfo devinfo;
+    off_t size;
+
+    fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        perror(path);
+        exit(1);
+    }
+    if (ioctl(fd, IOCINFO, &devinfo) == -1) {
+        perror("ioctl IOCINFO");
+        exit(1);
+    }
+
+    switch(devinfo.devtype) {
+        case DD_DISK:   /* disk */
+            size = devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
+            break;
+        case DD_SCDISK: /* scsi disk */
+            size = devinfo.un.scdk.blksize * devinfo.un.scdk.numblks;
+            break;
+        default:        /* unknown */
+            size = 0;
+            break;
+    }
+    return size;
+}
+
 
 #else
 /* Unimplemented!  Scrub will tell user to use -s.

@@ -64,6 +64,7 @@
 static const uint8_t dirent_pattern[] = { 0x55, 0x22, 0x55, 0x22, 0x55, 0x22 };
 
 static const uint8_t old_pattern[] = { 0, 0xff, 0xaa, RANDOM, 0x55, VERIFY };
+static const uint8_t fastold_pattern[] = { 0, 0xff, 0xaa, 0x55, VERIFY };
 static const uint8_t nnsa_pattern[] = { RANDOM, RANDOM, 0, VERIFY };
 static const uint8_t dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
 
@@ -82,7 +83,7 @@ static char *prog;
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [-p dod|nnsa|old] [-b blocksize] [-X] [-D newname] file\n", prog);
+    fprintf(stderr, "Usage: %s [-p dod|nnsa|old|fastold] [-b blocksize] [-X] [-D newname] file\n", prog);
     fprintf(stderr, "\t-p select scrub patterns (see scrub(1))\n");
     fprintf(stderr, "\t-b overrides default I/O buffer size of %d bytes\n", BUFSIZE);
     fprintf(stderr, "\t-X create file and keep writing until write fails, then scrub\n");
@@ -340,7 +341,7 @@ main(int argc, char *argv[])
     prog = basename(argv[0]);
     while ((c = getopt(argc, argv, "p:D:Xb:s:")) != EOF) {
         switch (c) {
-        case 'p':   /* Override default pattern with dod|nnsa|old */
+        case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
             if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
                 pat = dod_pattern;
                 npat = sizeof(dod_pattern)/sizeof(dod_pattern[0]);
@@ -350,6 +351,9 @@ main(int argc, char *argv[])
             } else if (!strcmp(optarg, "old") || !strcmp(optarg, "OLD")) {
                 pat = old_pattern;
                 npat = sizeof(old_pattern)/sizeof(old_pattern[0]);
+            } else if (!strcmp(optarg, "fastold") || !strcmp(optarg, "FASTOLD")) {
+                pat = fastold_pattern;
+                npat = sizeof(fastold_pattern)/sizeof(fastold_pattern[0]);
             } else 
                 usage();
             break;

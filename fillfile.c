@@ -160,6 +160,7 @@ growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
     int fd;
     off_t n;
     off_t res = 0LL;
+    struct stat sb;
 
     fd = open(path, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
@@ -187,9 +188,18 @@ growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
             res += n;
     } while (n > 0);
 
-    if (fsync(fd) < 0) { /* XXX necessary? */
-        perror("fsync");
+    if (fstat(fd, &sb) < 0) {
+        perror("fstat");
         exit(1);
+    }
+    /* On AIX, fsync() returns EINVAL on special files.
+     * I think it only makes sense on regular files anyway...
+     */
+    if (S_ISREG(sb.st_mode)) {
+        if (fsync(fd) < 0) { /* XXX does close() do this anyway? */
+            perror("fsync");
+            exit(1);
+        }
     }
     if (close(fd) < 0) {
         perror("close");
