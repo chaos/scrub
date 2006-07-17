@@ -36,8 +36,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <limits.h>
-
-#define MEGABYTE (1024L*1024)
+#include "getsize.h"
 
 int main(int argc, char *argv[])
 {
@@ -47,16 +46,12 @@ int main(int argc, char *argv[])
     char c = 'x';
 
     if (argc != 3) {
-        fprintf(stderr, "Usage: pad MB filename\n");
+        fprintf(stderr, "Usage: pad size filename\n");
         exit(1);
     }
-    fileOffset = strtoul(argv[1], NULL, 0);
-    if (fileOffset == ULONG_MAX) {
-        perror("strtoul");
+    fileOffset = str2size(argv[1]);
+    if (fileOffset == 0)
         exit(1);
-    }
-    fileOffset *= MEGABYTE;
-
     filename = argv[2];
 
     fd = open(filename, O_CREAT | O_RDWR, 0644);

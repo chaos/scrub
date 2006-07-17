@@ -5,7 +5,7 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
-.I "[-p nnsa|dod|old] [-X] [-D newname] [-b blocksize] [-s size] file"
+.I "[-p nnsa|dod|bsi] [-X] [-D newname] [-b blocksize] [-s size] file"
 .br
 .SH DESCRIPTION
 .B Scrub
@@ -38,12 +38,15 @@ See CAVEATS below.
 .B Scrub 
 accepts the following options:
 .TP
-.I "-p nnsa|dod|old|fastold"
+.I "-p nnsa|dod|bsi|old|fastold"
 Select the patterns to write.
 .I "nnsa"
 selects patterns compliant with NNSA Policy Letter NAP-14.x;
 .I "dod"
 selects patterns compliant with DoD 5220.22-M;
+.I "bsi"
+selects patterns recommended by the German Center of Security in Information
+Technologies (http://www.bsi.bund.de);
 .I "old"
 selects pre-version 1.7 scrub patterns; and
 .I "fastold"
@@ -65,10 +68,16 @@ The scrub patterns used on the directory entry are constrained by the
 operating system and thus are not compliant with cited standards.
 .TP
 .I "-s size"
-Override the device size.  Without this option,
+Override the device size (in bytes). Without this option,
 .B scrub
 determines media capacity using OS-specific ioctl(2) calls, which may not
 be accurate.
+.I "K, M",
+or 
+.I "G"
+may be appended to the number to change the units to
+KiBytes, MiBytes, or GiBytes, respectively.
+
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 

@@ -1,3 +1,25 @@
+2006-07-17 Jim Garlick <garlick@llnl.gov>
+
+	* fillfile.c: only fsync() regular files.
+
+	* scrub.c: Change scrub_disk() size argument from size_t to off_t,
+	  yet another 32 bit truncation bug on some systems.
+
+2006-07-07 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c: Fix truncation bug in AIX getsize(). 
+
+	* scrub.c, getsize.c: Fix truncation bug in -s option handling.
+	  Move parsing out of main() to str2size() function.
+	  Add support for parsing KkMmGg suffix is size specification.
+	  Added size2str() function.
+
+	* Makefile: add targets for scrub.1.lpr and scrub.1.cat.
+
+	* scrub.c: add support for BSI patterns [Florian Heigl].
+
+	* pad.c: use str2size() to parse size argument instead of assuming MB.
+
 2006-05-17 Jim Garlick <garlick@llnl.gov>
 
 	* getsize.c: add code for AIX [Dave Fox]

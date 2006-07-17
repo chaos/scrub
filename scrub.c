@@ -58,8 +58,8 @@
 #include "progress.h"
 #include "util.h"
 
-#define RANDOM	'r'
-#define VERIFY  'v'
+#define RANDOM	'r' /* 0x72 */
+#define VERIFY  'v' /* 0x76 */
 
 static const uint8_t dirent_pattern[] = { 0x55, 0x22, 0x55, 0x22, 0x55, 0x22 };
 
@@ -67,6 +67,8 @@ static const uint8_t old_pattern[] = { 0, 0xff, 0xaa, RANDOM, 0x55, VERIFY };
 static const uint8_t fastold_pattern[] = { 0, 0xff, 0xaa, 0x55, VERIFY };
 static const uint8_t nnsa_pattern[] = { RANDOM, RANDOM, 0, VERIFY };
 static const uint8_t dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
+static const uint8_t bsi_pattern[] = { 0xff, 0xfe, 0xfd, 0xfb, 0xf7, 
+                                             0xef, 0xdf, 0xbf, 0x7f };
 
 typedef enum { false, true } bool;
 typedef enum { NOEXIST, REGULAR, SPECIAL, OTHER } filetype_t;
@@ -83,7 +85,7 @@ static char *prog;
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [-p dod|nnsa|old|fastold] [-b blocksize] [-X] [-D newname] file\n", prog);
+    fprintf(stderr, "Usage: %s [-p dod|nnsa|old|fastold|bsi] [-b blocksize] [-X] [-D newname] file\n", prog);
     fprintf(stderr, "\t-p select scrub patterns (see scrub(1))\n");
     fprintf(stderr, "\t-b overrides default I/O buffer size of %d bytes\n", BUFSIZE);
     fprintf(stderr, "\t-X create file and keep writing until write fails, then scrub\n");
@@ -153,14 +155,15 @@ scrub(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
     uint8_t *buf;
     int i;
     prog_t p;
+    char sizestr[80];
 
     if (!(buf = (uint8_t *)malloc(bufsize))) {
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
 
-    printf("%s: scrubbing %s %lld bytes (%.2lfMB)\n", prog, path, size, 
-            (double)size/(1024L*1024));
+    size2str(sizestr, sizeof(sizestr), size);
+    printf("%s: scrubbing %s %s\n", prog, path, sizestr);
 
     initrand();
     for (i = 0; i < npat; i++) {
@@ -307,7 +310,7 @@ scrub_resfork(char *path, const uint8_t pat[], int npat, int bufsize)
 /* Scrub a special file corresponding to a disk.
  */
 static void
-scrub_disk(char *path, size_t size, const uint8_t pat[], int npat, int bufsize)
+scrub_disk(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
 {
     assert(filetype(path) == SPECIAL);
     if (size == 0) {
@@ -354,6 +357,9 @@ main(int argc, char *argv[])
             } else if (!strcmp(optarg, "fastold") || !strcmp(optarg, "FASTOLD")) {
                 pat = fastold_pattern;
                 npat = sizeof(fastold_pattern)/sizeof(fastold_pattern[0]);
+            } else if (!strcmp(optarg, "bsi") || !strcmp(optarg, "BSI")) {
+                pat = bsi_pattern;
+                npat = sizeof(bsi_pattern)/sizeof(bsi_pattern[0]);
             } else 
                 usage();
             break;
@@ -367,7 +373,9 @@ main(int argc, char *argv[])
             bopt = strtoul(optarg, NULL, 10);
             break;
         case 's':   /* override size of special file */
-            sopt = strtoul(optarg, NULL, 10);
+            sopt = str2size(optarg);
+            if (sopt == 0)
+                exit(1);
             break;
         default:
             usage();
@@ -427,9 +435,12 @@ main(int argc, char *argv[])
     /* Scrub.
      */
     printf("%s: using %s patterns\n", prog, 
-            (pat == dod_pattern) ? "DoD 5220.22-M" 
-            : (pat == nnsa_pattern) ? "NNSA NAP-14.x" 
-            : "pre v1.7 scrub");
+            (pat == dod_pattern)        ? "DoD 5220.22-M" 
+            : (pat == nnsa_pattern)     ? "NNSA NAP-14.x" 
+            : (pat == old_pattern)      ? "pre v1.7 scrub" 
+            : (pat == fastold_pattern)  ? "pre v1.7 scrub (skip random)" 
+            : (pat == bsi_pattern)      ? "BSI pattern" 
+            : "unknown pattern");
 
     if (Xopt) {                                     /* scrub free */
         scrub_free(filename, pat, npat, bopt);

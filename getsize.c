@@ -156,6 +156,7 @@ getsize(char *path)
 }
 #elif defined(_AIX)
 /* contributed by Dave Fox */
+/* tested AIX 5.1 and 5.3 */
 #include <sys/ioctl.h>
 #include <sys/devinfo.h>
 
@@ -176,12 +177,12 @@ getsize(char *path)
         exit(1);
     }
 
-    switch(devinfo.devtype) {
+    switch (devinfo.devtype) {
         case DD_DISK:   /* disk */
-            size = devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
+            size = (off_t)devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
             break;
         case DD_SCDISK: /* scsi disk */
-            size = devinfo.un.scdk.blksize * devinfo.un.scdk.numblks;
+            size = (off_t)devinfo.un.scdk.blksize * devinfo.un.scdk.numblks;
             break;
         default:        /* unknown */
             size = 0;
@@ -201,28 +202,112 @@ getsize(char *path)
 }
 #endif
 
+void
+size2str(char *str, int len, off_t size)
+{
+    off_t eb = size >> 60;
+    off_t pb = size >> 50;
+    off_t tb = size >> 40;
+    off_t gb = size >> 30;
+    off_t mb = size >> 20;
+    off_t kb = size >> 10;
+
+    if (eb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldEB)", size, eb);
+    else if (pb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldPB)", size, pb);
+    else if (tb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldTB)", size, tb);
+    else if (gb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldGB)", size, gb);
+    else if (mb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldMB)", size, mb);
+    else if (kb >= 1)
+        snprintf(str, len, "%lld bytes (~%lldKB)", size, kb);
+    else
+        snprintf(str, len, "%lld bytes", size);
+}
+
+off_t
+str2size(char *str)
+{
+    char *endptr;
+    unsigned long long size;
+    int shift = 0;
+
+    size = strtoull(str, &endptr, 10);
+    if (size > (~0LL) || size == 0)
+        goto err;
+    if (endptr) {
+        switch (*endptr) {
+            case 'K':
+            case 'k':
+                shift = 10;
+                break;
+            case 'M':
+            case 'm':
+                shift = 20;
+                break;
+            case 'G':
+            case 'g':
+                shift = 30;
+                break;
+            case 'T':
+            case 't':
+                shift = 40;
+                break;
+            case 'P':
+            case 'p':
+                shift = 50;
+                break;
+            case 'E':
+            case 'e':
+                shift = 60;
+                break;
+            case '\0':
+                break;
+            default:
+                goto err;
+        }
+        if (shift > 0) {
+            if (shift > sizeof(size)*8)
+                goto err;
+            if ((size >> (sizeof(size)*8 - shift - 1)) > 0)
+                goto err;
+            size <<= shift;
+        }
+    }
+    return (off_t)size;
+err:
+    fprintf(stderr, "error parsing size string\n");
+    return 0;
+}
+
 #ifdef STAND
 int
 main(int argc, char *argv[])
 {
     off_t sz;
     struct stat sb;
+    char buf[80];
 
     if (argc != 2) {
-        fprintf(stderr, "Usage: getsize file\n");
+        fprintf(stderr, "Usage: getsize [file|string]\n");
         exit(1);
     }
     if (stat(argv[1], &sb) < 0) {
-        perror(argv[1]);
-        exit(1);
+        sz = str2size(argv[1]);
+    } else {
+        if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
+            fprintf(stderr, "file must be block or char special\n");
+            exit(1);
+        }
+        sz = getsize(argv[1]);
     }
-    if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
-        fprintf(stderr, "file must be block or char special\n");
-        exit(1);
+    if (sz != 0) {
+        size2str(buf, sizeof(buf), sz); 
+        printf("%s\n", buf);
     }
-    sz = getsize(argv[1]);
-    printf("size is %lld bytes (%.2lfMB)\n", sz, (double)sz/(1024L*1024));
-
     exit(0);
 }
 #endif
