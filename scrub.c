@@ -57,23 +57,24 @@
 #include "getsize.h"
 #include "progress.h"
 #include "util.h"
+#include "sig.h"
 
-#define RANDOM	'r' /* 0x72 */
-#define VERIFY  'v' /* 0x76 */
+#define RANDOM	0x0100
+#define VERIFY  0x0200
 
-static const uint8_t dirent_pattern[] = { 0x55, 0x22, 0x55, 0x22, 0x55, 0x22 };
+static const int dirent_pattern[] = { 0x55, 0x22, 0x55, 0x22, 0x55, 0x22 };
 
-static const uint8_t old_pattern[] = { 0, 0xff, 0xaa, RANDOM, 0x55, VERIFY };
-static const uint8_t fastold_pattern[] = { 0, 0xff, 0xaa, 0x55, VERIFY };
-static const uint8_t nnsa_pattern[] = { RANDOM, RANDOM, 0, VERIFY };
-static const uint8_t dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
-static const uint8_t bsi_pattern[] = { 0xff, 0xfe, 0xfd, 0xfb, 0xf7, 
-                                             0xef, 0xdf, 0xbf, 0x7f };
+static const int old_pattern[] = { 0, 0xff, 0xaa, RANDOM, 0x55, VERIFY };
+static const int fastold_pattern[] = { 0, 0xff, 0xaa, 0x55, VERIFY };
+static const int nnsa_pattern[] = { RANDOM, RANDOM, 0, VERIFY };
+static const int dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
+static const int bsi_pattern[] = { 0xff, 0xfe, 0xfd, 0xfb, 0xf7,
+                                   0xef, 0xdf, 0xbf, 0x7f };
 
 typedef enum { false, true } bool;
 typedef enum { NOEXIST, REGULAR, SPECIAL, OTHER } filetype_t;
 
-static char *pat2str(uint8_t pat);
+static char *pat2str(int pat);
 static void usage(void);
 static off_t blkalign(off_t offset, int blocksize);
 static filetype_t filetype(char *path);
@@ -85,17 +86,18 @@ static char *prog;
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [-p dod|nnsa|old|fastold|bsi] [-b blocksize] [-X] [-D newname] file\n", prog);
+    fprintf(stderr, "Usage: %s [-f] [-p dod|nnsa|bsi] [-b blocksize] [-X] [-D newname] file\n", prog);
     fprintf(stderr, "\t-p select scrub patterns (see scrub(1))\n");
     fprintf(stderr, "\t-b overrides default I/O buffer size of %d bytes\n", BUFSIZE);
     fprintf(stderr, "\t-X create file and keep writing until write fails, then scrub\n");
     fprintf(stderr, "\t-D after scrubbing the file, scrub the directory entry and rename\n");
+    fprintf(stderr, "\t-f scrub even if file has signature from previous scrub\n");
 
     exit(1);
 }
 
 static char *
-pat2str(uint8_t pat)
+pat2str(int pat)
 {
     static char str[255];
 
@@ -150,7 +152,7 @@ filetype(char *path)
  * Use 'bufsize' length for I/O buffers.
  */
 static void
-scrub(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
+scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
 {
     uint8_t *buf;
     int i;
@@ -181,12 +183,14 @@ scrub(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
             checkfile(path, size, buf, bufsize, 
                     (progress_t)progress_update, p);
         } else {
+            assert(pat[i] <= 0xff);
             memset(buf, pat[i], bufsize);
             fillfile(path, size, buf, bufsize, 
                     (progress_t)progress_update, p, NULL);
         }
         progress_destroy(p);
     }
+    writesig(path);
 
     free(buf);
 }
@@ -194,7 +198,7 @@ scrub(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
 /* Scrub free space (-X).
  */
 static void
-scrub_free(char *path, const uint8_t pat[], int npat, int bufsize)
+scrub_free(char *path, const int pat[], int npat, int bufsize)
 {
     uint8_t *buf;
     off_t size; 
@@ -231,7 +235,7 @@ scrub_free(char *path, const uint8_t pat[], int npat, int bufsize)
 static void
 scrub_dirent(char *path, char *newpath)
 {
-    const uint8_t *pat = dirent_pattern;
+    const int *pat = dirent_pattern;
     int npat = sizeof(dirent_pattern)/sizeof(dirent_pattern[0]);
     prog_t p;
     int i;
@@ -259,7 +263,7 @@ scrub_dirent(char *path, char *newpath)
 /* Scrub a regular file.
  */
 static void 
-scrub_file(char *path, const uint8_t pat[], int npat, int bufsize)
+scrub_file(char *path, const int pat[], int npat, int bufsize)
 {
     off_t size; 
     struct stat sb;
@@ -276,14 +280,13 @@ scrub_file(char *path, const uint8_t pat[], int npat, int bufsize)
                 prog, path, (int)(size - sb.st_size)); 
     }
     scrub(path, size, pat, npat, bufsize);
-
 }
 
 /* Scrub apple resource fork component of file.
  */
 #if __APPLE__
 static void
-scrub_resfork(char *path, const uint8_t pat[], int npat, int bufsize)
+scrub_resfork(char *path, const int pat[], int npat, int bufsize)
 {
     struct stat rsb;
     char rpath[MAXPATHLEN];
@@ -310,7 +313,7 @@ scrub_resfork(char *path, const uint8_t pat[], int npat, int bufsize)
 /* Scrub a special file corresponding to a disk.
  */
 static void
-scrub_disk(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
+scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize)
 {
     assert(filetype(path) == SPECIAL);
     if (size == 0) {
@@ -327,13 +330,14 @@ scrub_disk(char *path, off_t size, const uint8_t pat[], int npat, int bufsize)
 int 
 main(int argc, char *argv[])
 {
-    const uint8_t *pat = nnsa_pattern;
+    const int *pat = nnsa_pattern;
     int npat = sizeof(nnsa_pattern)/sizeof(nnsa_pattern[0]);
     bool Xopt = false;
     int bopt = BUFSIZE;
     off_t sopt = 0;
     char *Dopt = NULL;
     char *filename = NULL;
+    int fopt = 0;
 
     extern int optind;
     extern char *optarg;
@@ -342,7 +346,7 @@ main(int argc, char *argv[])
     /* Handle arguments.
      */
     prog = basename(argv[0]);
-    while ((c = getopt(argc, argv, "p:D:Xb:s:")) != EOF) {
+    while ((c = getopt(argc, argv, "p:D:Xb:s:f")) != EOF) {
         switch (c) {
         case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
             if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
@@ -376,6 +380,9 @@ main(int argc, char *argv[])
             sopt = str2size(optarg);
             if (sopt == 0)
                 exit(1);
+            break;
+        case 'f':   /* force scrub even if already done */
+            fopt = 1;
             break;
         default:
             usage();
@@ -417,6 +424,10 @@ main(int argc, char *argv[])
                     fprintf(stderr, "cannot use -D with special file\n");
                     exit(1);
                 }
+                if (checksig(filename) && !fopt) {
+                    fprintf(stderr, "device has already been scrubbed? (use -f to force)\n");
+                    exit(1);
+                }
                 break;
             case REGULAR:
                 if (sopt > 0) {
@@ -428,8 +439,16 @@ main(int argc, char *argv[])
                             Dopt, filename);
                     exit(1);
                 }
+                if (checksig(filename) && !fopt) {
+                    fprintf(stderr, "file has already been scrubbed? (use -f to force)\n");
+                    exit(1);
+                }
                 break;
         }
+    }
+
+    if (sizeof(off_t) < 8) {
+        fprintf(stderr, "warning: not using 64 bit file offsets\n");
     }
 
     /* Scrub.

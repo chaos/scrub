@@ -3,20 +3,21 @@
 # See ./DISCLAIMER
 #
 PROJECT=	scrub
+TESTPROGS=	pad genrand progress getsize aestest sig
 OBJS= 		scrub.o aes.o genrand.o getsize.o fillfile.o filldentry.o \
-		progress.o util.o
+		progress.o util.o sig.o
 CC=		gcc
 CFLAGS=		-O -Wall -g
 
 
-all: scrub
-test: pad genrand progress getsize aestest
+all: $(PROJECT)
+test: $(TESTPROGS)
 
 scrub: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDADD)
 
 clean:
-	rm -f scrub a.out core genrand pad progress getsize aestest 
+	rm -f $(PROJECT) $(TESTPROGS)
 	rm -f $(OBJS)
 	rm -f scrub.1.lpr scrub.1.cat
 
@@ -33,10 +34,12 @@ progress: progress.c
 	$(CC) -o $@ progress.c -DSTAND
 getsize: getsize.c
 	$(CC) -o $@ getsize.c -DSTAND
+sig: sig.c util.o
+	$(CC) -o $@ sig.c util.o -DSTAND
 aestest: aes.c
 	$(CC) -o $@ aes.c -DTEST
 pad: pad.c getsize.o
-	$(CC) -o $@ pad.c getsize.o -DTEST
+	$(CC) -o $@ pad.c getsize.o
 
 # formatted man page
 scrub.1.cat: scrub.1

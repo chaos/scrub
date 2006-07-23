@@ -5,7 +5,7 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
-.I "[-p nnsa|dod|bsi] [-X] [-D newname] [-b blocksize] [-s size] file"
+.I "[-f] [-p nnsa|dod|bsi] [-X] [-D newname] [-s size] file"
 .br
 .SH DESCRIPTION
 .B Scrub
@@ -56,6 +56,9 @@ See STANDARDS below for more detail.  Default: nnsa.
 .I "-b blocksize"
 Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
 Default: 8192.
+.TP
+.I "-f"
+Scrub even if target looks like it has been previously scrubbed.
 .TP
 .I "-X"
 Create specified regular file and keep appending to it until 

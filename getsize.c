@@ -211,21 +211,28 @@ size2str(char *str, int len, off_t size)
     off_t gb = size >> 30;
     off_t mb = size >> 20;
     off_t kb = size >> 10;
+    off_t num = 0;
+    char *unit = NULL;
 
-    if (eb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldEB)", size, eb);
-    else if (pb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldPB)", size, pb);
-    else if (tb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldTB)", size, tb);
-    else if (gb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldGB)", size, gb);
-    else if (mb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldMB)", size, mb);
-    else if (kb >= 1)
-        snprintf(str, len, "%lld bytes (~%lldKB)", size, kb);
+    if (eb >= 1) {
+        num = eb; unit = "EB";
+    } else if (pb >= 1) {
+        num = pb; unit = "PB";
+    } else if (tb >= 1) {
+        num = tb; unit = "TB";
+    } else if (gb >= 1) {
+        num = gb; unit = "GB";
+    } else if (mb >= 1) {
+        num = mb; unit = "MB";
+    } else if (kb >= 1) {
+        num = kb; unit = "KB";
+    } 
+   
+    if (unit)
+        snprintf(str, len, "%lld bytes (~%lld%s)", (long long int)size, 
+                 (long long int)num, unit);
     else
-        snprintf(str, len, "%lld bytes", size);
+        snprintf(str, len, "%lld bytes", (long long int)size);
 }
 
 off_t

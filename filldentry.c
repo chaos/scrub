@@ -72,7 +72,7 @@ dirsync(char *dir)
  * a string of 'pat' characters.  Caller must free result.
  */
 static char *
-newname(char *old, uint8_t pat)
+newname(char *old, int pat)
 {
     char *new; 
     char *base;
@@ -80,6 +80,7 @@ newname(char *old, uint8_t pat)
     assert(old != NULL);
     assert(strlen(old) > 0);
     assert(pat != 0);
+    assert(pat <= 0xff);
 
     new = strdup(old);
     if (new) {
@@ -97,7 +98,7 @@ newname(char *old, uint8_t pat)
  * Modifies 'path' so it is valid on successive calls.
  */
 void 
-filldentry(char *path, uint8_t pat)
+filldentry(char *path, int pat)
 {
     char *new = newname(path, pat);
     char *cpy = strdup(path);

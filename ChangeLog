@@ -1,10 +1,23 @@
 2006-07-23 Jim Garlick <garlick@llnl.gov>
 
+	* scrub.c: Emit a warning if off_t is not 64 bits.
+
+	* scrub.c, filldentry.[ch]: Use int instead of uint8_t for pattern
+	  array elements, and encode VERIFY and RANDOM in high bits to 
+	  allow for all possible byte values in a pattern, 
+
+	* sig.[ch]: New.
+
+	* scrub.c: Refuse to scrub a previously scrubbed file, unless 
+	  the -f option is specified.
+
+	* getsize.c: Clean up size2str(), silence compiler warnings.
+
 	* : tag scrub-1.8
 
 2006-07-17 Jim Garlick <garlick@llnl.gov>
 
-	* fillfile.c: only fsync() regular files.
+	* fillfile.c: Only fsync() regular files.
 
 	* scrub.c: Change scrub_disk() size argument from size_t to off_t,
 	  yet another 32 bit truncation bug on some systems.
@@ -15,22 +28,20 @@
 
 	* scrub.c, getsize.c: Fix truncation bug in -s option handling.
 	  Move parsing out of main() to str2size() function.
-	  Add support for parsing KkMmGg suffix is size specification.
+	  Add support for parsing KkMmGg suffix in size specification.
 	  Added size2str() function.
 
-	* Makefile: add targets for scrub.1.lpr and scrub.1.cat.
+	* Makefile: Add targets for scrub.1.lpr and scrub.1.cat.
 
-	* scrub.c: add support for BSI patterns [Florian Heigl].
+	* scrub.c: Add support for BSI patterns [Florian Heigl].
 
-	* pad.c: use str2size() to parse size argument instead of assuming MB.
+	* pad.c: Use str2size() to parse size argument instead of assuming MB.
 
 2006-05-17 Jim Garlick <garlick@llnl.gov>
 
-	* getsize.c: add code for AIX [Dave Fox]
+	* getsize.c: Add code for AIX [Dave Fox]
 
-	* fillfile.c: on AIX, don't call fsync() on special file.
-
-	* scrub.c: added -p fastold option which is like old without 
+	* scrub.c: Added -p fastold option which is like old without 
 	  the random pass.
 
 2006-02-15 Jim Garlick <garlick@llnl.gov>

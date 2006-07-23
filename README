@@ -14,6 +14,9 @@ scrub-1.8 Release Notes                                          2006-07-23
 * Added support for patterns recommended by the German Center of Security 
   in Information Technologies (http://www.bsi.bund.de) [Florian Heigl].
 
+* Write a small cookie to files after scrubbing and refuse to scrub them
+  again without -f (force) option.
+
 ===========================================================================
 scrub-1.7 Release Notes                                          2006-02-14
 ===========================================================================
