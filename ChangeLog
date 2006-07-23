@@ -13,6 +13,8 @@
 
 	* getsize.c: Clean up size2str(), silence compiler warnings.
 
+	* scrub.c: Abort before progress bar display if no permission.
+
 	* : tag scrub-1.8
 
 2006-07-17 Jim Garlick <garlick@llnl.gov>

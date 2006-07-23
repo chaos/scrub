@@ -424,10 +424,6 @@ main(int argc, char *argv[])
                     fprintf(stderr, "cannot use -D with special file\n");
                     exit(1);
                 }
-                if (checksig(filename) && !fopt) {
-                    fprintf(stderr, "device has already been scrubbed? (use -f to force)\n");
-                    exit(1);
-                }
                 break;
             case REGULAR:
                 if (sopt > 0) {
@@ -439,13 +435,19 @@ main(int argc, char *argv[])
                             Dopt, filename);
                     exit(1);
                 }
-                if (checksig(filename) && !fopt) {
-                    fprintf(stderr, "file has already been scrubbed? (use -f to force)\n");
-                    exit(1);
-                }
                 break;
         }
+        if (access(filename, R_OK|W_OK) < 0) {
+            fprintf(stderr, "no permission to scrub %s\n", filename);
+            exit(1);
+        }
+        if (checksig(filename) && !fopt) {
+            fprintf(stderr, "%s has already been scrubbed? (use -f to force)\n",
+                        filename);
+            exit(1);
+        }
     }
+
 
     if (sizeof(off_t) < 8) {
         fprintf(stderr, "warning: not using 64 bit file offsets\n");
