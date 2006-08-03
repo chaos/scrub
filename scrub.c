@@ -190,7 +190,7 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
         }
         progress_destroy(p);
     }
-    writesig(path);
+    writesig(path, bufsize);
 
     free(buf);
 }
@@ -441,7 +441,7 @@ main(int argc, char *argv[])
             fprintf(stderr, "no permission to scrub %s\n", filename);
             exit(1);
         }
-        if (checksig(filename) && !fopt) {
+        if (checksig(filename, bopt) && !fopt) {
             fprintf(stderr, "%s has already been scrubbed? (use -f to force)\n",
                         filename);
             exit(1);

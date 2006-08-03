@@ -1,3 +1,7 @@
+2006-07-28 Jim Garlick <garlick@llnl.gov>
+
+	* sig.[ch]: read/write even blocksize multiples for AIX.
+
 2006-07-23 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c: Emit a warning if off_t is not 64 bits.
