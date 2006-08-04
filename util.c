@@ -36,16 +36,13 @@
 
 #include <unistd.h>
 #include <libgen.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 
 /* Handles short reads but otherwise just like read(2).
  */
-ssize_t 
-read_all(int fd, uint8_t *buf, size_t count)
+int
+read_all(int fd, unsigned char *buf, int count)
 {
-    ssize_t n;
+    int n;
 
     do {
         n = read(fd, buf, count);
@@ -60,10 +57,10 @@ read_all(int fd, uint8_t *buf, size_t count)
 
 /* Handles short writes but otherwise just like write(2).
  */
-ssize_t 
-write_all(int fd, const uint8_t *buf, size_t count)
+int
+write_all(int fd, const unsigned char *buf, int count)
 {
-    ssize_t n;
+    int n;
 
     do {
         n = write(fd, buf, count);

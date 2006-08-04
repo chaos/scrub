@@ -25,11 +25,11 @@
 \*****************************************************************************/
 
 typedef void (*progress_t) (void *arg, double completed);
-typedef void (*refill_t) (uint8_t *mem, size_t memsize);
+typedef void (*refill_t) (unsigned char *mem, int memsize);
 
-off_t fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
+off_t fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         progress_t progress, void *arg, refill_t refill);
-off_t checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
+off_t checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         progress_t progress, void *arg);
-off_t growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill);
+off_t growfile(char *path, unsigned char *mem, int memsize, refill_t refill);
 

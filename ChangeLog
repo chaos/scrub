@@ -1,3 +1,19 @@
+2006-08-04 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.spec: Minor change to support building RPM's on AIX.
+
+	* : make error reporting more verbose all around.
+
+2006-08-03 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c: Allow -b argument to have any base (strtoul rules).
+
+	* Makefile: Add CC, CFLAGS, LDADD for AIX compilers.
+
+	* sig.c: Fix typo.
+
+	* pad.c, sig.c: Add large file includes.
+
 2006-07-28 Jim Garlick <garlick@llnl.gov>
 
 	* sig.[ch]: read/write even blocksize multiples for AIX.
@@ -6,7 +22,7 @@
 
 	* scrub.c: Emit a warning if off_t is not 64 bits.
 
-	* scrub.c, filldentry.[ch]: Use int instead of uint8_t for pattern
+	* scrub.c, filldentry.[ch]: Use int instead of char for pattern
 	  array elements, and encode VERIFY and RANDOM in high bits to 
 	  allow for all possible byte values in a pattern, 
 

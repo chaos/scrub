@@ -1,11 +1,11 @@
 Name: scrub
-Version: 1.7
+Version: 1.8
 Release: 1
 Summary: Disk scrubbing program
 License: GPL
 Group: System Environment/Base
 Url: http://sourceforge.net/projects/diskscrub/
-Source0: scrub-1.7.tar.bz2
+Source0: scrub-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 %description
@@ -18,16 +18,16 @@ entry) is destroyed; or 3) a regular file is created, expanded until
 the file system is full, then scrubbed as in 2). 
 
 %prep
-%setup -n scrub-1.7
+%setup
 
 %build
 make
 
 %install
-mkdir -p $RPM_BUILD_ROOT{%{_bindir},%{_mandir}/man1}
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
 install -s -m 755 scrub $RPM_BUILD_ROOT/%{_bindir}
-gzip scrub.1
-install -m 644 scrub.1.gz $RPM_BUILD_ROOT/%{_mandir}/man1
+install -m 644 scrub.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %clean
 rm -rf $RPM_BUILD_ROOT

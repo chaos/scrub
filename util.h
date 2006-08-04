@@ -24,5 +24,5 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-ssize_t read_all(int fd, uint8_t *buf, size_t count);
-ssize_t write_all(int fd, const uint8_t *buf, size_t count);
+int read_all(int fd, unsigned char *buf, int count);
+int write_all(int fd, const unsigned char *buf, int count);

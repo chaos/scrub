@@ -42,12 +42,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 
 #include "fillfile.h"
 #include "util.h"
+
+extern char *prog;
 
 static void 
 _fsync_if_file(int fd)
@@ -55,11 +54,13 @@ _fsync_if_file(int fd)
     struct stat sb;
 
     if (fstat(fd, &sb) < 0) {
+        fprintf(stderr, "%s: ", prog);
         perror("fstat");
         exit(1);
     }
     if (S_ISREG(sb.st_mode)) {
         if (fsync(fd) < 0) {
+            fprintf(stderr, "%s: ", prog);
             perror("fsync");
             exit(1);
         }
@@ -73,7 +74,7 @@ _fsync_if_file(int fd)
  * The number of bytes written is returned.
  */
 off_t
-fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
+fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         progress_t progress, void *arg, refill_t refill)
 {
     int fd;
@@ -82,6 +83,7 @@ fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
 
     fd = open(path, O_WRONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
@@ -93,7 +95,8 @@ fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
             memsize = filesize - res;
         n = write_all(fd, mem, memsize);
         if (n < 0) {
-            perror("write");
+            fprintf(stderr, "%s: write ", prog);
+            perror(path);
             exit(1);
         }
         res += n;
@@ -104,7 +107,8 @@ fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
     _fsync_if_file(fd);
 
     if (close(fd) < 0) {
-        perror("close");
+        fprintf(stderr, "%s: close ", prog);
+        perror(path);
         exit(1);
     }
 
@@ -114,15 +118,15 @@ fillfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
 /* Verify that file was filled with 'mem' patterns.
  */
 off_t
-checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
+checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         progress_t progress, void *arg)
 {
     int fd;
     off_t n;
     off_t res = 0LL;
-    uint8_t *buf;
+    unsigned char *buf;
 
-    buf = (uint8_t *)malloc(memsize);
+    buf = malloc(memsize);
     if (!buf) {
         fprintf(stderr, "out of memory\n");
         exit(1);
@@ -130,6 +134,7 @@ checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
@@ -139,15 +144,16 @@ checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
             memsize = filesize - res;
         n = read_all(fd, buf, memsize);
         if (n < 0) {
-            perror("read");
+            fprintf(stderr, "%s: read ", prog);
+            perror(path);
             exit(1);
         }
         if (n == 0) {
-            fprintf(stderr, "premature EOF\n");
+            fprintf(stderr, "%s: premature EOF on %s\n", prog, path);
             exit(1);
         }
         if (memcmp(mem, buf, memsize) != 0) {
-            fprintf(stderr, "verification failure\n");
+            fprintf(stderr, "%s: verification failure on %s\n", prog, path);
             exit(1);
         }
         res += n;
@@ -156,7 +162,8 @@ checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
     } while (res < filesize);
 
     if (close(fd) < 0) {
-        perror("close");
+        fprintf(stderr, "%s: close ", prog);
+        perror(path);
         exit(1);
     }
 
@@ -170,7 +177,7 @@ checkfile(char *path, off_t filesize, uint8_t *mem, size_t memsize,
  * The number of bytes written is returned.
  */
 off_t
-growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
+growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
 {
     int fd;
     off_t n;
@@ -178,6 +185,7 @@ growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
 
     fd = open(path, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
@@ -191,11 +199,13 @@ growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
             continue;
         }
         if (n < 0 && errno != ENOSPC) {
+            fprintf(stderr, "%s: write ", prog);
             perror(path);
             exit(1);
         }
         if (n == 0) {
-            fprintf(stderr, "write returned 0, aborting\n");
+            fprintf(stderr, "%s: write to %s returned 0, aborting\n", 
+                    prog, path);
             exit(1);
         }
         if (n > 0)
@@ -205,7 +215,8 @@ growfile(char *path, uint8_t *mem, size_t memsize, refill_t refill)
     _fsync_if_file(fd);
 
     if (close(fd) < 0) {
-        perror("close");
+        fprintf(stderr, "%s: close ", prog);
+        perror(path);
         exit(1);
     }
 

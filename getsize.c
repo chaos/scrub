@@ -41,13 +41,18 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
+#include <libgen.h>
+
+#ifdef STAND
+char *prog;
+#else
+extern char *prog;
 #endif
 
-#if defined(linux)
-/* tested linux 2.6.11-1.1369_FC4 */
 
+#if defined(linux)
+/* scrub-1.7 tested linux 2.6.11-1.1369_FC4 */
+/* scrub-1.8 tested Fedora Core 5 */
 #include <sys/ioctl.h>
 #include <linux/fs.h>
 
@@ -59,10 +64,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, BLKGETSIZE, &numblocks) < 0) {
+        fprintf(stderr, "%s: ioctl BLKGETSIZE ", prog);
         perror(path);
         exit(1);
     }
@@ -72,8 +79,7 @@ getsize(char *path)
 }
 
 #elif defined(__FreeBSD__)
-/* tested freebsd 5.3-RELEASE-p5 */
-
+/* scrub-1.7 tested freebsd 5.3-RELEASE-p5 */
 #include <sys/ioctl.h>
 #include <sys/disk.h>
 
@@ -85,10 +91,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, DIOCGMEDIASIZE, &numbytes) < 0) {
+        fprintf(stderr, "%s: ioctl DIOCGMEDIASIZE ", prog);
         perror(path);
         exit(1);
     }
@@ -98,8 +106,7 @@ getsize(char *path)
 }
 
 #elif defined(sun)
-/* tested solaris 5.9 */
-
+/* scrub-1.7 tested solaris 5.9 */
 #include <sys/ioctl.h>
 #include <sys/dkio.h>
 #include <sys/vtoc.h>
@@ -112,10 +119,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, DKIOCGMEDIAINFO, &dkmp) < 0) {
+        fprintf(stderr, "%s: ioctl DKIOCGMEDIAINFO ", prog);
         perror(path);
         exit(1);
     }
@@ -125,8 +134,8 @@ getsize(char *path)
 }
 
 #elif defined(__APPLE__)
-/* tested OS X 7.9.0 */
-
+/* scrub-1.7 tested OS X 7.9.0 */
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include <sys/disk.h>
 
@@ -139,14 +148,17 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, DKIOCGETBLOCKSIZE, &blocksize) < 0) {
+        fprintf(stderr, "%s: ioctl DKIOCGETBLOCKSIZE ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, DKIOCGETBLOCKCOUNT, &blockcount) < 0) {
+        fprintf(stderr, "%s: ioctl DKIOGETBLOCKCOUNT ", prog);
         perror(path);
         exit(1);
     }
@@ -155,8 +167,8 @@ getsize(char *path)
     return (off_t)blockcount * blocksize;
 }
 #elif defined(_AIX)
-/* contributed by Dave Fox */
-/* tested AIX 5.1 and 5.3 */
+/* scrub-1.7 tested AIX 5.1 and 5.3 */
+/* scrub-1.8 tested AIX 5.2 */
 #include <sys/ioctl.h>
 #include <sys/devinfo.h>
 
@@ -169,14 +181,15 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
         exit(1);
     }
     if (ioctl(fd, IOCINFO, &devinfo) == -1) {
-        perror("ioctl IOCINFO");
+        fprintf(stderr, "%s: ioctl IOCINFO ", prog);
+        perror(path);
         exit(1);
     }
-
     switch (devinfo.devtype) {
         case DD_DISK:   /* disk */
             size = (off_t)devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
@@ -188,6 +201,8 @@ getsize(char *path)
             size = 0;
             break;
     }
+
+    (void)close(fd);
     return size;
 }
 
@@ -286,7 +301,7 @@ str2size(char *str)
     }
     return (off_t)size;
 err:
-    fprintf(stderr, "error parsing size string\n");
+    fprintf(stderr, "%s: error parsing size string\n", prog);
     return 0;
 }
 
@@ -298,15 +313,16 @@ main(int argc, char *argv[])
     struct stat sb;
     char buf[80];
 
+    prog = basename(argv[0]);
     if (argc != 2) {
-        fprintf(stderr, "Usage: getsize [file|string]\n");
+        fprintf(stderr, "Usage: %s [file|string]\n", prog);
         exit(1);
     }
     if (stat(argv[1], &sb) < 0) {
         sz = str2size(argv[1]);
     } else {
         if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
-            fprintf(stderr, "file must be block or char special\n");
+            fprintf(stderr, "%s: file must be block or char special\n", prog);
             exit(1);
         }
         sz = getsize(argv[1]);

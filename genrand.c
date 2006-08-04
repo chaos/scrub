@@ -27,15 +27,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/time.h>
 #include <assert.h>
+#include <libgen.h>
 
 #include "aes.h"
 #include "util.h"
@@ -46,8 +44,14 @@
 #define PAYLOAD_SZ  16
 #define KEY_SZ      16
 
+#ifdef STAND
+static char *prog;
+#else
+extern char *prog;
+#endif
+
 static aes_context  ctx;
-static uint8_t      ctr[PAYLOAD_SZ];
+static unsigned char ctr[PAYLOAD_SZ];
 
 /* Increment 128 bit counter.
  * NOTE: we are not concerned with endianness here since the counter is
@@ -55,10 +59,11 @@ static uint8_t      ctr[PAYLOAD_SZ];
  * operated upon numerically.
  */
 static void
-incr128(uint8_t *val)
+incr128(unsigned char *val)
 {
-    uint64_t *t = (uint64_t *)val;
+    unsigned long long *t = (unsigned long long *)val;
 
+    assert(sizeof(unsigned long long) == 8);
     assert(PAYLOAD_SZ == 16);
     if (++t[0] == 0)
         ++t[1];
@@ -67,18 +72,19 @@ incr128(uint8_t *val)
 /* Copy 'buflen' bytes of raw randomness into 'buf'.
  */
 static void 
-genrandraw(uint8_t *buf, int buflen)
+genrandraw(unsigned char *buf, int buflen)
 {
     int fd, n;
 
     if ((fd = open(PATH_URANDOM, O_RDONLY)) >= 0) {
         n = read_all(fd, buf, buflen);
         if (n < 0) {
+            fprintf(stderr, "%s: open ", prog);
             perror(PATH_URANDOM);
             exit(1);
         }
         if (n == 0) {
-            fprintf(stderr, "premature EOF on %s\n", PATH_URANDOM);
+            fprintf(stderr, "%s: premature EOF on %s\n", prog, PATH_URANDOM);
             exit(1);
         }
         (void)close(fd);
@@ -93,12 +99,12 @@ genrandraw(uint8_t *buf, int buflen)
 void 
 churnrand(void)
 {
-    uint8_t key[KEY_SZ];
+    unsigned char key[KEY_SZ];
 
     genrandraw(ctr, PAYLOAD_SZ);
     genrandraw(key, KEY_SZ);
     if (aes_set_key(&ctx, key, KEY_SZ*8) != 0) {
-        fprintf(stderr, "aes_set_key error\n");
+        fprintf(stderr, "%s: aes_set_key error\n", prog);
         exit(1);
     }
 }
@@ -112,7 +118,8 @@ initrand(void)
 
     if (access(PATH_URANDOM, R_OK) < 0) {
         if (gettimeofday(&tv, NULL) < 0) {
-            perror("gettimeofday");
+            fprintf(stderr, "%s: gettimeofday", prog);
+            perror("");
             exit(1);
         }
         srand(tv.tv_usec);
@@ -123,10 +130,10 @@ initrand(void)
 /* Fill buf with random data.
  */
 void 
-genrand(uint8_t *buf, int buflen)
+genrand(unsigned char *buf, int buflen)
 {
     int i;
-    uint8_t out[PAYLOAD_SZ];
+    unsigned char out[PAYLOAD_SZ];
     int cpylen = PAYLOAD_SZ;
 
     for (i = 0; i < buflen; i += cpylen) {
@@ -142,8 +149,10 @@ genrand(uint8_t *buf, int buflen)
 #ifdef STAND
 int main(int argc, char *argv[])
 {
-    uint8_t buf[24];
+    unsigned char buf[24];
     int i, j;
+
+    prog = basename(argv[0]);
 
     initrand();
     for (j = 0; j < 20; j++) {

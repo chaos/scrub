@@ -2,13 +2,15 @@
 # Copyright (C) 2000 Regents of the University of California
 # See ./DISCLAIMER
 #
+# To build scrub with AIX compilers, run:
+#   make CC=/usr/vac/bin/cc CFLAGS=-O LDADD=-L/usr/vac/lib
+#
 PROJECT=	scrub
 TESTPROGS=	pad genrand progress getsize aestest sig
 OBJS= 		scrub.o aes.o genrand.o getsize.o fillfile.o filldentry.o \
 		progress.o util.o sig.o
 CC=		gcc
 CFLAGS=		-O -Wall -g
-
 
 all: $(PROJECT)
 test: $(TESTPROGS)
@@ -29,17 +31,17 @@ scrub.c fillfile.c: fillfile.h
 
 # test programs 
 genrand: genrand.c aes.c util.c
-	$(CC) -o $@ genrand.c aes.c util.c -DSTAND
+	$(CC) $(CFLAGS) -o $@ genrand.c aes.c util.c -DSTAND $(LDADD)
 progress: progress.c
-	$(CC) -o $@ progress.c -DSTAND
+	$(CC) $(CFLAGS) -o $@ progress.c -DSTAND $(LDADD)
 getsize: getsize.c
-	$(CC) -o $@ getsize.c -DSTAND
+	$(CC) $(CFLAGS) -o $@ getsize.c -DSTAND $(LDADD)
 sig: sig.c util.o
-	$(CC) -o $@ sig.c util.o -DSTAND
+	$(CC) $(CFLAGS) -o $@ sig.c util.o -DSTAND $(LDADD)
 aestest: aes.c
-	$(CC) -o $@ aes.c -DTEST
+	$(CC) $(CFLAGS) -o $@ aes.c -DTEST $(LDADD)
 pad: pad.c getsize.o
-	$(CC) -o $@ pad.c getsize.o
+	$(CC) $(CFLAGS) -o $@ pad.c getsize.o $(LDADD)
 
 # formatted man page
 scrub.1.cat: scrub.1

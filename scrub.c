@@ -44,9 +44,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 #include <libgen.h>
 #include <assert.h>
 #include <sys/param.h> /* MAXPATHLEN */
@@ -81,7 +78,7 @@ static filetype_t filetype(char *path);
 
 #define BUFSIZE 8192      /* default blocksize */
 
-static char *prog;
+char *prog;
 
 static void 
 usage(void)
@@ -154,13 +151,13 @@ filetype(char *path)
 static void
 scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
 {
-    uint8_t *buf;
+    unsigned char *buf;
     int i;
     prog_t p;
     char sizestr[80];
 
-    if (!(buf = (uint8_t *)malloc(bufsize))) {
-        fprintf(stderr, "out of memory\n");
+    if (!(buf = malloc(bufsize))) {
+        fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
 
@@ -200,14 +197,14 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
 static void
 scrub_free(char *path, const int pat[], int npat, int bufsize)
 {
-    uint8_t *buf;
+    unsigned char *buf;
     off_t size; 
 
     assert(filetype(path) == NOEXIST || filetype(path) == REGULAR);
 
     /* special scrub for first pass */
-    if (!(buf = (uint8_t *)malloc(bufsize))) {
-        fprintf(stderr, "out of memory\n");
+    if (!(buf = malloc(bufsize))) {
+        fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
     assert(npat > 0);
@@ -271,6 +268,7 @@ scrub_file(char *path, const int pat[], int npat, int bufsize)
     assert(filetype(path) == REGULAR);
 
     if (stat(path, &sb) < 0) {
+        fprintf(stderr, "%s: stat ", prog);
         perror(path);
         exit(1);
     }
@@ -319,7 +317,7 @@ scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize)
     if (size == 0) {
         size = getsize(path);
         if (size == 0) {
-            fprintf(stderr, "could not determine size, use -s\n");
+            fprintf(stderr, "%s: could not determine size, use -s\n", prog);
             exit(1);
         }
         printf("%s: please verify that device size below is correct!\n", prog);
@@ -374,7 +372,12 @@ main(int argc, char *argv[])
             Dopt = optarg;
             break;
         case 'b':   /* override blocksize */
-            bopt = strtoul(optarg, NULL, 10);
+            bopt = strtoul(optarg, NULL, 0);
+            if (bopt > (~0) || bopt == 0) {
+                fprintf(stderr, "%s: error parsing blocksize\n", prog);
+                exit(1);
+            } 
+
             break;
         case 's':   /* override size of special file */
             sopt = str2size(optarg);
@@ -398,59 +401,59 @@ main(int argc, char *argv[])
         usage();
     if (Xopt) {
         if (filetype(filename) == SPECIAL) {
-            fprintf(stderr, "-X cannot be used on special files\n");
+            fprintf(stderr, "%s: -X cannot be used on special files\n", prog);
             exit(1);
         }
         if (sopt > 0) {
-            fprintf(stderr, "-s and -X cannot be used together\n");
+            fprintf(stderr, "%s: -s and -X cannot be used together\n", prog);
             exit(1);
         }
         if (Dopt) {
-            fprintf(stderr, "-D and -X cannot be used together\n");
+            fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
             exit(1);
         }
     } else {
         switch (filetype(filename)) {
             case NOEXIST:
-                fprintf(stderr, "file does not exist\n");
+                fprintf(stderr, "%s: %s does not exist\n", prog, filename);
                 exit(1);
                 break;
             case OTHER:
-                fprintf(stderr, "unsupported file type\n");
+                fprintf(stderr, "%s: %s is not a reg file or raw disk dev\n", prog, filename);
                 exit(1);
                 break;
             case SPECIAL:
                 if (Dopt) {
-                    fprintf(stderr, "cannot use -D with special file\n");
+                    fprintf(stderr, "%s: cannot use -D with special file\n", prog);
                     exit(1);
                 }
                 break;
             case REGULAR:
                 if (sopt > 0) {
-                    fprintf(stderr, "cannot use -s with regular file\n");
+                    fprintf(stderr, "%s: cannot use -s with regular file\n", prog);
                     exit(1);
                 }
                 if (Dopt && *Dopt != '/' && *filename == '/') {
-                    fprintf(stderr, "please make %s a full path like %s\n",
-                            Dopt, filename);
+                    fprintf(stderr, "%s: %s should be a full path like %s\n",
+                            prog, Dopt, filename);
                     exit(1);
                 }
                 break;
         }
         if (access(filename, R_OK|W_OK) < 0) {
-            fprintf(stderr, "no permission to scrub %s\n", filename);
+            fprintf(stderr, "%s: no permission to scrub %s\n", prog, filename);
             exit(1);
         }
         if (checksig(filename, bopt) && !fopt) {
-            fprintf(stderr, "%s has already been scrubbed? (use -f to force)\n",
-                        filename);
+            fprintf(stderr, "%s: %s has already been scrubbed? (use -f to force)\n",
+                        prog, filename);
             exit(1);
         }
     }
 
 
     if (sizeof(off_t) < 8) {
-        fprintf(stderr, "warning: not using 64 bit file offsets\n");
+        fprintf(stderr, "%s: warning: not using 64 bit file offsets\n", prog);
     }
 
     /* Scrub.

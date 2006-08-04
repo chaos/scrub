@@ -31,12 +31,20 @@
 #define _FILE_OFFSET_BITS 64
 #endif
 
+#if defined(_AIX)
+#define _LARGE_FILES
+#include <sys/mode.h>
+#endif
+
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <libgen.h>
 #include "getsize.h"
+
+char *prog;
 
 int main(int argc, char *argv[])
 {
@@ -45,8 +53,9 @@ int main(int argc, char *argv[])
     int fd;
     char c = 'x';
 
+    prog = basename(argv[0]);
     if (argc != 3) {
-        fprintf(stderr, "Usage: pad size filename\n");
+        fprintf(stderr, "Usage: %s size filename\n", prog);
         exit(1);
     }
     fileOffset = str2size(argv[1]);
@@ -56,19 +65,23 @@ int main(int argc, char *argv[])
 
     fd = open(filename, O_CREAT | O_RDWR, 0644);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(filename);
         exit(1);
     }
     if (lseek(fd, fileOffset - 1, SEEK_SET) < 0) {
-        perror("lseek");
+        fprintf(stderr, "%s: lseek %lld", prog, (long long)fileOffset - 1);
+        perror(filename);
         exit(1);
     }
     if (write(fd, &c, 1) < 0) {
-        perror("write");
+        fprintf(stderr, "%s: write ", prog);
+        perror(filename);
         exit(1);
     }
     if (close(fd) < 0) {
-        perror("close");
+        fprintf(stderr, "%s: close ", prog);
+        perror(filename);
         exit(1);
     }
 

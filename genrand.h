@@ -26,7 +26,7 @@
 
 void initrand(void);
 void churnrand(void);
-void genrand(uint8_t *buf, int buflen);
+void genrand(unsigned char *buf, int buflen);
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

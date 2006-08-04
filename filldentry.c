@@ -33,13 +33,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 #include <assert.h>
 
 #include "filldentry.h"
 #include "util.h"
+
+extern char *prog;
 
 
 /* fsync(2) directory.
@@ -54,15 +53,18 @@ dirsync(char *dir)
 
     fd = open(dir, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(dir);
         exit(1);
     }
     if (fsync(fd) < 0) {
-        perror("fsync");
+        fprintf(stderr, "%s: fsync ", prog);
+        perror(dir);
         exit(1);
     }
     if (close(fd) < 0) {
-        perror("close");
+        fprintf(stderr, "%s: close ", prog);
+        perror(dir);
         exit(1);
     }
 #endif
@@ -107,12 +109,13 @@ filldentry(char *path, int pat)
     assert(strlen(cpy) == strlen(new));
    
     if (!cpy || !new) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
 
     if (rename(path, new) == -1) {
-        perror("rename");
+        fprintf(stderr, "%s: rename %s to %s", prog, path, new); 
+        perror("");
         exit(1);
     }
 

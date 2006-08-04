@@ -23,36 +23,52 @@
  *  with Scrub; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
+
+#ifdef linux
+#define _LARGEFILE_SOURCE
+#define _FILE_OFFSET_BITS 64
+#endif
+
+#if defined(_AIX)
+#define _LARGE_FILES
+#include <sys/mode.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#if !defined(__FreeBSD__) && !defined(sun)
-#include <stdint.h>
-#endif
 #include <string.h>
+#include <libgen.h>
 
 #include "util.h"
 #include "sig.h"
 
+
 #define SCRUB_MAGIC "\001\002\003SCRUBBED!"
 
+#ifdef STAND
+static char *prog;
+#else
+extern char *prog;
+#endif
+
 void
-writesig(char *path, size_t blocksize)
+writesig(char *path, int blocksize)
 {
-    uint8_t *buf = malloc(blocksize);
+    unsigned char *buf = malloc(blocksize);
     int fd, n;
 
     if (!buf) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
     fd = open(path, O_RDWR);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
-        fprintf(stderr, "error opening file to write signature\n");
         exit(1);
     }
     memcpy(buf, SCRUB_MAGIC, sizeof(SCRUB_MAGIC));
@@ -61,36 +77,36 @@ writesig(char *path, size_t blocksize)
      */
     n = write_all(fd, buf, blocksize);
     if (n < 0) {
+        fprintf(stderr, "%s: write ", prog);
         perror(path);
-        fprintf(stderr, "error writing signature to file\n");
         exit(1);
     }
     /* Ignore short write.  
      * We'll fail to read the signature next time - not the end of the world.
      */
     if (close(fd) < 0) {
+        fprintf(stderr, "%s: close ", prog);
         perror(path);
-        fprintf(stderr, "error closing file after signature write\n");
         exit(1);
     }
     free(buf);
 }
 
 int
-checksig(char *path, size_t blocksize)
+checksig(char *path, int blocksize)
 {
-    uint8_t *buf = malloc(blocksize);
+    unsigned char *buf = malloc(blocksize);
     int fd, n;
     int result = 0;
 
     if (!buf) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
     fd = open(path, O_RDONLY);
     if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
         perror(path);
-        fprintf(stderr, "error opening file to read signature\n");
         exit(1);
     }
     /* AIX requires that we read even multiples of blocksize for raw
@@ -98,13 +114,13 @@ checksig(char *path, size_t blocksize)
      */
     n = read_all(fd, buf, blocksize);
     if (n < 0) {
+        fprintf(stderr, "%s: read ", prog);
         perror(path);
-        fprintf(stderr, "error reading signature from file\n");
         exit(1);
     }
     if (close(fd) < 0) {
+        fprintf(stderr, "%s: close ", prog);
         perror(path);
-        fprintf(stderr, "error closing file after signature read\n");
         exit(1);
     }
     /* Treat a short read like "no signature".  Not the end of the world.
@@ -120,15 +136,16 @@ checksig(char *path, size_t blocksize)
 #ifdef STAND
 int main(int argc, char *argv[])
 {
+    prog = basename(argv[0]);
     if (argc != 2) {
-        fprintf(stderr, "Usage: sig filename\n");
+        fprintf(stderr, "Usage: %s filename\n", prog);
         exit(1);
     }
-    if (!checksig(argv[1]),8192) {
-        fprintf(stderr, "no signature, writing one\n");
-        writesig(argv[1],8192);
+    if (!checksig(argv[1], 8192)) {
+        fprintf(stderr, "%s: no signature, writing one\n", prog);
+        writesig(argv[1], 8192);
     } else {
-        fprintf(stderr, "signature present\n");
+        fprintf(stderr, "%s: signature present\n", prog);
     }
     exit(0);
 }
