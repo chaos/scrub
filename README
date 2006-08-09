@@ -1,5 +1,5 @@
 ===========================================================================
-scrub-1.8 Release Notes                                          2006-07-23
+scrub-1.8 Release Notes                                          2006-08-04
 ===========================================================================
 
 * Fixed bug where disk device size would be truncated if greater than 4G 

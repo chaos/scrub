@@ -59,8 +59,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
     fileOffset = str2size(argv[1]);
-    if (fileOffset == 0)
+    if (fileOffset == 0) {
+        fprintf(stderr, "%s: error parsing size string\n", prog);
         exit(1);
+    }
     filename = argv[2];
 
     fd = open(filename, O_CREAT | O_RDWR, 0644);

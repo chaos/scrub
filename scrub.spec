@@ -10,12 +10,13 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 %description
 This utility writes patterns on files or disk devices to make
-retrieving the data more difficult.  It operates in one of three
-modes: 1) the special file corresponding to an entire disk is scrubbed 
-and all data on it is destroyed;  2) a regular file is scrubbed and 
-only the data in the file (and optionally its name in the directory 
-entry) is destroyed; or 3) a regular file is created, expanded until 
-the file system is full, then scrubbed as in 2). 
+retrieving the data more difficult.  It operates in one of three modes: 
+1) the special file corresponding to an entire disk is scrubbed 
+   and all data on it is destroyed.
+2) a regular file is scrubbed and only the data in the file 
+   (and optionally its name in the directory entry) is destroyed.
+3) a regular file is created, expanded until 
+   the file system is full, then scrubbed as in 2).
 
 %prep
 %setup

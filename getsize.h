@@ -26,4 +26,5 @@
 
 off_t getsize(char *path);
 off_t str2size(char *str);
+int str2int(char *str);
 void size2str(char *str, int len, off_t size);

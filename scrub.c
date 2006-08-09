@@ -372,17 +372,18 @@ main(int argc, char *argv[])
             Dopt = optarg;
             break;
         case 'b':   /* override blocksize */
-            bopt = strtoul(optarg, NULL, 0);
-            if (bopt > (~0) || bopt == 0) {
-                fprintf(stderr, "%s: error parsing blocksize\n", prog);
+            bopt = str2int(optarg);
+            if (bopt == 0) {
+                fprintf(stderr, "%s: error parsing blocksize string\n", prog);
                 exit(1);
-            } 
-
+            }
             break;
         case 's':   /* override size of special file */
             sopt = str2size(optarg);
-            if (sopt == 0)
+            if (sopt == 0) {
+                fprintf(stderr, "%s: error parsing size string\n", prog);
                 exit(1);
+            }
             break;
         case 'f':   /* force scrub even if already done */
             fopt = 1;
@@ -419,7 +420,14 @@ main(int argc, char *argv[])
                 exit(1);
                 break;
             case OTHER:
-                fprintf(stderr, "%s: %s is not a reg file or raw disk dev\n", prog, filename);
+                fprintf(stderr, "%s: %s is not a reg file or %sdisk device\n", 
+                    prog, filename,
+#if defined(linux)
+                    ""
+#else
+                    "raw "
+#endif
+                    );
                 exit(1);
                 break;
             case SPECIAL:

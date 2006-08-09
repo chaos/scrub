@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <values.h>
 
 #ifdef STAND
 char *prog;
@@ -301,8 +302,17 @@ str2size(char *str)
     }
     return (off_t)size;
 err:
-    fprintf(stderr, "%s: error parsing size string\n", prog);
     return 0;
+}
+
+int
+str2int(char *str)
+{
+    int val = (int)str2size(str);
+
+    if (val > MAXINT || val < 0)
+        val = 0;
+    return val;
 }
 
 #ifdef STAND
@@ -326,6 +336,10 @@ main(int argc, char *argv[])
             exit(1);
         }
         sz = getsize(argv[1]);
+	if (sz == 0) {
+            fprintf(stderr, "%s: error parsing size string\n", prog);
+            exit(1);
+	}
     }
     if (sz != 0) {
         size2str(buf, sizeof(buf), sz); 

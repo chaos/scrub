@@ -1,3 +1,9 @@
+2006-08-07 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c: added str2int().
+
+	* scrub.c: call str2int() to parse blocksize arg.
+
 2006-08-04 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.spec: Minor change to support building RPM's on AIX.
@@ -5,8 +11,6 @@
 	* : make error reporting more verbose all around.
 
 2006-08-03 Jim Garlick <garlick@llnl.gov>
-
-	* scrub.c: Allow -b argument to have any base (strtoul rules).
 
 	* Makefile: Add CC, CFLAGS, LDADD for AIX compilers.
 
