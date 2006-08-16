@@ -1,6 +1,6 @@
-===========================================================================
-scrub-1.8 Release Notes                                          2006-08-04
-===========================================================================
+========================================================================
+scrub-1.8 Release Notes                                       2006-08-04
+========================================================================
 
 * Fixed bug where disk device size would be truncated if greater than 4G 
   [Florian Heigl].
@@ -17,9 +17,9 @@ scrub-1.8 Release Notes                                          2006-08-04
 * Write a small cookie to files after scrubbing and refuse to scrub them
   again without -f (force) option.
 
-===========================================================================
-scrub-1.7 Release Notes                                          2006-02-14
-===========================================================================
+========================================================================
+scrub-1.7 Release Notes                                       2006-02-14
+========================================================================
 
 NOTE: This version is a significant rewrite since version 1.6.
 Major changes in addition to general cleanup and better documentation:
