@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README ChangeLog DISCLAIMER COPYING
+%doc ChangeLog NEWS DISCLAIMER COPYING
 %{_bindir}/scrub
 %{_mandir}/man*/*
 
