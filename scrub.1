@@ -58,7 +58,13 @@ Perform read(2) and write(2) calls using the specified blocksize (in bytes).
 Default: 8192.
 .TP
 .I "-f"
-Scrub even if target looks like it has been previously scrubbed.
+Scrub even if target contains signature indicating it has already been
+scrubbed.
+.TP
+.I "-S"
+Do not write scrub signature.  
+.B Scrub 
+will not be able to ascertain if the disk has already been scrubbed.
 .TP
 .I "-X"
 Create specified regular file and keep appending to it until 

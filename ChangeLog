@@ -1,8 +1,16 @@
+2006-08-16 Jim Garlick <garlick@llnl.gov>
+
+	* NEWS: Renamed README.
+
+	* scrub.c: Added -S option to skip writing scrub signature.
+
+	* : tag scrub-1.8
+
 2006-08-07 Jim Garlick <garlick@llnl.gov>
 
-	* getsize.c: added str2int().
+	* getsize.c: Added str2int().
 
-	* scrub.c: call str2int() to parse blocksize arg.
+	* scrub.c: Call str2int() to parse blocksize arg.
 
 2006-08-04 Jim Garlick <garlick@llnl.gov>
 
@@ -20,7 +28,7 @@
 
 2006-07-28 Jim Garlick <garlick@llnl.gov>
 
-	* sig.[ch]: read/write even blocksize multiples for AIX.
+	* sig.[ch]: Read/write even blocksize multiples for AIX.
 
 2006-07-23 Jim Garlick <garlick@llnl.gov>
 
@@ -38,8 +46,6 @@
 	* getsize.c: Clean up size2str(), silence compiler warnings.
 
 	* scrub.c: Abort before progress bar display if no permission.
-
-	* : tag scrub-1.8
 
 2006-07-17 Jim Garlick <garlick@llnl.gov>
 

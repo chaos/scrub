@@ -149,7 +149,7 @@ filetype(char *path)
  * Use 'bufsize' length for I/O buffers.
  */
 static void
-scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
+scrub(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
 {
     unsigned char *buf;
     int i;
@@ -187,7 +187,8 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
         }
         progress_destroy(p);
     }
-    writesig(path, bufsize);
+    if (!Sopt)
+        writesig(path, bufsize);
 
     free(buf);
 }
@@ -195,7 +196,7 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize)
 /* Scrub free space (-X).
  */
 static void
-scrub_free(char *path, const int pat[], int npat, int bufsize)
+scrub_free(char *path, const int pat[], int npat, int bufsize, int Sopt)
 {
     unsigned char *buf;
     off_t size; 
@@ -224,7 +225,7 @@ scrub_free(char *path, const int pat[], int npat, int bufsize)
 
     /* remaining passes as usual */
     if (npat > 1)
-        scrub(path, size, pat+1, npat-1, bufsize);
+        scrub(path, size, pat+1, npat-1, bufsize, Sopt);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
@@ -260,7 +261,7 @@ scrub_dirent(char *path, char *newpath)
 /* Scrub a regular file.
  */
 static void 
-scrub_file(char *path, const int pat[], int npat, int bufsize)
+scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt)
 {
     off_t size; 
     struct stat sb;
@@ -277,7 +278,7 @@ scrub_file(char *path, const int pat[], int npat, int bufsize)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                 prog, path, (int)(size - sb.st_size)); 
     }
-    scrub(path, size, pat, npat, bufsize);
+    scrub(path, size, pat, npat, bufsize, Sopt);
 }
 
 /* Scrub apple resource fork component of file.
@@ -304,14 +305,14 @@ scrub_resfork(char *path, const int pat[], int npat, int bufsize)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                         prog, rpath, (int)(rsize - rsb.st_size)); 
     }
-    scrub(rpath, rsize, pat, npat, bufsize);
+    scrub(rpath, rsize, pat, npat, bufsize, 0);
 }
 #endif
 
 /* Scrub a special file corresponding to a disk.
  */
 static void
-scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize)
+scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
 {
     assert(filetype(path) == SPECIAL);
     if (size == 0) {
@@ -322,7 +323,7 @@ scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize)
         }
         printf("%s: please verify that device size below is correct!\n", prog);
     }
-    scrub(path, size, pat, npat, bufsize);
+    scrub(path, size, pat, npat, bufsize, Sopt);
 }
 
 int 
@@ -336,6 +337,7 @@ main(int argc, char *argv[])
     char *Dopt = NULL;
     char *filename = NULL;
     int fopt = 0;
+    int Sopt = 0;
 
     extern int optind;
     extern char *optarg;
@@ -344,7 +346,7 @@ main(int argc, char *argv[])
     /* Handle arguments.
      */
     prog = basename(argv[0]);
-    while ((c = getopt(argc, argv, "p:D:Xb:s:f")) != EOF) {
+    while ((c = getopt(argc, argv, "p:D:Xb:s:fS")) != EOF) {
         switch (c) {
         case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
             if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
@@ -387,6 +389,9 @@ main(int argc, char *argv[])
             break;
         case 'f':   /* force scrub even if already done */
             fopt = 1;
+            break;
+        case 'S':   /* do not write scrub signature */
+            Sopt = 1;
             break;
         default:
             usage();
@@ -475,10 +480,10 @@ main(int argc, char *argv[])
             : "unknown pattern");
 
     if (Xopt) {                                     /* scrub free */
-        scrub_free(filename, pat, npat, bopt);
+        scrub_free(filename, pat, npat, bopt, Sopt);
 
     } else if (filetype(filename) == REGULAR) {     /* scrub file */
-        scrub_file(filename, pat, npat, bopt);
+        scrub_file(filename, pat, npat, bopt, Sopt);
 #if __APPLE__
         scrub_resfork(filename, pat, npat, bopt);
 #endif
@@ -486,7 +491,7 @@ main(int argc, char *argv[])
             scrub_dirent(filename, Dopt);
 
     } else if (filetype(filename) == SPECIAL) {     /* scrub disk */  
-        scrub_disk(filename, sopt, pat, npat, bopt);
+        scrub_disk(filename, sopt, pat, npat, bopt, Sopt);
     }
 
     exit(0);

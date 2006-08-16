@@ -1,5 +1,5 @@
 ========================================================================
-scrub-1.8 Release Notes                                       2006-08-04
+scrub-1.8 Release Notes                                       2006-08-16
 ========================================================================
 
 * Fixed bug where disk device size would be truncated if greater than 4G 
@@ -14,8 +14,9 @@ scrub-1.8 Release Notes                                       2006-08-04
 * Added support for patterns recommended by the German Center of Security 
   in Information Technologies (http://www.bsi.bund.de) [Florian Heigl].
 
-* Write a small cookie to files after scrubbing and refuse to scrub them
-  again without -f (force) option.
+* Write a signature to files/disks after scrubbing and refuse to scrub 
+  them again without -f (force) option.  Signature writing can be 
+  disabled with the -S option.
 
 ========================================================================
 scrub-1.7 Release Notes                                       2006-02-14
