@@ -328,17 +328,25 @@ main(int argc, char *argv[])
         exit(1);
     }
     if (stat(argv[1], &sb) < 0) {
+        if (*argv[1] == '/') {
+            fprintf(stderr, "%s: could not stat special file\n", prog);
+            exit(1);
+        }
         sz = str2size(argv[1]);
+	    if (sz == 0) {
+                fprintf(stderr, "%s: error parsing size string\n", prog);
+                exit(1);
+	    }
     } else {
         if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
             fprintf(stderr, "%s: file must be block or char special\n", prog);
             exit(1);
         }
         sz = getsize(argv[1]);
-	if (sz == 0) {
-            fprintf(stderr, "%s: error parsing size string\n", prog);
-            exit(1);
-	}
+	    if (sz == 0) {
+                fprintf(stderr, "%s: could not determine device size\n", prog);
+                exit(1);
+	    }
     }
     if (sz != 0) {
         size2str(buf, sizeof(buf), sz); 

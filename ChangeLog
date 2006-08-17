@@ -1,3 +1,7 @@
+2006-08-17 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c: Fixed logic error in main (only affects test prog).
+
 2006-08-16 Jim Garlick <garlick@llnl.gov>
 
 	* NEWS: Renamed README.
