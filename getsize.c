@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libgen.h>
-#include <values.h>
 
 #ifdef STAND
 char *prog;
@@ -308,11 +307,11 @@ err:
 int
 str2int(char *str)
 {
-    int val = (int)str2size(str);
+    off_t val = str2size(str);
 
-    if (val > MAXINT || val < 0)
+    if (val > 0x7fffffffL || val < 0)
         val = 0;
-    return val;
+    return (int)val;
 }
 
 #ifdef STAND
