@@ -1,3 +1,14 @@
+2006-11-22 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c : Change sprintf's to snprintf [Markus Schatzl].
+
+2006-10-18 Jim Garlick <garlick@llnl.gov>
+
+	* : add __hpux to large file ifdef
+
+	* getsize.c : use sscanf("%llu") instead of strtoull for hpux
+	portability.
+
 2006-08-17 Jim Garlick <garlick@llnl.gov>
 
 	* getsize.c: Fixed logic error in main (only affects test prog).

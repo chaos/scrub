@@ -24,7 +24,7 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-#if defined(linux) || defined(sun)
+#if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
 #define _LARGEFILE_SOURCE
 #define _FILE_OFFSET_BITS 64
 #endif
@@ -257,9 +257,11 @@ str2size(char *str)
     unsigned long long size;
     int shift = 0;
 
-    size = strtoull(str, &endptr, 10);
-    if (size > (~0LL) || size == 0)
+    if (sscanf(str, "%llu", &size) != 1) /* XXX hpux has no strtoull() */
         goto err;
+    for (endptr = str; *endptr; endptr++)
+        if (*endptr < '0' || *endptr > '9')
+            break;
     if (endptr) {
         switch (*endptr) {
             case 'K':

@@ -24,7 +24,7 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-#ifdef linux
+#if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
 #define _LARGEFILE_SOURCE
 #define _FILE_OFFSET_BITS 64
 #endif

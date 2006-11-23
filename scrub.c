@@ -27,7 +27,7 @@
 /* Scrub a raw disk or plain file.
  */
 
-#if defined(linux) || defined(sun)
+#if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
 #define _LARGEFILE_SOURCE 
 #define _FILE_OFFSET_BITS 64
 #endif
@@ -99,11 +99,11 @@ pat2str(int pat)
     static char str[255];
 
     if (pat == RANDOM)
-        sprintf(str, "random");
+        snprintf(str, sizeof(str), "random");
     else if (pat == VERIFY)
-        sprintf(str, "verify");
+        snprintf(str, sizeof(str), "verify");
     else
-        sprintf(str, "0x%x", pat);
+        snprintf(str, sizeof(str), "0x%x", pat);
     return str;
 }
 
