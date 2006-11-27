@@ -273,6 +273,10 @@ scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt)
         perror(path);
         exit(1);
     }
+    if (sb.st_size == 0) {
+        fprintf(stderr, "%s: %s is zero length\n", prog, path);
+        exit(1);
+    }
     size = blkalign(sb.st_size, sb.st_blksize);
     if (size != sb.st_size) {
         printf("%s: padding %s with %d bytes to fill last fs block\n", 

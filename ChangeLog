@@ -1,3 +1,8 @@
+2006-11-27 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c : Refuse to scrub a zero length file (avoids
+	assertion failure in progress.c) [Markus Schatz].
+
 2006-11-22 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c : Change sprintf's to snprintf [Markus Schatzl].
