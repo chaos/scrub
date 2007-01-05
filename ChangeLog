@@ -1,3 +1,7 @@
+2007-01-05 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c : Add -r option to unlink file after scrub [Sean Morrison].
+
 2006-12-28 Jim Garlick <garlick@llnl.gov>
 
 	* getsize.c : Added getsize() implementation for hpux [Graham Smith].
@@ -5,7 +9,7 @@
 2006-11-27 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c : Refuse to scrub a zero length file (avoids
-	assertion failure in progress.c) [Markus Schatz].
+	assertion failure in progress.c) [Markus Schatzl].
 
 2006-11-22 Jim Garlick <garlick@llnl.gov>
 

@@ -83,12 +83,13 @@ char *prog;
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [-f] [-p dod|nnsa|bsi] [-b blocksize] [-X] [-D newname] file\n", prog);
+    fprintf(stderr, "Usage: %s [-f] [-p dod|nnsa|bsi] [-b blocksize] [-X] [-D newname] [-r] file\n", prog);
     fprintf(stderr, "\t-p select scrub patterns (see scrub(1))\n");
     fprintf(stderr, "\t-b overrides default I/O buffer size of %d bytes\n", BUFSIZE);
     fprintf(stderr, "\t-X create file and keep writing until write fails, then scrub\n");
     fprintf(stderr, "\t-D after scrubbing the file, scrub the directory entry and rename\n");
     fprintf(stderr, "\t-f scrub even if file has signature from previous scrub\n");
+    fprintf(stderr, "\t-r remove file after scrub\n");
 
     exit(1);
 }
@@ -342,6 +343,7 @@ main(int argc, char *argv[])
     char *filename = NULL;
     int fopt = 0;
     int Sopt = 0;
+    int ropt = 0;
 
     extern int optind;
     extern char *optarg;
@@ -350,7 +352,7 @@ main(int argc, char *argv[])
     /* Handle arguments.
      */
     prog = basename(argv[0]);
-    while ((c = getopt(argc, argv, "p:D:Xb:s:fS")) != EOF) {
+    while ((c = getopt(argc, argv, "p:D:Xb:s:fSr")) != EOF) {
         switch (c) {
         case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
             if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
@@ -376,6 +378,9 @@ main(int argc, char *argv[])
             break;
         case 'D':   /* scrub name in dirent through successive renames */
             Dopt = optarg;
+            break;
+        case 'r':   /* remove file when done */
+            ropt = 1;
             break;
         case 'b':   /* override blocksize */
             bopt = str2int(optarg);
@@ -444,6 +449,10 @@ main(int argc, char *argv[])
                     fprintf(stderr, "%s: cannot use -D with special file\n", prog);
                     exit(1);
                 }
+                if (ropt) {
+                    fprintf(stderr, "%s: cannot use -r with special file\n", prog);
+                    exit(1);
+                }
                 break;
             case REGULAR:
                 if (sopt > 0) {
@@ -491,11 +500,22 @@ main(int argc, char *argv[])
 #if __APPLE__
         scrub_resfork(filename, pat, npat, bopt);
 #endif
-        if (Dopt) /* XXX destroys 'filename' */
+        if (Dopt) { /* XXX destroys 'filename' */
             scrub_dirent(filename, Dopt);
+            filename = Dopt; /* -r needs this below */
+        }
 
     } else if (filetype(filename) == SPECIAL) {     /* scrub disk */  
         scrub_disk(filename, sopt, pat, npat, bopt, Sopt);
+    }
+
+    /* unlink file at the end */
+    if (ropt && filetype(filename) == REGULAR) {
+        printf("%s: unlinking %s\n", prog, filename);
+        if (unlink(filename) != 0) {
+            perror(filename);
+            exit(1);
+        }
     }
 
     exit(0);
