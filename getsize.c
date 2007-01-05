@@ -205,7 +205,33 @@ getsize(char *path)
     (void)close(fd);
     return size;
 }
+#elif defined (__hpux)
 
+#include <stropts.h>
+#include <sys/scsi.h>
+
+off_t
+getsize(char *path)
+{
+    int fd;
+    struct capacity cap;
+    off_t size;
+
+    fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
+        perror(path);
+        exit(1);
+    }
+    if (ioctl(fd, SIOC_CAPACITY, &cap) == -1) {
+        fprintf(stderr, "%s: ioctl SIOC_CAPACITY ", prog);
+        perror(path);
+        exit(1);
+    }
+
+    (void)close(fd);
+    return (off_t)cap.lba * cap.blksz;
+}
 
 #else
 /* Unimplemented!  Scrub will tell user to use -s.
