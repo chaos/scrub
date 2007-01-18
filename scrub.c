@@ -76,7 +76,12 @@ static void usage(void);
 static off_t blkalign(off_t offset, int blocksize);
 static filetype_t filetype(char *path);
 
-#define BUFSIZE 8192      /* default blocksize */
+/* NOTE: default blocksize was 8K in scrub 1.8, however on hpux
+ * it was found that raising the default to 1M raised performance from
+ * ~1.3 MB/s to 20MB/s. [Graham Smith]
+ * Probably it won't hurt on the other OS's.
+ */
+#define BUFSIZE (1024*1024) /* default blocksize */
 
 char *prog;
 

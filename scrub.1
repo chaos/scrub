@@ -55,7 +55,13 @@ See STANDARDS below for more detail.  Default: nnsa.
 .TP
 .I "-b blocksize"
 Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
-Default: 8192.
+.I "K,"
+.I "M,"
+or 
+.I "G"
+may be appended to the number to change the units to
+KiBytes, MiBytes, or GiBytes, respectively.
+Default: 1M.
 .TP
 .I "-f"
 Scrub even if target contains signature indicating it has already been
@@ -79,9 +85,9 @@ operating system and thus are not compliant with cited standards.
 .I "-s size"
 Override the device size (in bytes). Without this option,
 .B scrub
-determines media capacity using OS-specific ioctl(2) calls, which may not
-be accurate.
-.I "K, M",
+determines media capacity using OS-specific ioctl(2) calls.
+.I "K,"
+.I "M,"
 or 
 .I "G"
 may be appended to the number to change the units to

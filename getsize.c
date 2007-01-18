@@ -215,7 +215,6 @@ getsize(char *path)
 {
     int fd;
     struct capacity cap;
-    off_t size;
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {

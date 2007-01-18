@@ -1,4 +1,14 @@
 ========================================================================
+scrub-1.9 Release Notes                                       2007-XX-XX
+========================================================================
+
+* Added -r option to remove file after scrub [Sean Morrison].
+
+* Port to HP-UX [Graham Smith, Joseph Sebastin].
+
+* Raise default blocksize to 1MB for performance [Graham Smith].
+
+========================================================================
 scrub-1.8 Release Notes                                       2006-08-16
 ========================================================================
 

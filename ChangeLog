@@ -1,3 +1,9 @@
+2007-01-18 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c, scrub.1 : Changed default blocksize to 1M [Graham Smith].
+
+	* getsize.c : Cleanup [Graham Smith].
+
 2007-01-05 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c : Add -r option to unlink file after scrub [Sean Morrison].
