@@ -1,3 +1,7 @@
+2007-01-28 Jim Garlick <garlick@llnl.gov>
+
+	* getsize.c : Handle > 2TB device size in Linux.
+
 2007-01-18 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c, scrub.1 : Changed default blocksize to 1M [Graham Smith].
