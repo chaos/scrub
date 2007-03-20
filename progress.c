@@ -57,8 +57,8 @@ progress_create(prog_t *ctx, int width)
             printf("|%*s|", (*ctx)->maxbars, "");
             while (width-- > 1)
                 printf("\b");
-            fflush(stdout);
         }
+        fflush(stdout);
     } 
 }
 
@@ -84,8 +84,7 @@ progress_update(prog_t ctx, double complete)
         assert(ctx->magic == PROGRESS_MAGIC);
         while (ctx->bars < (double)ctx->maxbars * complete) {
             printf(".");
-            if (!ctx->batch)
-                fflush(stdout);
+            fflush(stdout);
             ctx->bars++;
         }
     }

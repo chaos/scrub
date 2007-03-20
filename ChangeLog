@@ -1,3 +1,10 @@
+2007-03-20 Jim Garlick <garlick@llnl.gov>
+
+	* : tag scrub-1.9
+
+	* progress.c : Fflush stdout in the batch case so progress
+	can still be assessed by looking at log file [reported by Jim Harm].
+
 2007-01-28 Jim Garlick <garlick@llnl.gov>
 
 	* getsize.c : Handle > 2TB device size in Linux.
