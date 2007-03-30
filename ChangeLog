@@ -1,3 +1,8 @@
+2007-03-30 Jim Garlick <garlick@llnl.gov>
+
+	* fillfile.c : Open with O_SYNC instead of calling fsync() 
+	periodically on non-char-special files.
+
 2007-03-20 Jim Garlick <garlick@llnl.gov>
 
 	* : tag scrub-1.9

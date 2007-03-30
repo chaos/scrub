@@ -48,23 +48,19 @@
 
 extern char *prog;
 
-static void 
-_fsync_if_file(int fd)
+/* Return true if path is a char-special file.
+ */
+static int
+is_char(char *path)
 {
     struct stat sb;
 
-    if (fstat(fd, &sb) < 0) {
-        fprintf(stderr, "%s: ", prog);
-        perror("fstat");
+    if (stat(path, &sb) < 0) {
+        fprintf(stderr, "%s: stat ", prog);
+        perror(path);
         exit(1);
     }
-    if (S_ISREG(sb.st_mode)) {
-        if (fsync(fd) < 0) {
-            fprintf(stderr, "%s: ", prog);
-            perror("fsync");
-            exit(1);
-        }
-    }
+    return S_ISCHR(sb.st_mode);
 }
 
 /* Fill file (can be regular or special file) with pattern in mem.
@@ -81,7 +77,7 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     off_t n;
     off_t res = 0LL;
 
-    fd = open(path, O_WRONLY);
+    fd = open(path, O_WRONLY | (!is_char(path) ? O_SYNC : 0));
     if (fd < 0) {
         fprintf(stderr, "%s: open ", prog);
         perror(path);
@@ -103,8 +99,6 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         if (progress)
             progress(arg, (double)res/filesize);
     } while (res < filesize);
-
-    _fsync_if_file(fd);
 
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close ", prog);
@@ -183,7 +177,7 @@ growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
     off_t n;
     off_t res = 0LL;
 
-    fd = open(path, O_WRONLY | O_CREAT, 0644);
+    fd = open(path, O_WRONLY | O_CREAT | (!is_char(path) ? O_SYNC : 0), 0644);
     if (fd < 0) {
         fprintf(stderr, "%s: open ", prog);
         perror(path);
@@ -211,8 +205,6 @@ growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
         if (n > 0)
             res += n;
     } while (n > 0);
-
-    _fsync_if_file(fd);
 
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close ", prog);

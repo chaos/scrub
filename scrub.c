@@ -138,7 +138,7 @@ filetype(char *path)
         if (S_ISREG(sb.st_mode))
             res = REGULAR;
 #if defined(linux)
-        /* on Linux, char devices were an afterthought so allow block */
+        /* on modern Linux, disks only have a block interface */
         else if (S_ISCHR(sb.st_mode) || S_ISBLK(sb.st_mode))
 #else
         else if (S_ISCHR(sb.st_mode))
