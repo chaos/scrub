@@ -6,11 +6,12 @@
 #   make CC=/usr/vac/bin/cc CFLAGS=-O LDADD=-L/usr/vac/lib
 #
 PROJECT=	scrub
+VERSION         := $(shell awk '/[Vv]ersion:/ {print $$2}' META)
 TESTPROGS=	pad genrand progress getsize aestest sig
 OBJS= 		scrub.o aes.o genrand.o getsize.o fillfile.o filldentry.o \
 		progress.o util.o sig.o
 CC=		gcc
-CFLAGS=		-O -Wall -g
+CFLAGS=		-O -Wall -g -DSCRUB_VERSION=\"$(VERSION)\"
 
 all: $(PROJECT)
 test: $(TESTPROGS)

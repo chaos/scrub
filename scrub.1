@@ -5,7 +5,7 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
-.I "[-f] [-p nnsa|dod|bsi] [-X] [-D newname] [-s size] file"
+.I "[-v] [-f] [-p nnsa|dod|bsi] [-X] [-D newname] [-s size] file"
 .br
 .SH DESCRIPTION
 .B Scrub
@@ -37,6 +37,9 @@ See CAVEATS below.
 .LP
 .B Scrub 
 accepts the following options:
+.TP
+.I "-v"
+Print scrub version and exit.
 .TP
 .I "-p nnsa|dod|bsi|old|fastold"
 Select the patterns to write.

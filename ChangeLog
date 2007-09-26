@@ -1,3 +1,7 @@
+2007-09-26 Jim Garlick <garlick@llnl.gov>
+
+	* scrub.c, scrub.1 : Added -v option [suggested by Daniel Hoit].
+
 2007-03-30 Jim Garlick <garlick@llnl.gov>
 
 	* fillfile.c : Open with O_SYNC instead of calling fsync() 

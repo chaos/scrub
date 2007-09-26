@@ -88,13 +88,14 @@ char *prog;
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [-f] [-p dod|nnsa|bsi] [-b blocksize] [-X] [-D newname] [-r] file\n", prog);
+    fprintf(stderr, "Usage: %s [-v] [-f] [-p pat] [-b blocksize] [-X] [-D newname] [-r] file\n", prog);
     fprintf(stderr, "\t-p select scrub patterns (see scrub(1))\n");
     fprintf(stderr, "\t-b overrides default I/O buffer size of %d bytes\n", BUFSIZE);
     fprintf(stderr, "\t-X create file and keep writing until write fails, then scrub\n");
     fprintf(stderr, "\t-D after scrubbing the file, scrub the directory entry and rename\n");
     fprintf(stderr, "\t-f scrub even if file has signature from previous scrub\n");
     fprintf(stderr, "\t-r remove file after scrub\n");
+    fprintf(stderr, "\t-v display scrub version and exit\n");
 
     exit(1);
 }
@@ -357,8 +358,11 @@ main(int argc, char *argv[])
     /* Handle arguments.
      */
     prog = basename(argv[0]);
-    while ((c = getopt(argc, argv, "p:D:Xb:s:fSr")) != EOF) {
+    while ((c = getopt(argc, argv, "p:D:Xb:s:fSrv")) != EOF) {
         switch (c) {
+        case 'v':   /* Print version and exit */
+            printf("scrub version %s\n", SCRUB_VERSION);
+            exit(0);
         case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
             if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
                 pat = dod_pattern;
