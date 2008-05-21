@@ -1,4 +1,18 @@
 ========================================================================
+scrub-1.10 Release Notes                                      2008-05-21
+========================================================================
+
+* Scrub now builds with autoconf/automake.
+
+* Added unit tests for 'make check' target.
+
+* Fix a bug which prevented -X from working with nonexistant file name.
+
+* Added -v option to display scrub version and exit.
+
+* Added -T option to scrub first and last blocks only (for testing).
+
+========================================================================
 scrub-1.9 Release Notes                                       2007-03-20
 ========================================================================
 
