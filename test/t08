@@ -1,0 +1,7 @@
+#!/bin/sh
+(./tgetsize 1k
+./tgetsize 1m
+./tgetsize 1g
+./tgetsize 1t
+./tgetsize 1p) >t08.out 2>&1
+diff t08.exp t08.out >t08.diff 
