@@ -1,6 +1,7 @@
-Name: scrub
-Version: 1.8
-Release: 1
+Name: 
+Version: 
+Release:
+
 Summary: Disk scrubbing program
 License: GPL
 Group: System Environment/Base
@@ -9,7 +10,7 @@ Source0: scrub-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 %description
-This utility writes patterns on files or disk devices to make
+Scrub writes patterns on files or disk devices to make
 retrieving the data more difficult.  It operates in one of three modes: 
 1) the special file corresponding to an entire disk is scrubbed 
    and all data on it is destroyed.
@@ -22,22 +23,23 @@ retrieving the data more difficult.  It operates in one of three modes:
 %setup
 
 %build
+%configure
 make
+make check
 
 %install
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-install -s -m 755 scrub $RPM_BUILD_ROOT/%{_bindir}
-install -m 644 scrub.1 $RPM_BUILD_ROOT/%{_mandir}/man1
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc ChangeLog NEWS DISCLAIMER COPYING
+%doc ChangeLog NEWS DISCLAIMER COPYING INSTALL README
 %{_bindir}/scrub
-%{_mandir}/man*/*
+%{_mandir}/man1/*
 
 %changelog
 * Tue Feb 14 2006 Ben Woodard <woodard@redhat.com> 1.7-1

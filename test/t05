@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f testfile
+./pad 2m testfile || exit 1
+$PATH_SCRUB -p fastold testfile >t05.out 2>&1
+diff t05.exp t05.out >t05.diff

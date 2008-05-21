@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./aestest >t00.out
+diff t00.exp t00.out >t00.diff

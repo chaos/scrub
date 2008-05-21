@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f testfile
+./pad 8g testfile || exit 1
+size=`stat -c "%s" testfile`
+test $size = 8589934592

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+rm -f testfile
+./pad 2m testfile || exit 1
+$PATH_SCRUB -p old testfile >t06.out 2>&1
+diff t06.exp t06.out >t06.diff
