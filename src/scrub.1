@@ -131,6 +131,13 @@ attempts to overwrite a file's resource fork if it exists.
 Although MacOS X will support additional named forks in the future,
 .B scrub 
 is only aware of the traditional data and resource forks.
+.PP
+[IBM AIX JFS file systems]
+On some versions of AIX, JFS file systems that are not explicity created
+with large file support will not allow >4G files.  This causes problems
+for the -X option which tries to create a file that consumes all
+available free space.  In this case you may need to create several smaller
+files manually and scrub them.
 .SH STANDARDS
 The 
 .I "dod"

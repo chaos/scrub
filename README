@@ -1,4 +1,9 @@
-All the documentation for scrub is in the scrub(1) manual page.
-To format from the source directory, run something like 
+All the user documentation for scrub is in the scrub(1) manual page.
+To format the manual page from the source directory, run something like:
+
     nroff -man scrub.1 | less
 
+On testing with the 'make check' target: Set TMPDIR to a file system that 
+allows you to create a >4GB sparse file.  On an AIX JFS file system, the 
+file system must have been created with large file support.  Also, ensure 
+that your file size ulimit is set to unlimited.

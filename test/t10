@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# This is a special test to be run on the author's test systems.
+
+EXPFILE=t10-`hostname`.exp
+test -f $EXPFILE || exit 0
+
+case `hostname` in
+    manbearpig)
+        ./tgetsize /dev/rhdisk0 >t10.out 2>&1
+        ;;
+    cartman)
+        sudo ./tgetsize /dev/sda1 >t10.out 2>&1
+        sudo ./tgetsize /dev/mapper/VolGroup00-LogVol00 >>t10.out 2>&1
+        ;;
+    jimmy)
+        sudo ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
+        ;;
+    timmy)
+        sudo ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
+        ;;
+esac
+diff $EXPFILE t10.out >t10.diff

@@ -5,5 +5,5 @@ rm -f $TESTFILE
 size=`./tsize $TESTFILE` || exit 1
 test $size = 5368709120  || exit 1
 $PATH_SCRUB -r -T $TESTFILE 2>&1|sed -e "s!${TESTFILE}!file!" >t01.out || exit 1
-test -e $TESTFILE && exit 1
+test -f $TESTFILE && exit 1
 diff t01.out t01.exp >t01.diff
