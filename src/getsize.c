@@ -39,12 +39,9 @@
 #include <stdlib.h>
 #include <libgen.h>
 
-#ifdef STAND
-char *prog;
-#else
-extern char *prog;
-#endif
+#include "getsize.h"
 
+extern char *prog;
 
 #if defined(linux)
 /* scrub-1.7 tested linux 2.6.11-1.1369_FC4 */
@@ -357,48 +354,6 @@ str2int(char *str)
         val = 0;
     return (int)val;
 }
-
-#ifdef STAND
-int
-main(int argc, char *argv[])
-{
-    off_t sz;
-    struct stat sb;
-    char buf[80];
-
-    prog = basename(argv[0]);
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s [file|string]\n", prog);
-        exit(1);
-    }
-    if (stat(argv[1], &sb) < 0) {
-        if (*argv[1] == '/') {
-            fprintf(stderr, "%s: could not stat special file\n", prog);
-            exit(1);
-        }
-        sz = str2size(argv[1]);
-	    if (sz == 0) {
-                fprintf(stderr, "%s: error parsing size string\n", prog);
-                exit(1);
-	    }
-    } else {
-        if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
-            fprintf(stderr, "%s: file must be block or char special\n", prog);
-            exit(1);
-        }
-        sz = getsize(argv[1]);
-	    if (sz == 0) {
-                fprintf(stderr, "%s: could not determine device size\n", prog);
-                exit(1);
-	    }
-    }
-    if (sz != 0) {
-        size2str(buf, sizeof(buf), sz); 
-        printf("%s\n", buf);
-    }
-    exit(0);
-}
-#endif
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

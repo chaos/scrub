@@ -1,5 +1,5 @@
 /*****************************************************************************\
- *  $Id: progress.c 56 2005-11-24 16:32:06Z garlick $
+ *  $Id: getsize.c 76 2006-02-15 00:49:19Z garlick $
  *****************************************************************************
  *  Copyright (C) 2005 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
@@ -24,73 +24,63 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-/* ASCII progress bar thingie.
- */
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#if HAVE_SYS_MODE_H
+#include <sys/mode.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <assert.h>
+#include <libgen.h>
 
-#include "progress.h"
+#include "getsize.h"
 
-#define PROGRESS_MAGIC  0xabcd1234
+char *prog;
 
-struct prog_struct {
-    int magic;
-    int bars;
-    int maxbars;
-    int batch;
-};
-
-void 
-progress_create(prog_t *ctx, int width)
+int
+main(int argc, char *argv[])
 {
-    if ((*ctx = (prog_t)malloc(sizeof(struct prog_struct)))) {
-        (*ctx)->magic = PROGRESS_MAGIC;
-        (*ctx)->maxbars = width - 2;
-        (*ctx)->bars = 0;
-        (*ctx)->batch = !isatty(1);
-        if ((*ctx)->batch)
-            printf("|");
-        else {
-            printf("|%*s|", (*ctx)->maxbars, "");
-            while (width-- > 1)
-                printf("\b");
-        }
-        fflush(stdout);
-    } 
-}
+    off_t sz;
+    struct stat sb;
+    char buf[80];
 
-void 
-progress_destroy(prog_t ctx)
-{
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        ctx->magic = 0;
-        if (ctx->batch)
-            printf("|\n");
-        else
-            printf("\n");
-        free(ctx);
+    prog = basename(argv[0]);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s [file|string]\n", prog);
+        exit(1);
     }
-}
-
-void 
-progress_update(prog_t ctx, double complete)
-{
-    assert(complete >= 0.0 && complete <= 1.0);
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        while (ctx->bars < (double)ctx->maxbars * complete) {
-            printf(".");
-            fflush(stdout);
-            ctx->bars++;
+    if (stat(argv[1], &sb) < 0) {
+        if (*argv[1] == '/') {
+            fprintf(stderr, "%s: could not stat special file\n", prog);
+            exit(1);
         }
+        sz = str2size(argv[1]);
+	    if (sz == 0) {
+                fprintf(stderr, "%s: error parsing size string\n", prog);
+                exit(1);
+	    }
+    } else {
+        if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
+            fprintf(stderr, "%s: file must be block or char special\n", prog);
+            exit(1);
+        }
+        sz = getsize(argv[1]);
+	    if (sz == 0) {
+                fprintf(stderr, "%s: could not determine device size\n", prog);
+                exit(1);
+	    }
     }
+    if (sz != 0) {
+        size2str(buf, sizeof(buf), sz); 
+        printf("%s\n", buf);
+    }
+    exit(0);
 }
 
 /*

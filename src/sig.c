@@ -45,11 +45,7 @@
 
 #define SCRUB_MAGIC "\001\002\003SCRUBBED!"
 
-#ifdef STAND
-static char *prog;
-#else
 extern char *prog;
-#endif
 
 void
 writesig(char *path, int blocksize)
@@ -128,24 +124,6 @@ checksig(char *path, int blocksize)
     free(buf);
     return result;
 }
-
-#ifdef STAND
-int main(int argc, char *argv[])
-{
-    prog = basename(argv[0]);
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s filename\n", prog);
-        exit(1);
-    }
-    if (!checksig(argv[1], 8192)) {
-        fprintf(stderr, "%s: no signature, writing one\n", prog);
-        writesig(argv[1], 8192);
-    } else {
-        fprintf(stderr, "%s: signature present\n", prog);
-    }
-    exit(0);
-}
-#endif
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

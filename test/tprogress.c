@@ -24,9 +24,6 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-/* ASCII progress bar thingie.
- */
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -34,63 +31,26 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <libgen.h>
 
 #include "progress.h"
 
-#define PROGRESS_MAGIC  0xabcd1234
+char *prog;
 
-struct prog_struct {
-    int magic;
-    int bars;
-    int maxbars;
-    int batch;
-};
-
-void 
-progress_create(prog_t *ctx, int width)
+int
+main(int argc, char *argv[])
 {
-    if ((*ctx = (prog_t)malloc(sizeof(struct prog_struct)))) {
-        (*ctx)->magic = PROGRESS_MAGIC;
-        (*ctx)->maxbars = width - 2;
-        (*ctx)->bars = 0;
-        (*ctx)->batch = !isatty(1);
-        if ((*ctx)->batch)
-            printf("|");
-        else {
-            printf("|%*s|", (*ctx)->maxbars, "");
-            while (width-- > 1)
-                printf("\b");
-        }
-        fflush(stdout);
-    } 
-}
+    prog_t p;
+    int i;
 
-void 
-progress_destroy(prog_t ctx)
-{
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        ctx->magic = 0;
-        if (ctx->batch)
-            printf("|\n");
-        else
-            printf("\n");
-        free(ctx);
-    }
-}
+    prog = basename(argv[0]);
 
-void 
-progress_update(prog_t ctx, double complete)
-{
-    assert(complete >= 0.0 && complete <= 1.0);
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        while (ctx->bars < (double)ctx->maxbars * complete) {
-            printf(".");
-            fflush(stdout);
-            ctx->bars++;
-        }
-    }
+    printf("foo  ");
+    progress_create(&p, 70);
+    for (i = 1; i <= 100000000L; i++)
+        progress_update(p, (double)i/100000000L);
+    progress_destroy(p);
+    exit(0);
 }
 
 /*

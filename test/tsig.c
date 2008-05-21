@@ -1,7 +1,7 @@
 /*****************************************************************************\
- *  $Id: progress.c 56 2005-11-24 16:32:06Z garlick $
+ *  $Id:$
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2005-2006 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -24,73 +24,40 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-/* ASCII progress bar thingie.
- */
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#if HAVE_SYS_MODE_H
+#include <sys/mode.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <assert.h>
+#include <string.h>
+#include <libgen.h>
 
-#include "progress.h"
+#include "util.h"
+#include "sig.h"
 
-#define PROGRESS_MAGIC  0xabcd1234
+char *prog;
 
-struct prog_struct {
-    int magic;
-    int bars;
-    int maxbars;
-    int batch;
-};
-
-void 
-progress_create(prog_t *ctx, int width)
+int main(int argc, char *argv[])
 {
-    if ((*ctx = (prog_t)malloc(sizeof(struct prog_struct)))) {
-        (*ctx)->magic = PROGRESS_MAGIC;
-        (*ctx)->maxbars = width - 2;
-        (*ctx)->bars = 0;
-        (*ctx)->batch = !isatty(1);
-        if ((*ctx)->batch)
-            printf("|");
-        else {
-            printf("|%*s|", (*ctx)->maxbars, "");
-            while (width-- > 1)
-                printf("\b");
-        }
-        fflush(stdout);
-    } 
-}
-
-void 
-progress_destroy(prog_t ctx)
-{
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        ctx->magic = 0;
-        if (ctx->batch)
-            printf("|\n");
-        else
-            printf("\n");
-        free(ctx);
+    prog = basename(argv[0]);
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s filename\n", prog);
+        exit(1);
     }
-}
-
-void 
-progress_update(prog_t ctx, double complete)
-{
-    assert(complete >= 0.0 && complete <= 1.0);
-    if (ctx) {
-        assert(ctx->magic == PROGRESS_MAGIC);
-        while (ctx->bars < (double)ctx->maxbars * complete) {
-            printf(".");
-            fflush(stdout);
-            ctx->bars++;
-        }
+    if (!checksig(argv[1], 8192)) {
+        fprintf(stderr, "%s: no signature, writing one\n", prog);
+        writesig(argv[1], 8192);
+    } else {
+        fprintf(stderr, "%s: signature present\n", prog);
     }
+    exit(0);
 }
 
 /*

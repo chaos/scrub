@@ -47,11 +47,7 @@
 #define PAYLOAD_SZ  16
 #define KEY_SZ      16
 
-#ifdef STAND
-static char *prog;
-#else
 extern char *prog;
-#endif
 
 static aes_context  ctx;
 static unsigned char ctr[PAYLOAD_SZ];
@@ -148,25 +144,6 @@ genrand(unsigned char *buf, int buflen)
     }
     assert(i == buflen);
 }
-
-#ifdef STAND
-int main(int argc, char *argv[])
-{
-    unsigned char buf[24];
-    int i, j;
-
-    prog = basename(argv[0]);
-
-    initrand();
-    for (j = 0; j < 20; j++) {
-        genrand(buf, 24);
-        for (i = 0; i < 24; i++)
-            printf("%-.2hhx", buf[i]);
-        printf("\n");
-    }
-    exit(0);
-}
-#endif
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab
