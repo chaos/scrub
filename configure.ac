@@ -25,6 +25,7 @@ AC_PROG_CC
 AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
+  sys/mode.h \
 )
 
 ##
@@ -39,6 +40,11 @@ AC_C_CONST
 AC_CHECK_FUNCS( \
   getopt_long \
 )
+
+##
+# Arrange for large file support
+## 
+AC_SYS_LARGEFILE
 
 ##
 # Epilogue

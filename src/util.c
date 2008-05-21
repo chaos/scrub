@@ -27,17 +27,9 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
-#define _LARGEFILE_SOURCE
-#define _FILE_OFFSET_BITS 64
-#endif
-
-#if defined(_AIX)
-#define _LARGE_FILES
+#if HAVE_SYS_MODE_H
 #include <sys/mode.h>
 #endif
-
 #include <unistd.h>
 #include <libgen.h>
 

@@ -6,6 +6,8 @@
 
 	* src/scrub.c : Put main() at the top and add getopt_long() support.
 
+	* src/*.c : Large file support through autoconf.
+
 2007-09-26 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c, scrub.1 : Added -v option [suggested by Daniel Hoit].

@@ -49,7 +49,7 @@ extern char *prog;
 static void 
 dirsync(char *dir)
 {
-#if defined(_AIX)
+#if defined(_AIX) /* FIXME: need HAVE_FSYNC_DIR macro */
     sync();
 #else
     int fd;
