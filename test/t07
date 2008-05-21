@@ -2,4 +2,4 @@
 rm -f testfile
 ./pad 2m testfile
 (./tsig testfile  && ./tsig testfile) >t07.out 2>&1
-diff t07.exp t07.out >t07.diff
+diff t07.exp t07.out >t07.diff 
