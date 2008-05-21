@@ -1,3 +1,11 @@
+2008-05-20 Jim Garlick <garlick@llnl.gov>
+
+	* : Integrated automake/autoconf.
+
+	* htdocs/* : Added small web page.
+
+	* src/scrub.c : Put main() at the top and add getopt_long() support.
+
 2007-09-26 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.c, scrub.1 : Added -v option [suggested by Daniel Hoit].

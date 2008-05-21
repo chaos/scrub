@@ -1,7 +1,7 @@
 /*****************************************************************************\
- *  $Id: util.c 68 2006-02-14 21:54:16Z garlick $
+ *  $Id: pad.c 56 2005-11-24 16:32:06Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2002 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -24,8 +24,13 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
+/* pad - create a sparse file of the indicated size */
+
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
-#define _LARGEFILE_SOURCE
+#define _LARGEFILE_SOURCE 
 #define _FILE_OFFSET_BITS 64
 #endif
 
@@ -35,42 +40,57 @@
 #endif
 
 #include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <limits.h>
 #include <libgen.h>
+#include "getsize.h"
 
-/* Handles short reads but otherwise just like read(2).
- */
-int
-read_all(int fd, unsigned char *buf, int count)
+char *prog;
+
+int main(int argc, char *argv[])
 {
-    int n;
+    off_t fileOffset;
+    char *filename;
+    int fd;
+    char c = 'x';
 
-    do {
-        n = read(fd, buf, count);
-        if (n > 0) {
-            count -= n;
-            buf += n;
-        }
-    } while (n > 0 && count > 0);
+    prog = basename(argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s size filename\n", prog);
+        exit(1);
+    }
+    fileOffset = str2size(argv[1]);
+    if (fileOffset == 0) {
+        fprintf(stderr, "%s: error parsing size string\n", prog);
+        exit(1);
+    }
+    filename = argv[2];
 
-    return n;
-}
+    fd = open(filename, O_CREAT | O_RDWR, 0644);
+    if (fd < 0) {
+        fprintf(stderr, "%s: open ", prog);
+        perror(filename);
+        exit(1);
+    }
+    if (lseek(fd, fileOffset - 1, SEEK_SET) < 0) {
+        fprintf(stderr, "%s: lseek %lld", prog, (long long)fileOffset - 1);
+        perror(filename);
+        exit(1);
+    }
+    if (write(fd, &c, 1) < 0) {
+        fprintf(stderr, "%s: write ", prog);
+        perror(filename);
+        exit(1);
+    }
+    if (close(fd) < 0) {
+        fprintf(stderr, "%s: close ", prog);
+        perror(filename);
+        exit(1);
+    }
 
-/* Handles short writes but otherwise just like write(2).
- */
-int
-write_all(int fd, const unsigned char *buf, int count)
-{
-    int n;
-
-    do {
-        n = write(fd, buf, count);
-        if (n > 0) {
-            count -= n;
-            buf += n;
-        }
-    } while (n >= 0 && count > 0);
-
-    return n;
+    exit(0);
 }
 
 /*

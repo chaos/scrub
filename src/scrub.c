@@ -27,6 +27,9 @@
 /* Scrub a raw disk or plain file.
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #if defined(linux) || defined(sun) || defined(UNIXWARE) || defined(__hpux)
 #define _LARGEFILE_SOURCE 
 #define _FILE_OFFSET_BITS 64
@@ -37,6 +40,9 @@
 #include <sys/mode.h>
 #endif
 
+#if HAVE_GETOPT_LONG
+#include <getopt.h>
+#endif
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -56,7 +62,34 @@
 #include "util.h"
 #include "sig.h"
 
-#define RANDOM	0x0100
+/* NOTE: default blocksize was 8K in scrub 1.8, however on hpux
+ * it was found that raising the default to 1M raised performance from
+ * ~1.3 MB/s to 20MB/s. [Graham Smith]
+ * Probably it won't hurt on the other OS's.
+ */
+#define BUFSIZE (1024*1024) /* default blocksize */
+
+typedef enum { false, true } bool;
+typedef enum { NOEXIST, REGULAR, SPECIAL, OTHER } filetype_t;
+
+static char      *pat2str(int pat);
+static void       usage(void);
+static off_t      blkalign(off_t offset, int blocksize);
+static filetype_t filetype(char *path);
+static char      *pat2str(int pat);
+static void       scrub(char *path, off_t size, const int pat[], int npat, 
+                      int bufsize, int Sopt);
+static void       scrub_free(char *path, const int pat[], int npat, 
+                      int bufsize, int Sopt);
+static void       scrub_dirent(char *path, char *newpath);
+static void       scrub_file(char *path, const int pat[], int npat, 
+                      int bufsize, int Sopt);
+static void       scrub_resfork(char *path, const int pat[], int npat, 
+                      int bufsize);
+static void       scrub_disk(char *path, off_t size, const int pat[], int npat,
+                      int bufsize, int Sopt);
+
+#define RANDOM  0x0100
 #define VERIFY  0x0200
 
 static const int dirent_pattern[] = { 0x55, 0x22, 0x55, 0x22, 0x55, 0x22 };
@@ -68,22 +101,220 @@ static const int dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
 static const int bsi_pattern[] = { 0xff, 0xfe, 0xfd, 0xfb, 0xf7,
                                    0xef, 0xdf, 0xbf, 0x7f };
 
-typedef enum { false, true } bool;
-typedef enum { NOEXIST, REGULAR, SPECIAL, OTHER } filetype_t;
+#define OPTIONS "p:D:Xb:s:fSrv"
+#if HAVE_GETOPT_LONG
+#define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
+static struct option longopts[] = {
+    {"pattern",          required_argument,  0, 'p'},
+    {"dirent",           no_argument,        0, 'D'},
+    {"freespace",        no_argument,        0, 'X'},
+    {"blocksize",        required_argument,  0, 'b'},
+    {"device-size",      required_argument,  0, 's'},
+    {"force",            no_argument,        0, 'f'},
+    {"no-signature",     no_argument,        0, 'S'},
+    {"remove",           no_argument,        0, 'r'},
+    {"version",          no_argument,        0, 'v'},
+    {0, 0, 0, 0},
+};
+#else
+#define GETOPT(ac,av,opt,lopt) getopt(ac,av,opt)
+#endif
 
-static char *pat2str(int pat);
-static void usage(void);
-static off_t blkalign(off_t offset, int blocksize);
-static filetype_t filetype(char *path);
-
-/* NOTE: default blocksize was 8K in scrub 1.8, however on hpux
- * it was found that raising the default to 1M raised performance from
- * ~1.3 MB/s to 20MB/s. [Graham Smith]
- * Probably it won't hurt on the other OS's.
- */
-#define BUFSIZE (1024*1024) /* default blocksize */
 
 char *prog;
+
+int 
+main(int argc, char *argv[])
+{
+    const int *pat = nnsa_pattern;
+    int npat = sizeof(nnsa_pattern)/sizeof(nnsa_pattern[0]);
+    bool Xopt = false;
+    int bopt = BUFSIZE;
+    off_t sopt = 0;
+    char *Dopt = NULL;
+    char *filename = NULL;
+    int fopt = 0;
+    int Sopt = 0;
+    int ropt = 0;
+
+    extern int optind;
+    extern char *optarg;
+    int c;
+
+    /* Handle arguments.
+     */
+    prog = basename(argv[0]);
+    while ((c = GETOPT(argc, argv, OPTIONS, longopts)) != EOF) {
+        switch (c) {
+        case 'v':   /* --version */
+            printf("scrub version %s\n", VERSION);
+            exit(0);
+        case 'p':   /* --pattern */
+            if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
+                pat = dod_pattern;
+                npat = sizeof(dod_pattern)/sizeof(dod_pattern[0]);
+            } else if (!strcmp(optarg, "nnsa") || !strcmp(optarg, "NNSA")) {
+                pat = nnsa_pattern;
+                npat = sizeof(nnsa_pattern)/sizeof(nnsa_pattern[0]);
+            } else if (!strcmp(optarg, "old") || !strcmp(optarg, "OLD")) {
+                pat = old_pattern;
+                npat = sizeof(old_pattern)/sizeof(old_pattern[0]);
+            } else if (!strcmp(optarg, "fastold") || !strcmp(optarg, "FASTOLD")) {
+                pat = fastold_pattern;
+                npat = sizeof(fastold_pattern)/sizeof(fastold_pattern[0]);
+            } else if (!strcmp(optarg, "bsi") || !strcmp(optarg, "BSI")) {
+                pat = bsi_pattern;
+                npat = sizeof(bsi_pattern)/sizeof(bsi_pattern[0]);
+            } else 
+                usage();
+            break;
+        case 'X':   /* --freespace */
+            Xopt = true;
+            break;
+        case 'D':   /* --dirent */
+            Dopt = optarg;
+            break;
+        case 'r':   /* --remove */
+            ropt = 1;
+            break;
+        case 'b':   /* --blocksize */
+            bopt = str2int(optarg);
+            if (bopt == 0) {
+                fprintf(stderr, "%s: error parsing blocksize string\n", prog);
+                exit(1);
+            }
+            break;
+        case 's':   /* --device-size */
+            sopt = str2size(optarg);
+            if (sopt == 0) {
+                fprintf(stderr, "%s: error parsing size string\n", prog);
+                exit(1);
+            }
+            break;
+        case 'f':   /* --force */
+            fopt = 1;
+            break;
+        case 'S':   /* --no-signature */
+            Sopt = 1;
+            break;
+        default:
+            usage();
+        }
+    }
+    if (argc - optind != 1)
+        usage();
+    filename = argv[optind++];
+
+    /* Verify arguments.
+     */
+    if (filename == NULL)
+        usage();
+    if (Xopt) {
+        if (filetype(filename) == SPECIAL) {
+            fprintf(stderr, "%s: -X cannot be used on special files\n", prog);
+            exit(1);
+        }
+        if (sopt > 0) {
+            fprintf(stderr, "%s: -s and -X cannot be used together\n", prog);
+            exit(1);
+        }
+        if (Dopt) {
+            fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
+            exit(1);
+        }
+    } else {
+        switch (filetype(filename)) {
+            case NOEXIST:
+                fprintf(stderr, "%s: %s does not exist\n", prog, filename);
+                exit(1);
+                break;
+            case OTHER:
+                fprintf(stderr, "%s: %s is not a reg file or %sdisk device\n", 
+                    prog, filename,
+#if defined(linux)
+                    ""
+#else
+                    "raw "
+#endif
+                    );
+                exit(1);
+                break;
+            case SPECIAL:
+                if (Dopt) {
+                    fprintf(stderr, "%s: cannot use -D with special file\n", prog);
+                    exit(1);
+                }
+                if (ropt) {
+                    fprintf(stderr, "%s: cannot use -r with special file\n", prog);
+                    exit(1);
+                }
+                break;
+            case REGULAR:
+                if (sopt > 0) {
+                    fprintf(stderr, "%s: cannot use -s with regular file\n", prog);
+                    exit(1);
+                }
+                if (Dopt && *Dopt != '/' && *filename == '/') {
+                    fprintf(stderr, "%s: %s should be a full path like %s\n",
+                            prog, Dopt, filename);
+                    exit(1);
+                }
+                break;
+        }
+        if (access(filename, R_OK|W_OK) < 0) {
+            fprintf(stderr, "%s: no permission to scrub %s\n", prog, filename);
+            exit(1);
+        }
+        if (checksig(filename, bopt) && !fopt) {
+            fprintf(stderr, "%s: %s has already been scrubbed? (use -f to force)\n",
+                        prog, filename);
+            exit(1);
+        }
+    }
+
+
+    if (sizeof(off_t) < 8) {
+        fprintf(stderr, "%s: warning: not using 64 bit file offsets\n", prog);
+    }
+
+    /* Scrub.
+     */
+    printf("%s: using %s patterns\n", prog, 
+            (pat == dod_pattern)        ? "DoD 5220.22-M" 
+            : (pat == nnsa_pattern)     ? "NNSA NAP-14.x" 
+            : (pat == old_pattern)      ? "pre v1.7 scrub" 
+            : (pat == fastold_pattern)  ? "pre v1.7 scrub (skip random)" 
+            : (pat == bsi_pattern)      ? "BSI pattern" 
+            : "unknown pattern");
+
+    if (Xopt) {                                     /* scrub free */
+        scrub_free(filename, pat, npat, bopt, Sopt);
+
+    } else if (filetype(filename) == REGULAR) {     /* scrub file */
+        scrub_file(filename, pat, npat, bopt, Sopt);
+#if __APPLE__
+        scrub_resfork(filename, pat, npat, bopt);
+#endif
+        if (Dopt) { /* XXX destroys 'filename' */
+            scrub_dirent(filename, Dopt);
+            filename = Dopt; /* -r needs this below */
+        }
+
+    } else if (filetype(filename) == SPECIAL) {     /* scrub disk */  
+        scrub_disk(filename, sopt, pat, npat, bopt, Sopt);
+    }
+
+    /* unlink file at the end */
+    if (ropt && filetype(filename) == REGULAR) {
+        printf("%s: unlinking %s\n", prog, filename);
+        if (unlink(filename) != 0) {
+            perror(filename);
+            exit(1);
+        }
+    }
+
+    exit(0);
+}
 
 static void 
 usage(void)
@@ -335,199 +566,6 @@ scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize, int S
         printf("%s: please verify that device size below is correct!\n", prog);
     }
     scrub(path, size, pat, npat, bufsize, Sopt);
-}
-
-int 
-main(int argc, char *argv[])
-{
-    const int *pat = nnsa_pattern;
-    int npat = sizeof(nnsa_pattern)/sizeof(nnsa_pattern[0]);
-    bool Xopt = false;
-    int bopt = BUFSIZE;
-    off_t sopt = 0;
-    char *Dopt = NULL;
-    char *filename = NULL;
-    int fopt = 0;
-    int Sopt = 0;
-    int ropt = 0;
-
-    extern int optind;
-    extern char *optarg;
-    int c;
-
-    /* Handle arguments.
-     */
-    prog = basename(argv[0]);
-    while ((c = getopt(argc, argv, "p:D:Xb:s:fSrv")) != EOF) {
-        switch (c) {
-        case 'v':   /* Print version and exit */
-            printf("scrub version %s\n", SCRUB_VERSION);
-            exit(0);
-        case 'p':   /* Override default pattern with dod|nnsa|old|fastold */
-            if (!strcmp(optarg, "dod") || !strcmp(optarg, "DOD")) {
-                pat = dod_pattern;
-                npat = sizeof(dod_pattern)/sizeof(dod_pattern[0]);
-            } else if (!strcmp(optarg, "nnsa") || !strcmp(optarg, "NNSA")) {
-                pat = nnsa_pattern;
-                npat = sizeof(nnsa_pattern)/sizeof(nnsa_pattern[0]);
-            } else if (!strcmp(optarg, "old") || !strcmp(optarg, "OLD")) {
-                pat = old_pattern;
-                npat = sizeof(old_pattern)/sizeof(old_pattern[0]);
-            } else if (!strcmp(optarg, "fastold") || !strcmp(optarg, "FASTOLD")) {
-                pat = fastold_pattern;
-                npat = sizeof(fastold_pattern)/sizeof(fastold_pattern[0]);
-            } else if (!strcmp(optarg, "bsi") || !strcmp(optarg, "BSI")) {
-                pat = bsi_pattern;
-                npat = sizeof(bsi_pattern)/sizeof(bsi_pattern[0]);
-            } else 
-                usage();
-            break;
-        case 'X':   /* fill filesystem */
-            Xopt = true;
-            break;
-        case 'D':   /* scrub name in dirent through successive renames */
-            Dopt = optarg;
-            break;
-        case 'r':   /* remove file when done */
-            ropt = 1;
-            break;
-        case 'b':   /* override blocksize */
-            bopt = str2int(optarg);
-            if (bopt == 0) {
-                fprintf(stderr, "%s: error parsing blocksize string\n", prog);
-                exit(1);
-            }
-            break;
-        case 's':   /* override size of special file */
-            sopt = str2size(optarg);
-            if (sopt == 0) {
-                fprintf(stderr, "%s: error parsing size string\n", prog);
-                exit(1);
-            }
-            break;
-        case 'f':   /* force scrub even if already done */
-            fopt = 1;
-            break;
-        case 'S':   /* do not write scrub signature */
-            Sopt = 1;
-            break;
-        default:
-            usage();
-        }
-    }
-    if (argc - optind != 1)
-        usage();
-    filename = argv[optind++];
-
-    /* Verify arguments.
-     */
-    if (filename == NULL)
-        usage();
-    if (Xopt) {
-        if (filetype(filename) == SPECIAL) {
-            fprintf(stderr, "%s: -X cannot be used on special files\n", prog);
-            exit(1);
-        }
-        if (sopt > 0) {
-            fprintf(stderr, "%s: -s and -X cannot be used together\n", prog);
-            exit(1);
-        }
-        if (Dopt) {
-            fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
-            exit(1);
-        }
-    } else {
-        switch (filetype(filename)) {
-            case NOEXIST:
-                fprintf(stderr, "%s: %s does not exist\n", prog, filename);
-                exit(1);
-                break;
-            case OTHER:
-                fprintf(stderr, "%s: %s is not a reg file or %sdisk device\n", 
-                    prog, filename,
-#if defined(linux)
-                    ""
-#else
-                    "raw "
-#endif
-                    );
-                exit(1);
-                break;
-            case SPECIAL:
-                if (Dopt) {
-                    fprintf(stderr, "%s: cannot use -D with special file\n", prog);
-                    exit(1);
-                }
-                if (ropt) {
-                    fprintf(stderr, "%s: cannot use -r with special file\n", prog);
-                    exit(1);
-                }
-                break;
-            case REGULAR:
-                if (sopt > 0) {
-                    fprintf(stderr, "%s: cannot use -s with regular file\n", prog);
-                    exit(1);
-                }
-                if (Dopt && *Dopt != '/' && *filename == '/') {
-                    fprintf(stderr, "%s: %s should be a full path like %s\n",
-                            prog, Dopt, filename);
-                    exit(1);
-                }
-                break;
-        }
-        if (access(filename, R_OK|W_OK) < 0) {
-            fprintf(stderr, "%s: no permission to scrub %s\n", prog, filename);
-            exit(1);
-        }
-        if (checksig(filename, bopt) && !fopt) {
-            fprintf(stderr, "%s: %s has already been scrubbed? (use -f to force)\n",
-                        prog, filename);
-            exit(1);
-        }
-    }
-
-
-    if (sizeof(off_t) < 8) {
-        fprintf(stderr, "%s: warning: not using 64 bit file offsets\n", prog);
-    }
-
-    /* Scrub.
-     */
-    printf("%s: using %s patterns\n", prog, 
-            (pat == dod_pattern)        ? "DoD 5220.22-M" 
-            : (pat == nnsa_pattern)     ? "NNSA NAP-14.x" 
-            : (pat == old_pattern)      ? "pre v1.7 scrub" 
-            : (pat == fastold_pattern)  ? "pre v1.7 scrub (skip random)" 
-            : (pat == bsi_pattern)      ? "BSI pattern" 
-            : "unknown pattern");
-
-    if (Xopt) {                                     /* scrub free */
-        scrub_free(filename, pat, npat, bopt, Sopt);
-
-    } else if (filetype(filename) == REGULAR) {     /* scrub file */
-        scrub_file(filename, pat, npat, bopt, Sopt);
-#if __APPLE__
-        scrub_resfork(filename, pat, npat, bopt);
-#endif
-        if (Dopt) { /* XXX destroys 'filename' */
-            scrub_dirent(filename, Dopt);
-            filename = Dopt; /* -r needs this below */
-        }
-
-    } else if (filetype(filename) == SPECIAL) {     /* scrub disk */  
-        scrub_disk(filename, sopt, pat, npat, bopt, Sopt);
-    }
-
-    /* unlink file at the end */
-    if (ropt && filetype(filename) == REGULAR) {
-        printf("%s: unlinking %s\n", prog, filename);
-        if (unlink(filename) != 0) {
-            perror(filename);
-            exit(1);
-        }
-    }
-
-    exit(0);
 }
 
 /*
