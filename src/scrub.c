@@ -30,9 +30,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #if HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
@@ -46,6 +43,8 @@
 #include <libgen.h>
 #include <assert.h>
 #include <sys/param.h> /* MAXPATHLEN */
+#include <sys/resource.h>
+#include <errno.h>
 
 #include "genrand.h"
 #include "fillfile.h"
@@ -71,16 +70,16 @@ static off_t      blkalign(off_t offset, int blocksize);
 static filetype_t filetype(char *path);
 static char      *pat2str(int pat);
 static void       scrub(char *path, off_t size, const int pat[], int npat, 
-                      int bufsize, int Sopt);
+                      int bufsize, int Sopt, int sparse);
 static void       scrub_free(char *path, const int pat[], int npat, 
                       int bufsize, int Sopt);
 static void       scrub_dirent(char *path, char *newpath);
 static void       scrub_file(char *path, const int pat[], int npat, 
-                      int bufsize, int Sopt);
+                      int bufsize, int Sopt, int sparse);
 static void       scrub_resfork(char *path, const int pat[], int npat, 
                       int bufsize);
 static void       scrub_disk(char *path, off_t size, const int pat[], int npat,
-                      int bufsize, int Sopt);
+                      int bufsize, int Sopt, int sparse);
 
 #define RANDOM  0x0100
 #define VERIFY  0x0200
@@ -94,7 +93,7 @@ static const int dod_pattern[] = { 0, 0xff, RANDOM, 0, VERIFY };
 static const int bsi_pattern[] = { 0xff, 0xfe, 0xfd, 0xfb, 0xf7,
                                    0xef, 0xdf, 0xbf, 0x7f };
 
-#define OPTIONS "p:D:Xb:s:fSrv"
+#define OPTIONS "p:D:Xb:s:fSrvT"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -107,6 +106,7 @@ static struct option longopts[] = {
     {"no-signature",     no_argument,        0, 'S'},
     {"remove",           no_argument,        0, 'r'},
     {"version",          no_argument,        0, 'v'},
+    {"test-sparse",      no_argument,        0, 'T'},
     {0, 0, 0, 0},
 };
 #else
@@ -129,6 +129,7 @@ main(int argc, char *argv[])
     int fopt = 0;
     int Sopt = 0;
     int ropt = 0;
+    int Topt = 0;
 
     extern int optind;
     extern char *optarg;
@@ -190,6 +191,9 @@ main(int argc, char *argv[])
         case 'S':   /* --no-signature */
             Sopt = 1;
             break;
+        case 'T':   /* --test-sparse */
+            Topt = 1;
+            break;
         default:
             usage();
         }
@@ -203,8 +207,10 @@ main(int argc, char *argv[])
     if (filename == NULL)
         usage();
     if (Xopt) {
-        if (filetype(filename) == SPECIAL) {
-            fprintf(stderr, "%s: -X cannot be used on special files\n", prog);
+        filetype_t ftype = filetype(filename);
+
+        if (ftype != NOEXIST && ftype != REGULAR) {
+            fprintf(stderr, "%s: -X can only be used on regular files\n", prog);
             exit(1);
         }
         if (sopt > 0) {
@@ -284,7 +290,7 @@ main(int argc, char *argv[])
         scrub_free(filename, pat, npat, bopt, Sopt);
 
     } else if (filetype(filename) == REGULAR) {     /* scrub file */
-        scrub_file(filename, pat, npat, bopt, Sopt);
+        scrub_file(filename, pat, npat, bopt, Sopt, Topt);
 #if __APPLE__
         scrub_resfork(filename, pat, npat, bopt);
 #endif
@@ -294,14 +300,15 @@ main(int argc, char *argv[])
         }
 
     } else if (filetype(filename) == SPECIAL) {     /* scrub disk */  
-        scrub_disk(filename, sopt, pat, npat, bopt, Sopt);
+        scrub_disk(filename, sopt, pat, npat, bopt, Sopt, Topt);
     }
 
     /* unlink file at the end */
     if (ropt && filetype(filename) == REGULAR) {
         printf("%s: unlinking %s\n", prog, filename);
         if (unlink(filename) != 0) {
-            perror(filename);
+            fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
+                    strerror(errno));
             exit(1);
         }
     }
@@ -380,7 +387,8 @@ filetype(char *path)
  * Use 'bufsize' length for I/O buffers.
  */
 static void
-scrub(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
+scrub(char *path, off_t size, const int pat[], int npat, int bufsize, 
+      int Sopt, int sparse)
 {
     unsigned char *buf;
     int i;
@@ -402,19 +410,19 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
         if (pat[i] == RANDOM) {
             churnrand();
             fillfile(path, size, buf, bufsize, 
-                    (progress_t)progress_update, p, (refill_t)genrand);
+                    (progress_t)progress_update, p, (refill_t)genrand, sparse);
         } else if (pat[i] == VERIFY) {
             assert(i > 0);
             assert(pat[i - 1] != RANDOM);
             assert(pat[i - 1] != VERIFY);
             /* depends on previous pass contents of buf being intact */
             checkfile(path, size, buf, bufsize, 
-                    (progress_t)progress_update, p);
+                    (progress_t)progress_update, p, sparse);
         } else {
             assert(pat[i] <= 0xff);
             memset(buf, pat[i], bufsize);
             fillfile(path, size, buf, bufsize, 
-                    (progress_t)progress_update, p, NULL);
+                    (progress_t)progress_update, p, NULL, sparse);
         }
         progress_destroy(p);
     }
@@ -422,6 +430,24 @@ scrub(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
         writesig(path, bufsize);
 
     free(buf);
+}
+
+static void
+set_rlimit_fsize(void)
+{
+    struct rlimit r;
+
+    if (getrlimit(RLIMIT_FSIZE, &r) < 0) {
+        fprintf(stderr, "%s: getrlimit: %s\n", prog, strerror(errno));
+        exit(1);
+    }
+    if (r.rlim_cur != RLIM_INFINITY) {
+        r.rlim_cur = r.rlim_max = RLIM_INFINITY;
+        if (setrlimit(RLIMIT_FSIZE, &r) < 0) {
+            fprintf(stderr, "%s: setrlimit: %s\n", prog, strerror(errno));
+            exit(1);
+        }
+    }
 }
 
 /* Scrub free space (-X).
@@ -432,7 +458,8 @@ scrub_free(char *path, const int pat[], int npat, int bufsize, int Sopt)
     unsigned char *buf;
     off_t size; 
 
-    assert(filetype(path) == NOEXIST || filetype(path) == REGULAR);
+    if (getuid() == 0)
+        set_rlimit_fsize();
 
     /* special scrub for first pass */
     if (!(buf = malloc(bufsize))) {
@@ -456,7 +483,7 @@ scrub_free(char *path, const int pat[], int npat, int bufsize, int Sopt)
 
     /* remaining passes as usual */
     if (npat > 1)
-        scrub(path, size, pat+1, npat-1, bufsize, Sopt);
+        scrub(path, size, pat+1, npat-1, bufsize, Sopt, 0);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
@@ -492,7 +519,8 @@ scrub_dirent(char *path, char *newpath)
 /* Scrub a regular file.
  */
 static void 
-scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt)
+scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt, 
+           int sparse)
 {
     off_t size; 
     struct stat sb;
@@ -500,8 +528,7 @@ scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt)
     assert(filetype(path) == REGULAR);
 
     if (stat(path, &sb) < 0) {
-        fprintf(stderr, "%s: stat ", prog);
-        perror(path);
+        fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (sb.st_size == 0) {
@@ -513,7 +540,7 @@ scrub_file(char *path, const int pat[], int npat, int bufsize, int Sopt)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                 prog, path, (int)(size - sb.st_size)); 
     }
-    scrub(path, size, pat, npat, bufsize, Sopt);
+    scrub(path, size, pat, npat, bufsize, Sopt, sparse);
 }
 
 /* Scrub apple resource fork component of file.
@@ -540,14 +567,15 @@ scrub_resfork(char *path, const int pat[], int npat, int bufsize)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                         prog, rpath, (int)(rsize - rsb.st_size)); 
     }
-    scrub(rpath, rsize, pat, npat, bufsize, 0);
+    scrub(rpath, rsize, pat, npat, bufsize, 0, 0);
 }
 #endif
 
 /* Scrub a special file corresponding to a disk.
  */
 static void
-scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize, int Sopt)
+scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize, 
+           int Sopt, int sparse)
 {
     assert(filetype(path) == SPECIAL);
     if (size == 0) {
@@ -558,7 +586,7 @@ scrub_disk(char *path, off_t size, const int pat[], int npat, int bufsize, int S
         }
         printf("%s: please verify that device size below is correct!\n", prog);
     }
-    scrub(path, size, pat, npat, bufsize, Sopt);
+    scrub(path, size, pat, npat, bufsize, Sopt, sparse);
 }
 
 /*

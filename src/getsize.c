@@ -27,9 +27,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -60,8 +57,7 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -72,16 +68,16 @@ getsize(char *path)
                 valid_blkgetsize64 = 0;
     if (valid_blkgetsize64) {
         if (ioctl(fd, BLKGETSIZE64, &numbytes) < 0) {
-            fprintf(stderr, "%s: ioctl BLKGETSIZE64 ", prog);
-            perror(path);
+            fprintf(stderr, "%s: ioctl BLKGETSIZE64 %s: %s\n", prog, path,
+                    strerror(errno));
             exit(1);
         }
     } else {
         unsigned long numblocks;
 
         if (ioctl(fd, BLKGETSIZE, &numblocks) < 0) {
-            fprintf(stderr, "%s: ioctl BLKGETSIZE ", prog);
-            perror(path);
+            fprintf(stderr, "%s: ioctl BLKGETSIZE %s: %s\n", prog, path,
+                    strerror(errno));
             exit(1);
         }
         numbytes = (off_t)numblocks*512; /* 2TB limit here */
@@ -105,13 +101,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (ioctl(fd, DIOCGMEDIASIZE, &numbytes) < 0) {
-        fprintf(stderr, "%s: ioctl DIOCGMEDIASIZE ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl DIOCGMEDIASIZE %s: %s\n", prog, path,
+                strerror(errno));
         exit(1);
     }
     (void)close(fd);
@@ -133,13 +128,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (ioctl(fd, DKIOCGMEDIAINFO, &dkmp) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOCGMEDIAINFO ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl DKIOCGMEDIAINFO %s: %s\n", prog, path,
+                strerror(errno));
         exit(1);
     }
     (void)close(fd);
@@ -162,18 +156,17 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (ioctl(fd, DKIOCGETBLOCKSIZE, &blocksize) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOCGETBLOCKSIZE ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl DKIOCGETBLOCKSIZE %s: %s\n", prog, path,
+                strerror(errno));
         exit(1);
     }
     if (ioctl(fd, DKIOCGETBLOCKCOUNT, &blockcount) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOGETBLOCKCOUNT ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl DKIOGETBLOCKCOUNT %s: %s\n", prog, path,
+                strerror(errno));
         exit(1);
     }
     (void)close(fd);
@@ -195,13 +188,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (ioctl(fd, IOCINFO, &devinfo) == -1) {
-        fprintf(stderr, "%s: ioctl IOCINFO ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl IOCINFO %s: %s\n", prog, path, 
+                strerror(errno));
         exit(1);
     }
     switch (devinfo.devtype) {
@@ -232,13 +224,12 @@ getsize(char *path)
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (ioctl(fd, SIOC_CAPACITY, &cap) == -1) {
-        fprintf(stderr, "%s: ioctl SIOC_CAPACITY ", prog);
-        perror(path);
+        fprintf(stderr, "%s: ioctl SIOC_CAPACITY %s: %s\n", prog, path,
+                strerror(errno));
         exit(1);
     }
 

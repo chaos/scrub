@@ -78,8 +78,8 @@ genrandraw(unsigned char *buf, int buflen)
     if ((fd = open(PATH_URANDOM, O_RDONLY)) >= 0) {
         n = read_all(fd, buf, buflen);
         if (n < 0) {
-            fprintf(stderr, "%s: open ", prog);
-            perror(PATH_URANDOM);
+            fprintf(stderr, "%s: open %s: %s\n", prog, PATH_URANDOM, 
+                    strerror(errno));
             exit(1);
         }
         if (n == 0) {
@@ -117,8 +117,7 @@ initrand(void)
 
     if (access(PATH_URANDOM, R_OK) < 0) {
         if (gettimeofday(&tv, NULL) < 0) {
-            fprintf(stderr, "%s: gettimeofday", prog);
-            perror("");
+            fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
             exit(1);
         }
         srand(tv.tv_usec);

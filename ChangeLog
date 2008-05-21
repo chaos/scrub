@@ -1,3 +1,13 @@
+2008-05-21 Jim Garlick <garlick@llnl.gov>
+
+	* test/* : Add test infrastructure.
+
+	* src/scrub.c : Add --test-sparse option.
+
+	* src/* : Replace perror() with strerror(errno).
+
+	* src/fillfile.c : Fix a bug where file argument to -X had to exist.
+
 2008-05-20 Jim Garlick <garlick@llnl.gov>
 
 	* : Integrated automake/autoconf.

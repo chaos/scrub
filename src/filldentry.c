@@ -56,18 +56,15 @@ dirsync(char *dir)
 
     fd = open(dir, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(dir);
+        fprintf(stderr, "%s: open: %s\n", prog, strerror(errno));
         exit(1);
     }
     if (fsync(fd) < 0) {
-        fprintf(stderr, "%s: fsync ", prog);
-        perror(dir);
+        fprintf(stderr, "%s: fsync: %s\n", prog, strerror(errno));
         exit(1);
     }
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(dir);
+        fprintf(stderr, "%s: close: %s\n", prog, strerror(errno));
         exit(1);
     }
 #endif
@@ -117,8 +114,8 @@ filldentry(char *path, int pat)
     }
 
     if (rename(path, new) == -1) {
-        fprintf(stderr, "%s: rename %s to %s", prog, path, new); 
-        perror("");
+        fprintf(stderr, "%s: rename %s to %s: %s\n", prog, path, new, 
+                strerror(errno)); 
         exit(1);
     }
 

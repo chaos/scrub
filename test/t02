@@ -1,6 +1,6 @@
 #!/bin/sh
-
-rm -f testfile
-./pad 2m testfile || exit 1
-$PATH_SCRUB testfile >t02.out 2>&1
+TESTFILE=${TMPDIR:-/tmp}/scrub-testfile.$$
+rm -f $TESTFILE
+./pad 400k $TESTFILE || exit 1
+$PATH_SCRUB -r $TESTFILE 2>&1 | sed -e "s!${TESTFILE}!file!" >t02.out || exit 1
 diff t02.exp t02.out >t02.diff

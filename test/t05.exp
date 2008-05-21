@@ -1,7 +1,8 @@
 scrub: using pre v1.7 scrub (skip random) patterns
-scrub: scrubbing testfile 2097152 bytes (~2MB)
+scrub: scrubbing file 409600 bytes (~400KB)
 scrub: 0x0     |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|
 scrub: 0x55    |................................................|
 scrub: verify  |................................................|
+scrub: unlinking file

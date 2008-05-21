@@ -27,9 +27,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -38,6 +35,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include <errno.h>
 
 #include "util.h"
 #include "sig.h"
@@ -59,8 +57,7 @@ writesig(char *path, int blocksize)
     }
     fd = open(path, O_RDWR);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     memcpy(buf, SCRUB_MAGIC, sizeof(SCRUB_MAGIC));
@@ -69,16 +66,14 @@ writesig(char *path, int blocksize)
      */
     n = write_all(fd, buf, blocksize);
     if (n < 0) {
-        fprintf(stderr, "%s: write ", prog);
-        perror(path);
+        fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     /* Ignore short write.  
      * We'll fail to read the signature next time - not the end of the world.
      */
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(path);
+        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     free(buf);
@@ -97,8 +92,7 @@ checksig(char *path, int blocksize)
     }
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     /* AIX requires that we read even multiples of blocksize for raw
@@ -106,13 +100,11 @@ checksig(char *path, int blocksize)
      */
     n = read_all(fd, buf, blocksize);
     if (n < 0) {
-        fprintf(stderr, "%s: read ", prog);
-        perror(path);
+        fprintf(stderr, "%s: read %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(path);
+        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     /* Treat a short read like "no signature".  Not the end of the world.

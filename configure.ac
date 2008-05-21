@@ -25,7 +25,6 @@ AC_PROG_CC
 AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
-  sys/mode.h \
 )
 
 ##

@@ -27,33 +27,27 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <libgen.h>
+#include <errno.h>
 
-#include "util.h"
-#include "sig.h"
-
-char *prog;
-
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-    prog = basename(argv[0]);
+    struct stat sb;
+
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s filename\n", prog);
+        fprintf(stderr, "Usage: tsize filename\n");
         exit(1);
     }
-    if (!checksig(argv[1], 8192)) {
-        fprintf(stderr, "%s: no signature, writing one\n", prog);
-        writesig(argv[1], 8192);
-    } else {
-        fprintf(stderr, "%s: signature present\n", prog);
+    if (stat(argv[1], &sb) < 0) {
+        perror(argv[1]);
+        exit(1);
     }
+    printf("%llu\n", sb.st_size);
     exit(0);
 }
 

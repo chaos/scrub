@@ -27,9 +27,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -66,15 +63,15 @@ main(int argc, char *argv[])
                 exit(1);
 	    }
     } else {
-        if (!S_ISCHR(sb.st_mode) && !S_ISBLK(sb.st_mode)) {
-            fprintf(stderr, "%s: file must be block or char special\n", prog);
-            exit(1);
+        if (S_ISCHR(sb.st_mode) || S_ISBLK(sb.st_mode)) {
+            sz = getsize(argv[1]);
+            if (sz == 0) {
+                    fprintf(stderr, "%s: could not determine device size\n", prog);
+                    exit(1);
+            }
+        } else {
+            sz = sb.st_size;
         }
-        sz = getsize(argv[1]);
-	    if (sz == 0) {
-                fprintf(stderr, "%s: could not determine device size\n", prog);
-                exit(1);
-	    }
     }
     if (sz != 0) {
         size2str(buf, sizeof(buf), sz); 

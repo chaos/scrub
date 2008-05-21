@@ -1,0 +1,4 @@
+All the documentation for scrub is in the scrub(1) manual page.
+To format from the source directory, run something like 
+    nroff -man scrub.1 | less
+

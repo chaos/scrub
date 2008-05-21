@@ -27,9 +27,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -52,8 +49,7 @@ is_char(char *path)
     struct stat sb;
 
     if (stat(path, &sb) < 0) {
-        fprintf(stderr, "%s: stat ", prog);
-        perror(path);
+        fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
     return S_ISCHR(sb.st_mode);
@@ -63,11 +59,12 @@ is_char(char *path)
  * Writes will use memsize blocks.
  * If 'refill' is non-null, call it before each write (for random fill).
  * If 'progress' is non-null, call it after each write (for progress meter).
+ * If 'sparse' is true, only scrub first and last blocks (for testing).
  * The number of bytes written is returned.
  */
 off_t
 fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg, refill_t refill)
+        progress_t progress, void *arg, refill_t refill, int sparse)
 {
     int fd;
     off_t n;
@@ -75,8 +72,7 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
 
     fd = open(path, O_WRONLY | (!is_char(path) ? O_SYNC : 0));
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -87,18 +83,24 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
             memsize = filesize - res;
         n = write_all(fd, mem, memsize);
         if (n < 0) {
-            fprintf(stderr, "%s: write ", prog);
-            perror(path);
+            fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
             exit(1);
         }
         res += n;
+        if (sparse && res < filesize - memsize) {
+            if (lseek(fd, filesize - memsize, SEEK_SET) < 0) {
+                fprintf(stderr, "%s: lseek %s: %s\n", prog, path, 
+                        strerror(errno));
+                exit(1);
+            }
+            res = filesize - memsize;
+        }
         if (progress)
             progress(arg, (double)res/filesize);
     } while (res < filesize);
 
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(path);
+        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -109,7 +111,7 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
  */
 off_t
 checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg)
+        progress_t progress, void *arg, int sparse)
 {
     int fd;
     off_t n;
@@ -124,8 +126,7 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -134,8 +135,7 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
             memsize = filesize - res;
         n = read_all(fd, buf, memsize);
         if (n < 0) {
-            fprintf(stderr, "%s: read ", prog);
-            perror(path);
+            fprintf(stderr, "%s: read %s: %s", prog, path, strerror(errno));
             exit(1);
         }
         if (n == 0) {
@@ -147,13 +147,19 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
             exit(1);
         }
         res += n;
+        if (sparse && res < filesize - memsize) {
+            if (lseek(fd, filesize - memsize, SEEK_SET) < 0) {
+                fprintf(stderr, "%s: lseek: %s\n", prog, strerror(errno));
+                exit(1);
+            }
+            res = filesize - memsize;
+        }
         if (progress)
             progress(arg, (double)res/filesize);
     } while (res < filesize);
 
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(path);
+        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -173,10 +179,9 @@ growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
     off_t n;
     off_t res = 0LL;
 
-    fd = open(path, O_WRONLY | O_CREAT | (!is_char(path) ? O_SYNC : 0), 0644);
+    fd = open(path, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
-        fprintf(stderr, "%s: open ", prog);
-        perror(path);
+        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 
@@ -189,8 +194,7 @@ growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
             continue;
         }
         if (n < 0 && errno != ENOSPC) {
-            fprintf(stderr, "%s: write ", prog);
-            perror(path);
+            fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
             exit(1);
         }
         if (n == 0) {
@@ -203,8 +207,7 @@ growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
     } while (n > 0);
 
     if (close(fd) < 0) {
-        fprintf(stderr, "%s: close ", prog);
-        perror(path);
+        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
 

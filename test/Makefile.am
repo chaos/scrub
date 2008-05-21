@@ -1,4 +1,4 @@
-check_PROGRAMS = pad trand aestest tprogress tgetsize tsig
+check_PROGRAMS = pad trand aestest tprogress tgetsize tsig tsize
 
 TESTS_ENVIRONMENT = env 
 TESTS_ENVIRONMENT += "PATH_SCRUB=$(top_builddir)/src/scrub"

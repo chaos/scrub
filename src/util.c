@@ -27,9 +27,6 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#if HAVE_SYS_MODE_H
-#include <sys/mode.h>
-#endif
 #include <unistd.h>
 #include <libgen.h>
 

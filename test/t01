@@ -1,6 +1,9 @@
 #!/bin/sh
-
-rm -f testfile
-./pad 8g testfile || exit 1
-size=`stat -c "%s" testfile`
-test $size = 8589934592
+TESTFILE=${TMPDIR:-/tmp}/scrub-testfile.$$
+rm -f $TESTFILE
+./pad 5g $TESTFILE || exit 1
+size=`./tsize $TESTFILE` || exit 1
+test $size = 5368709120  || exit 1
+$PATH_SCRUB -r -T $TESTFILE 2>&1|sed -e "s!${TESTFILE}!file!" >t01.out || exit 1
+test -e $TESTFILE && exit 1
+diff t01.out t01.exp >t01.diff
