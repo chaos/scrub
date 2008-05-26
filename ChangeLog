@@ -1,3 +1,34 @@
+2008-05-26 Jim Garlick <garlick@llnl.gov>
+
+	* src/fillfile.[ch] : Get rid of growfile(). Add ENOSPC handling
+	to fillfile().  Elminiate is_char() and instead call filetype().
+
+	* src/scrub.c : Re-implement scrub -X to create many ulimit-size
+	files in a directory rather than one big file. 
+	
+	* src/progress.[ch] : Fill remaining progress-space with 'x' if
+	progress_destroy() is called with < 100% complete.
+
+	* src/util.[ch] : Move bool definition, filetype(), and blkalign()
+	from scrub.c.  Add an UP|DOWN parameter to blkalign.
+	Split filetype() return value SPECIAL into BLOCK and CHAR.
+
+2008-05-25 Jim Garlick <garlick@llnl.gov>
+
+	* src/scrub.1 : Add longopts to option description.
+
+	* src/scrub.c : Add longopts to usage message.
+
+	* src/scrub.c : Add support for Gutmann pattern sequence.
+
+	* src/pattern.[ch] : Factor out pattern handling stuff from scrub.c.
+
+	* test/t11 : New, verify Gutmann sequence.
+
+	* src/scrub.c : Allow -s on a regular file for testing.
+
+	* test/t12 : New, ensure -s grows a file to the correct size.
+
 2008-05-21 Jim Garlick <garlick@llnl.gov>
 
 	* : tag scrub-1.10

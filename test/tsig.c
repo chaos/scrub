@@ -48,9 +48,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s filename\n", prog);
         exit(1);
     }
-    if (!checksig(argv[1], 8192)) {
+    if (!checksig(argv[1])) {
         fprintf(stderr, "%s: no signature, writing one\n", prog);
-        writesig(argv[1], 8192);
+        writesig(argv[1]);
     } else {
         fprintf(stderr, "%s: signature present\n", prog);
     }

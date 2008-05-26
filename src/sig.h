@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id:$
  *****************************************************************************
- *  Copyright (C) 2005-2006 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -23,8 +23,8 @@
  *  with Scrub; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
-void writesig(char *path, int blocksize);
-int checksig(char *path, int blocksize);
+void writesig(char *path);
+int checksig(char *path);
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

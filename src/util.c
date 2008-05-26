@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id: util.c 68 2006-02-14 21:54:16Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -27,8 +27,12 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <libgen.h>
+
+#include "util.h"
 
 /* Handles short reads but otherwise just like read(2).
  */
@@ -64,6 +68,48 @@ write_all(int fd, const unsigned char *buf, int count)
     } while (n >= 0 && count > 0);
 
     return n;
+}
+
+/* Return the type of file represented by 'path'.
+ */
+filetype_t
+filetype(char *path)
+{
+    struct stat sb;
+    filetype_t res = NOEXIST;
+
+    if (stat(path, &sb) == 0) {
+        if (S_ISREG(sb.st_mode))
+            res = REGULAR;
+        else if (S_ISCHR(sb.st_mode))
+            res = CHAR;
+        else if (S_ISBLK(sb.st_mode))
+            res = BLOCK;
+        else
+            res = OTHER;
+    }
+    return res;
+}
+
+/* Round 'offset' up to an even multiple of 'blocksize'.
+ */
+off_t
+blkalign(off_t offset, int blocksize, round_t rtype)
+{
+    off_t r = offset % blocksize;
+
+    if (r > 0) {
+        switch (rtype) {
+            case UP:
+                offset += (blocksize - r);
+                break;
+            case DOWN:
+                offset -= r;
+                break;
+        }
+    }
+
+    return offset;
 }
 
 /*

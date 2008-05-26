@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id:$
  *****************************************************************************
- *  Copyright (C) 2005-2006 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -40,17 +40,33 @@
 #include "util.h"
 #include "sig.h"
 
-
 #define SCRUB_MAGIC "\001\002\003SCRUBBED!"
 
 extern char *prog;
 
-void
-writesig(char *path, int blocksize)
+/* AIX requires that we write even multiples of blocksize for raw 
+ * devices, else EINVAL.
+ */
+static off_t
+sigbufsize(char *path)
 {
-    unsigned char *buf = malloc(blocksize);
-    int fd, n;
+    struct stat sb;
 
+    if (stat(path, &sb) < 0) {
+        fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
+        exit(1);
+    }
+    return blkalign(strlen(SCRUB_MAGIC), sb.st_blksize, UP);
+}
+
+void
+writesig(char *path)
+{
+    unsigned char *buf; 
+    int fd, n;
+    off_t blocksize = sigbufsize(path);
+
+    buf = malloc(blocksize);
     if (!buf) {
         fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
@@ -61,9 +77,6 @@ writesig(char *path, int blocksize)
         exit(1);
     }
     memcpy(buf, SCRUB_MAGIC, sizeof(SCRUB_MAGIC));
-    /* AIX requires that we write even multiples of blocksize for raw 
-     * devices, else EINVAL.
-     */
     n = write_all(fd, buf, blocksize);
     if (n < 0) {
         fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
@@ -80,12 +93,14 @@ writesig(char *path, int blocksize)
 }
 
 int
-checksig(char *path, int blocksize)
+checksig(char *path)
 {
-    unsigned char *buf = malloc(blocksize);
+    unsigned char *buf; 
     int fd, n;
     int result = 0;
+    off_t blocksize = sigbufsize(path);
 
+    buf = malloc(blocksize);
     if (!buf) {
         fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
@@ -95,9 +110,6 @@ checksig(char *path, int blocksize)
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-    /* AIX requires that we read even multiples of blocksize for raw
-     * devices, else EINVAL.
-     */
     n = read_all(fd, buf, blocksize);
     if (n < 0) {
         fprintf(stderr, "%s: read %s: %s\n", prog, path, strerror(errno));

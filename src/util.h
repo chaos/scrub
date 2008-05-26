@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id: util.h 63 2006-01-30 18:10:01Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -24,5 +24,16 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-int read_all(int fd, unsigned char *buf, int count);
-int write_all(int fd, const unsigned char *buf, int count);
+typedef enum { false, true } bool;
+
+typedef enum { NOEXIST, REGULAR, CHAR, BLOCK, OTHER } filetype_t;
+typedef enum { UP, DOWN } round_t;
+
+int         read_all(int fd, unsigned char *buf, int count);
+int         write_all(int fd, const unsigned char *buf, int count);
+filetype_t  filetype(char *path);
+off_t       blkalign(off_t offset, int blocksize, round_t rtype);
+
+/*
+ * vi:tabstop=4 shiftwidth=4 expandtab
+ */

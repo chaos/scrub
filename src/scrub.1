@@ -5,7 +5,7 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
-.I "[-v] [-f] [-p nnsa|dod|bsi] [-X] [-D newname] [-s size] file"
+.I "[OPTIONS] file"
 .br
 .SH DESCRIPTION
 .B Scrub
@@ -38,10 +38,13 @@ See CAVEATS below.
 .B Scrub 
 accepts the following options:
 .TP
-.I "-v"
+\fI-v\fR, \fI--version\fR
 Print scrub version and exit.
 .TP
-.I "-p nnsa|dod|bsi|old|fastold"
+\fI-r\fR, \fI--remove\fR
+Remove the file after scrubbing.
+.TP
+\fI-p\fR, \fI--pattern\fR \fInnsa|dod|bsi|old|fastold|gutmann\fR
 Select the patterns to write.
 .I "nnsa"
 selects patterns compliant with NNSA Policy Letter NAP-14.x;
@@ -54,9 +57,11 @@ Technologies (http://www.bsi.bund.de);
 selects pre-version 1.7 scrub patterns; and
 .I "fastold"
 is old without the random pass.  
+.I "gutmann"
+is a 35-pass sequence described in Gutmann's paper cited below.
 See STANDARDS below for more detail.  Default: nnsa.
 .TP
-.I "-b blocksize"
+\fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
 Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
 .I "K,"
 .I "M,"
@@ -66,26 +71,26 @@ may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
 Default: 1M.
 .TP
-.I "-f"
+\fI-f\fR, \fI--force\fR
 Scrub even if target contains signature indicating it has already been
 scrubbed.
 .TP
-.I "-S"
+\fI-S\fR, \fI--no-signature\fR
 Do not write scrub signature.  
 .B Scrub 
 will not be able to ascertain if the disk has already been scrubbed.
 .TP
-.I "-X"
+\fI-X\fR, \fI--freespace\fR
 Create specified regular file and keep appending to it until 
 write returns ENOSPC (file system full), then scrub it as usual.
 .TP
-.I "-D newname"
+\fI-D\fR, \fI--dirent\fR \fInewname\fR
 After scrubbing the file, scrub its name in the directory entry, 
 then rename it to the new name.  
 The scrub patterns used on the directory entry are constrained by the 
 operating system and thus are not compliant with cited standards.
 .TP
-.I "-s size"
+\fI-s\fR, \fI--device-size\fR \fIsize\fR
 Override the device size (in bytes). Without this option,
 .B scrub
 determines media capacity using OS-specific ioctl(2) calls.
@@ -95,7 +100,6 @@ or
 .I "G"
 may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
-
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 
@@ -104,14 +108,6 @@ in an appropriately equipped lab.
 .B Scrub
 .I "nnsa"
 patterns are reasonable for sanitizing modern PRML/EPRML encoded disk devices.
-For older MFM/RLL encoded drives, the shred(1) program from GNU coreutils
-does a more thorough and scientific (but more I/O intensive) job of secure 
-deletion, as described in Guttman below.
-.PP
-.B Scrub 
-makes no attempt to disable write caching on the disk device or deal 
-with spare blocks.  RAID and other more sophisticated storage devices may 
-require special handling.
 .PP
 The effectiveness of scrubbing regular files through a file system
 will be limited by the OS and file system.  File systems that are
@@ -178,6 +174,8 @@ Related Hardware", Unpublished Draft, 2005
 .LP
 "Secure Deletion of Data from Magnetic and Solid-State Memory", by Peter 
 Gutmann, Sixth USENIX Security Symposium, San Jose, CA, July 22-25, 1996.
+.LP
+"Gutmann Method", wikiedia, http://en.wikipedia.org/wiki/Gutmann_method.
 .LP
 Darik's boot and Nuke FAQ: 
 http://dban.sourceforge.net/faq/index.html

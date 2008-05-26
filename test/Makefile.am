@@ -2,7 +2,7 @@ check_PROGRAMS = pad trand aestest tprogress tgetsize tsig tsize
 
 TESTS_ENVIRONMENT = env 
 TESTS_ENVIRONMENT += "PATH_SCRUB=$(top_builddir)/src/scrub"
-TESTS = t00 t01 t02 t03 t04 t05 t06 t07 t08 t09 t10
+TESTS = t00 t01 t02 t03 t04 t05 t06 t07 t08 t09 t10 t11 t12 t13
 
 CLEANFILES = *.out *.diff testfile
 

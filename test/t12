@@ -1,0 +1,17 @@
+#!/bin/sh
+TESTFILE=${TMPDIR:-/tmp}/scrub-testfile.$$
+rm -f $TESTFILE
+./pad 400k $TESTFILE || exit 1
+$PATH_SCRUB -s 400k $TESTFILE 2>&1 | sed -e "s!$TESTFILE!file!" >t12.out
+test $? = 0 || exit 1
+./tsize $TESTFILE >>t12.out 2>&1
+$PATH_SCRUB -f -s 300k $TESTFILE 2>&1 | sed -e "s!$TESTFILE!file!" >>t12.out
+test $? = 0 || exit 1
+./tsize $TESTFILE >>t12.out 2>&1
+$PATH_SCRUB -f -s 500k $TESTFILE 2>&1 | sed -e "s!$TESTFILE!file!" >>t12.out
+test $? = 0 || exit 1
+./tsize $TESTFILE >>t12.out 2>&1
+diff t12.exp t12.out >t12.diff
+rc=$?
+rm -f $TESTFILE
+exit $rc

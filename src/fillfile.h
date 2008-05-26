@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id: fillfile.h 69 2006-02-14 22:05:36Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -28,8 +28,7 @@ typedef void (*progress_t) (void *arg, double completed);
 typedef void (*refill_t) (unsigned char *mem, int memsize);
 
 off_t fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg, refill_t refill, int sparse);
+        progress_t progress, void *arg, refill_t refill, 
+        bool sparse, bool creat);
 off_t checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg, int sparse);
-off_t growfile(char *path, unsigned char *mem, int memsize, refill_t refill);
-
+        progress_t progress, void *arg, bool sparse);

@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id: progress.c 56 2005-11-24 16:32:06Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -44,6 +44,7 @@ struct prog_struct {
     int bars;
     int maxbars;
     int batch;
+    char bar;
 };
 
 void 
@@ -53,6 +54,7 @@ progress_create(prog_t *ctx, int width)
         (*ctx)->magic = PROGRESS_MAGIC;
         (*ctx)->maxbars = width - 2;
         (*ctx)->bars = 0;
+        (*ctx)->bar = '.';
         (*ctx)->batch = !isatty(1);
         if ((*ctx)->batch)
             printf("|");
@@ -70,6 +72,8 @@ progress_destroy(prog_t ctx)
 {
     if (ctx) {
         assert(ctx->magic == PROGRESS_MAGIC);
+        ctx->bar = 'x';
+        progress_update(ctx, 1.0);
         ctx->magic = 0;
         if (ctx->batch)
             printf("|\n");
@@ -86,7 +90,7 @@ progress_update(prog_t ctx, double complete)
     if (ctx) {
         assert(ctx->magic == PROGRESS_MAGIC);
         while (ctx->bars < (double)ctx->maxbars * complete) {
-            printf(".");
+            printf("%c", ctx->bar);
             fflush(stdout);
             ctx->bars++;
         }

@@ -1,7 +1,7 @@
 /*****************************************************************************\
  *  $Id: fillfile.c 77 2006-02-15 01:00:42Z garlick $
  *****************************************************************************
- *  Copyright (C) 2005 The Regents of the University of California.
+ *  Copyright (C) 2001-2008 The Regents of the University of California.
  *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
  *  Written by Jim Garlick <garlick@llnl.gov>.
  *  UCRL-CODE-2003-006.
@@ -36,24 +36,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fillfile.h"
 #include "util.h"
+#include "fillfile.h"
 
 extern char *prog;
-
-/* Return true if path is a char-special file.
- */
-static int
-is_char(char *path)
-{
-    struct stat sb;
-
-    if (stat(path, &sb) < 0) {
-        fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    return S_ISCHR(sb.st_mode);
-}
 
 /* Fill file (can be regular or special file) with pattern in mem.
  * Writes will use memsize blocks.
@@ -61,61 +47,69 @@ is_char(char *path)
  * If 'progress' is non-null, call it after each write (for progress meter).
  * If 'sparse' is true, only scrub first and last blocks (for testing).
  * The number of bytes written is returned.
+ * If 'creat' is true, open with O_CREAT and allow ENOSPC to be non-fatal.
  */
 off_t
 fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg, refill_t refill, int sparse)
+         progress_t progress, void *arg, refill_t refill, 
+         bool sparse, bool creat)
 {
     int fd;
     off_t n;
-    off_t res = 0LL;
+    off_t written = 0LL;
+    int openflags = O_WRONLY;
 
-    fd = open(path, O_WRONLY | (!is_char(path) ? O_SYNC : 0));
+    if (filetype(path) != CHAR)
+        openflags |= O_SYNC;
+    if (creat)
+        openflags |= O_CREAT;
+    fd = open(path, openflags, 0644);
     if (fd < 0) {
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-
     do {
-        if (refill)
+        if (refill && !sparse)
             refill(mem, memsize);
-        if (res + memsize > filesize)
-            memsize = filesize - res;
-        n = write_all(fd, mem, memsize);
-        if (n < 0) {
-            fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
-            exit(1);
-        }
-        res += n;
-        if (sparse && res < filesize - memsize) {
-            if (lseek(fd, filesize - memsize, SEEK_SET) < 0) {
+        if (written + memsize > filesize)
+            memsize = filesize - written;
+        if (sparse && !(written == 0) && !(written + memsize == filesize)) {
+            if (lseek(fd, memsize, SEEK_CUR) < 0) {
                 fprintf(stderr, "%s: lseek %s: %s\n", prog, path, 
                         strerror(errno));
                 exit(1);
             }
-            res = filesize - memsize;
+            written += memsize;
+        } else {
+            n = write_all(fd, mem, memsize);
+            if (creat && n < 0 && errno == ENOSPC)
+                break;
+            if (n < 0) {
+                fprintf(stderr, "%s: write %s: %s\n", prog, path, 
+                        strerror(errno));
+                exit(1);
+            }
+            written += n;
         }
         if (progress)
-            progress(arg, (double)res/filesize);
-    } while (res < filesize);
-
+            progress(arg, (double)written/filesize);
+    } while (written < filesize);
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-
-    return res;
+    return written;
 }
 
 /* Verify that file was filled with 'mem' patterns.
  */
 off_t
 checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-        progress_t progress, void *arg, int sparse)
+          progress_t progress, void *arg, bool sparse)
 {
     int fd;
     off_t n;
-    off_t res = 0LL;
+    off_t verified = 0LL;
     unsigned char *buf;
 
     buf = malloc(memsize);
@@ -123,95 +117,46 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
-
     fd = open(path, O_RDONLY);
     if (fd < 0) {
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-
     do {
-        if (res + memsize > filesize)
-            memsize = filesize - res;
-        n = read_all(fd, buf, memsize);
-        if (n < 0) {
-            fprintf(stderr, "%s: read %s: %s", prog, path, strerror(errno));
-            exit(1);
-        }
-        if (n == 0) {
-            fprintf(stderr, "%s: premature EOF on %s\n", prog, path);
-            exit(1);
-        }
-        if (memcmp(mem, buf, memsize) != 0) {
-            fprintf(stderr, "%s: verification failure on %s\n", prog, path);
-            exit(1);
-        }
-        res += n;
-        if (sparse && res < filesize - memsize) {
-            if (lseek(fd, filesize - memsize, SEEK_SET) < 0) {
-                fprintf(stderr, "%s: lseek: %s\n", prog, strerror(errno));
+        if (verified + memsize > filesize)
+            memsize = filesize - verified;
+        if (sparse && !(verified == 0) && !(verified + memsize == filesize)) {
+            if (lseek(fd, memsize, SEEK_CUR) < 0) {
+                fprintf(stderr, "%s: lseek %s: %s\n", prog, path, 
+                        strerror(errno));
                 exit(1);
             }
-            res = filesize - memsize;
+            verified += memsize;
+        } else {
+            n = read_all(fd, buf, memsize);
+            if (n < 0) {
+                fprintf(stderr, "%s: read %s: %s", prog, path, strerror(errno));
+                exit(1);
+            }
+            if (n == 0) {
+                fprintf(stderr, "%s: premature EOF on %s\n", prog, path);
+                exit(1);
+            }
+            if (memcmp(mem, buf, memsize) != 0) {
+                fprintf(stderr, "%s: verification failure on %s\n", prog, path);
+                exit(1);
+            }
+            verified += n;
         }
         if (progress)
-            progress(arg, (double)res/filesize);
-    } while (res < filesize);
-
+            progress(arg, (double)verified/filesize);
+    } while (verified < filesize);
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-
     free(buf);
-
-    return res;
-}
-
-/* Create file and fill it with pattern in mem until the file system is full.
- * Writes will use memsize blocks.
- * The number of bytes written is returned.
- */
-off_t
-growfile(char *path, unsigned char *mem, int memsize, refill_t refill)
-{
-    int fd;
-    off_t n;
-    off_t res = 0LL;
-
-    fd = open(path, O_WRONLY | O_CREAT, 0644);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-
-    do {
-        if (refill)
-            refill(mem, memsize);
-        n = write_all(fd, mem, memsize);
-        if (n < 0 && errno == ENOSPC && memsize > 1) {
-            memsize = 1;
-            continue;
-        }
-        if (n < 0 && errno != ENOSPC) {
-            fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
-            exit(1);
-        }
-        if (n == 0) {
-            fprintf(stderr, "%s: write to %s returned 0, aborting\n", 
-                    prog, path);
-            exit(1);
-        }
-        if (n > 0)
-            res += n;
-    } while (n > 0);
-
-    if (close(fd) < 0) {
-        fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-
-    return res;
+    return verified;
 }
 
 /*
