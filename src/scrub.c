@@ -211,6 +211,11 @@ main(int argc, char *argv[])
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
                 exit(1);
             }
+            if (checksig(filename) && !fopt) {
+                fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
+                        prog, filename);
+                exit(1);
+            }
             scrub_disk(filename, sopt, seq, bopt, Sopt, Topt);
             break;
         case REGULAR:
@@ -356,11 +361,11 @@ get_rlimit_fsize(void)
 }
 
 static void
-set_rlimit_fsize_infinity(void)
+set_rlimit_fsize(off_t val)
 {
     struct rlimit r;
 
-    r.rlim_cur = r.rlim_max = RLIM_INFINITY;
+    r.rlim_cur = r.rlim_max = val;
     if (setrlimit(RLIMIT_FSIZE, &r) < 0) {
         fprintf(stderr, "%s: setrlimit: %s\n", prog, strerror(errno));
         exit(1);
@@ -389,7 +394,7 @@ scrub_free(char *dirpath, off_t size, const sequence_t *seq,
         exit(1);
     } 
     if (getuid() == 0)
-        set_rlimit_fsize_infinity();
+        set_rlimit_fsize(RLIM_INFINITY);
     if (size == 0)
         size = get_rlimit_fsize();
     if (size == 0)
