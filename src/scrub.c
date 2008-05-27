@@ -69,8 +69,10 @@ static void       scrub_free(char *path, off_t size, const sequence_t *seq,
 static void       scrub_dirent(char *path, char *newpath);
 static void       scrub_file(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
+#if __APPLE__
 static void       scrub_resfork(char *path, const sequence_t *seq,
                       int bufsize);
+#endif
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 

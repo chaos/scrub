@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <sys/resource.h>
+#include <string.h>
 #include <errno.h>
 
 #include "getsize.h"
@@ -102,8 +103,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
     if (lseek(fd, fileOffset - 1, SEEK_SET) < 0) {
-        fprintf(stderr, "%s: lseek %lld %s: %s\n", prog, filename,
-            (long long)fileOffset - 1, strerror(errno));
+        fprintf(stderr, "%s: lseek %lld %s: %s\n", prog, 
+            (long long)fileOffset - 1, filename, strerror(errno));
         exit(1);
     }
     if (write(fd, &c, 1) < 0) {
