@@ -5,8 +5,13 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
+.I "[OPTIONS] special-file"
+.br
+.B scrub
 .I "[OPTIONS] file"
 .br
+.B scrub
+.I "-X [OPTIONS] directory"
 .SH DESCRIPTION
 .B Scrub
 iteratively writes patterns on files or disk devices
@@ -28,12 +33,11 @@ is a regular file.
 See CAVEATS below.
 .LP
 3) 
-.I "file"
-is created, expanded until the file system is full, then scrubbed as 
-in 2). This mode is selected with the
+.I "directory"
+is created and filled with files until the file system is full, 
+then the files are scrubbed as in 2). This mode is selected with the
 .I "-X" 
-option.
-See CAVEATS below.
+option.  See CAVEATS below.
 .LP
 .B Scrub 
 accepts the following options:
@@ -81,8 +85,11 @@ Do not write scrub signature.
 will not be able to ascertain if the disk has already been scrubbed.
 .TP
 \fI-X\fR, \fI--freespace\fR
-Create specified regular file and keep appending to it until 
-write returns ENOSPC (file system full), then scrub it as usual.
+Create specified directory and fill it with files until 
+write returns ENOSPC (file system full), then scrub the files as usual.
+The size of each file can be set with \fI-s\fR, otherwise it will be
+the maximum file size creatable given the user's file size limit or 
+1g if umlimited.
 .TP
 \fI-D\fR, \fI--dirent\fR \fInewname\fR
 After scrubbing the file, scrub its name in the directory entry, 
@@ -127,13 +134,6 @@ attempts to overwrite a file's resource fork if it exists.
 Although MacOS X will support additional named forks in the future,
 .B scrub 
 is only aware of the traditional data and resource forks.
-.PP
-[IBM AIX JFS file systems]
-On some versions of AIX, JFS file systems that are not explicity created
-with large file support will not allow >4G files.  This causes problems
-for the -X option which tries to create a file that consumes all
-available free space.  In this case you may need to create several smaller
-files manually and scrub them.
 .SH STANDARDS
 The 
 .I "dod"
