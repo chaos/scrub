@@ -1,0 +1,19 @@
+#!/bin/sh
+
+TESTFILE=/tmp/scrub-t13
+mkdir -p $TESTFILE || exit 1
+
+# wrong type of file
+$PATH_SCRUB $TESTFILE >t13.out 2>&1
+test $? != 0 || exit 1
+
+# -X and existing file
+$PATH_SCRUB -X $TESTFILE >>t13.out 2>&1
+test $? != 0 || exit 1
+
+# nonexistant
+rmdir $TESTFILE || exit 1
+$PATH_SCRUB  $TESTFILE >>t13.out 2>&1
+test $? != 0 || exit 1
+
+diff t13.out t13.exp >t13.diff
