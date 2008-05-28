@@ -23,7 +23,8 @@ retrieving the data more difficult.  It operates in one of three modes:
 %setup
 
 %build
-%configure
+# N.B. --program-prefix="" needed on AIX
+%configure --program-prefix=""
 make
 #make check
 
