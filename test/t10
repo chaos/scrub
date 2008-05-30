@@ -7,7 +7,7 @@ test -f $EXPFILE || exit 0
 
 case `hostname` in
     manbearpig)
-        ./tgetsize /dev/rhdisk0 >t10.out 2>&1
+        sudo ./tgetsize /dev/rhdisk0 >t10.out 2>&1
         ;;
     cartman)
         sudo ./tgetsize /dev/sda1 >t10.out 2>&1
