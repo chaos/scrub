@@ -1,5 +1,7 @@
 2008-05-30 Jim Garlick <garlick@llnl.gov>
 
+	* : tag scrub-2.0
+
 	* src/scrub.c : Drop warning about zero length resource fork to
 	address failing tests on darwin.
 
