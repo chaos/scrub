@@ -487,7 +487,7 @@ scrub_resfork(char *path, const sequence_t *seq, int bufsize)
     if (stat(rpath, &rsb) < 0)
         return;
     if (rsb.st_size == 0) {
-        printf("%s: skipping zero length resource fork: %s\n", prog, rpath);
+        /*printf("%s: skipping zero length resource fork: %s\n", prog, rpath);*/
         return;
     }
     printf("%s: scrubbing resource fork: %s\n", prog, rpath);

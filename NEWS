@@ -5,14 +5,14 @@ scrub-2.0 Release Notes                                       2008-05-26
 * Longopts support.
 
 * Changed -X, --freespace option behavior to create a directory
-  and fill it with mulitple files to get around file system/rlimit
+  and fill it with multiple files to get around file system/rlimit
   caps on file size.
-
-* General refactoring.
 
 * Added support for repeating patterns > 1 byte.
 
 * Added support for Gutmann 35-pass pattern sequence.
+
+* General refactoring and cleanup.
 
 ========================================================================
 scrub-1.10 Release Notes                                      2008-05-21

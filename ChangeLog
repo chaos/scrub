@@ -1,3 +1,10 @@
+2008-05-30 Jim Garlick <garlick@llnl.gov>
+
+	* src/scrub.c : Drop warning about zero length resource fork to
+	address failing tests on darwin.
+
+	* test/t10-marklar.exp : Add test for checking disk size on darwin.
+
 2008-05-28 Jim Garlick <garlick@llnl.gov>
 
 	* scrub.spec : Set --program-prefix to prevent AIX from adding one.

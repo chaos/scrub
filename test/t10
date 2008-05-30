@@ -19,5 +19,8 @@ case `hostname` in
     timmy)
         sudo ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
         ;;
+    marklar)
+        sudo ./tgetsize /dev/rdisk1s3 >t10.out 2>&1
+        ;;
 esac
 diff $EXPFILE t10.out >t10.diff
