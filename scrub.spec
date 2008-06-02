@@ -23,8 +23,7 @@ retrieving the data more difficult.  It operates in one of three modes:
 %setup
 
 %build
-# N.B. --program-prefix="" needed on AIX
-%configure --program-prefix=""
+%configure --program-prefix=%{?_program_prefix:%{_program_prefix}}
 make
 #make check
 
