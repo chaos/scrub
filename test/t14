@@ -3,6 +3,8 @@
 # Verify that no original content remains after a scrub,
 # with and without signature
 
+unset TMPDIR # messes up diff if not /tmp
+
 TEST=t14
 TESTFILE=${TMPDIR:-/tmp}/scrub-$TEST
 TESTFILE2=${TMPDIR:-/tmp}/scrub-zero-$TEST
