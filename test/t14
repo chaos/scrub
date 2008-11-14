@@ -14,36 +14,24 @@ FILESIZE=4M
 
 DATAPAT=0xbe
 
-rm -f $TESTFILE $TESTFILE2
+rm -f $TESTFILE $TESTFILE2 $TEST.out
 
-cp /dev/null $TEST.out
-
-# Without sig
-for pattern in bsi,0x7f dod,0 nnsa,0 fastold,0x55 old,0x55; do
+(for pattern in bsi,0x7f dod,0 nnsa,0 fastold,0x55 old,0x55; do
 	patstr=`echo $pattern | cut -d, -f1`
 	patbyte=`echo $pattern | cut -d, -f2`
 
-	echo "Scrubbing $patstr ($patbyte) no signature" >>$TEST.out
-
 	./pat -S -p $DATAPAT -s $FILESIZE >$TESTFILE
-	$PATH_SCRUB -S -p $patstr $TESTFILE >>$TEST.out 2>&1
-	test $? = 0 || exit 1
-
+	$PATH_SCRUB -S -p $patstr $TESTFILE || exit 1
+	echo "Verifying $patstr last pass $patbyte without signature"
 	./pat -S -p $patbyte -s $FILESIZE >$TESTFILE2
-	cmp $TESTFILE $TESTFILE2 >>$TEST.out
-	test $? = 0 || exit 1
+	cmp $TESTFILE $TESTFILE2 || exit 1
 
-	echo "Scrubbing $patstr ($patbyte) with signature" >>$TEST.out
-
-	# With sig
 	./pat -S -p $DATAPAT -s $FILESIZE >$TESTFILE
-	$PATH_SCRUB -p $patstr $TESTFILE >>$TEST.out 2>&1
-	test $? = 0 || exit 1
-
+	$PATH_SCRUB -p $patstr $TESTFILE || exit 1
+	echo "Verifying $patstr last pass $patbyte with signature"
 	./pat -p $patbyte -s $FILESIZE >$TESTFILE2
-	cmp $TESTFILE $TESTFILE2 >>$TEST.out
-	test $? = 0 || exit 1
-done
+	cmp $TESTFILE $TESTFILE2 || exit 1
+done) >> $TEST.out 2>&1
 
 rm -f $TESTFILE $TESTFILE2
 diff $TEST.out $TEST.exp >$TEST.diff
