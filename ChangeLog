@@ -1,5 +1,7 @@
 2008-11-14 Jim Garlick <garlick@llnl.gov>
 
+	* : tag scrub-2.1
+
 	* src/sig.c : Fix a bug where uninitialized malloc buffer
 	was written to first block of file/device when writing signature.
 	That buffer could contain some data from the original file.
