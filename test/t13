@@ -1,6 +1,5 @@
 #!/bin/sh
-
-TESTFILE=/tmp/scrub-t13
+TESTFILE=${TMPDIR:-/tmp}/scrub-t13
 mkdir -p $TESTFILE || exit 1
 
 # wrong type of file

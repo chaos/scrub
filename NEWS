@@ -1,4 +1,12 @@
 ========================================================================
+scrub-2.1 Release Notes                                       2008-11-14
+========================================================================
+
+* Fix a bug where some data from the original file could appear in
+  the first disk block after a verified scrub when running without 
+  the -S (--no-signature) option.
+
+========================================================================
 scrub-2.0 Release Notes                                       2008-05-30
 ========================================================================
 

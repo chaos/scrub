@@ -1,3 +1,14 @@
+2008-11-14 Jim Garlick <garlick@llnl.gov>
+
+	* src/sig.c : Fix a bug where uninitialized malloc buffer
+	was written to first block of file/device when writing signature.
+	That buffer could contain some data from the original file.
+	This bug was introduced with scrub 1.8 on 2006-08-16.
+
+	* tests/t14 : Test for above regression.
+
+	* tests/pat.c : Utility program for above test.
+
 2008-06-03 Jim Garlick <garlick@llnl.gov>
 
 	* htdocs/index.html : Add SF logo per policy.

@@ -76,15 +76,21 @@ writesig(char *path)
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
+    n = read_all(fd, buf, blocksize);
+    if (n < 0) {
+        fprintf(stderr, "%s: read %s: %s\n", prog, path, strerror(errno));
+        exit(1);
+    }
+    if (lseek(fd, 0, SEEK_SET) < 0) {
+        fprintf(stderr, "%s: lseek %s: %s\n", prog, path, strerror(errno));
+        exit(1);
+    }
     memcpy(buf, SCRUB_MAGIC, sizeof(SCRUB_MAGIC));
     n = write_all(fd, buf, blocksize);
     if (n < 0) {
         fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-    /* Ignore short write.  
-     * We'll fail to read the signature next time - not the end of the world.
-     */
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
@@ -119,12 +125,11 @@ checksig(char *path)
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
-    /* Treat a short read like "no signature".  Not the end of the world.
-     */
     if (n >= strlen(SCRUB_MAGIC)) {
         if (memcmp(buf, SCRUB_MAGIC, strlen(SCRUB_MAGIC)) == 0)
             result = 1;
     }
+    memset(buf, 0, blocksize); 
     free(buf);
     return result;
 }

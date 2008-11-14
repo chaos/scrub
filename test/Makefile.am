@@ -1,8 +1,8 @@
-check_PROGRAMS = pad trand aestest tprogress tgetsize tsig tsize
+check_PROGRAMS = pad trand aestest tprogress tgetsize tsig tsize pat
 
 TESTS_ENVIRONMENT = env 
 TESTS_ENVIRONMENT += "PATH_SCRUB=$(top_builddir)/src/scrub"
-TESTS = t00 t01 t02 t03 t04 t05 t06 t07 t08 t09 t10 t11 t12 t13
+TESTS = t00 t01 t02 t03 t04 t05 t06 t07 t08 t09 t10 t11 t12 t13 t14
 
 CLEANFILES = *.out *.diff testfile
 
@@ -22,3 +22,4 @@ aestest_SOURCES = aestest.c $(common_sources)
 tprogress_SOURCES = tprogress.c $(common_sources)
 tgetsize_SOURCES = tgetsize.c $(common_sources)
 tsig_SOURCES = tsig.c $(common_sources)
+pat_SOURCES = pat.c $(common_sources)

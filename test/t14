@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Verify that no original content remains after a scrub,
+# with and without signature
+
+TEST=t14
+TESTFILE=${TMPDIR:-/tmp}/scrub-$TEST
+TESTFILE2=${TMPDIR:-/tmp}/scrub-zero-$TEST
+
+# needs to be a multiple of file system blocksize to avoid round-up
+FILESIZE=4M
+
+DATAPAT=0xbe
+
+rm -f $TESTFILE $TESTFILE2
+
+cp /dev/null $TEST.out
+
+# Without sig
+for pattern in bsi,0x7f dod,0 nnsa,0 fastold,0x55 old,0x55; do
+	patstr=`echo $pattern | cut -d, -f1`
+	patbyte=`echo $pattern | cut -d, -f2`
+
+	echo "Scrubbing $patstr ($patbyte) no signature" >>$TEST.out
+
+	./pat -S -p $DATAPAT -s $FILESIZE >$TESTFILE
+	$PATH_SCRUB -S -p $patstr $TESTFILE >>$TEST.out 2>&1
+	test $? = 0 || exit 1
+
+	./pat -S -p $patbyte -s $FILESIZE >$TESTFILE2
+	cmp $TESTFILE $TESTFILE2 >>$TEST.out
+	test $? = 0 || exit 1
+
+	echo "Scrubbing $patstr ($patbyte) with signature" >>$TEST.out
+
+	# With sig
+	./pat -S -p $DATAPAT -s $FILESIZE >$TESTFILE
+	$PATH_SCRUB -p $patstr $TESTFILE >>$TEST.out 2>&1
+	test $? = 0 || exit 1
+
+	./pat -p $patbyte -s $FILESIZE >$TESTFILE2
+	cmp $TESTFILE $TESTFILE2 >>$TEST.out
+	test $? = 0 || exit 1
+done
+
+rm -f $TESTFILE $TESTFILE2
+diff $TEST.out $TEST.exp >$TEST.diff
