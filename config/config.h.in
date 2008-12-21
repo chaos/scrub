@@ -33,6 +33,33 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define the project alias string (name-ver or name-ver-rel). */
+#undef META_ALIAS
+
+/* Define the project author. */
+#undef META_AUTHOR
+
+/* Define the project release date. */
+#undef META_DATE
+
+/* Define the libtool library 'age' version information. */
+#undef META_LT_AGE
+
+/* Define the libtool library 'current' version information. */
+#undef META_LT_CURRENT
+
+/* Define the libtool library 'revision' version information. */
+#undef META_LT_REVISION
+
+/* Define the project name. */
+#undef META_NAME
+
+/* Define the project release. */
+#undef META_RELEASE
+
+/* Define the project version. */
+#undef META_VERSION
+
 /* Name of package */
 #undef PACKAGE
 
@@ -51,12 +78,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define the project name. */
-#undef PROJECT
-
-/* Define the project's release. */
-#undef RELEASE
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
@@ -66,6 +87,48 @@
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #undef WORDS_BIGENDIAN
+
+/* Expansion of the "bindir" installation directory. */
+#undef X_BINDIR
+
+/* Expansion of the "datadir" installation directory. */
+#undef X_DATADIR
+
+/* Expansion of the "exec_prefix" installation directory. */
+#undef X_EXEC_PREFIX
+
+/* Expansion of the "includedir" installation directory. */
+#undef X_INCLUDEDIR
+
+/* Expansion of the "infodir" installation directory. */
+#undef X_INFODIR
+
+/* Expansion of the "libdir" installation directory. */
+#undef X_LIBDIR
+
+/* Expansion of the "libexecdir" installation directory. */
+#undef X_LIBEXECDIR
+
+/* Expansion of the "localstatedir" installation directory. */
+#undef X_LOCALSTATEDIR
+
+/* Expansion of the "mandir" installation directory. */
+#undef X_MANDIR
+
+/* Expansion of the "oldincludedir" installation directory. */
+#undef X_OLDINCLUDEDIR
+
+/* Expansion of the "prefix" installation directory. */
+#undef X_PREFIX
+
+/* Expansion of the "sbindir" installation directory. */
+#undef X_SBINDIR
+
+/* Expansion of the "sharedstatedir" installation directory. */
+#undef X_SHAREDSTATEDIR
+
+/* Expansion of the "sysconfdir" installation directory. */
+#undef X_SYSCONFDIR
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS

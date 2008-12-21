@@ -1,6 +1,4 @@
-\." $Id: scrub.1 81 2006-02-15 01:26:32Z garlick $
-.\"
-.TH SCRUB 1 "Release 1.7" "LLNL" "SCRUB"
+.TH SCRUB 1 "@META_DATE@" "@META_ALIAS@" "SCRUB"
 .SH NAME
 scrub \- write patterns on disk/file
 .SH SYNOPSIS

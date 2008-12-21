@@ -1,3 +1,13 @@
+2008-12-21 Jim Garlick <garlick@llnl.gov>
+
+	* config/x_ac_expand_install_dirs.m4 : New, from munge.
+
+	* config/x_ac_meta.m4 : New, from munge, supercedes ac_meta.m4.
+
+	* src/scrub.1.in : Rename from scrub.1.in, fix formatting.
+
+	* autogen.sh : Rename from bootstrap.sh.
+
 2008-11-14 Jim Garlick <garlick@llnl.gov>
 
 	* : tag scrub-2.1
