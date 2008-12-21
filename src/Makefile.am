@@ -6,4 +6,6 @@ scrub_SOURCES = \
 	aes.h filldentry.h fillfile.h genrand.h getsize.h \
 	pattern.h progress.h sig.h util.h
 
-man_MANS = scrub.1
+man1_MANS = scrub.1
+
+EXTRA_DIST = scrub.1
