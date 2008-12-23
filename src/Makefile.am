@@ -5,7 +5,3 @@ scrub_SOURCES = \
 	getsize.c pattern.c progress.c scrub.c sig.c util.c \
 	aes.h filldentry.h fillfile.h genrand.h getsize.h \
 	pattern.h progress.h sig.h util.h
-
-man1_MANS = scrub.1
-
-EXTRA_DIST = scrub.1

@@ -52,7 +52,8 @@ AC_SYS_LARGEFILE
 AC_CONFIG_FILES( \
   Makefile \
   src/Makefile \
-  src/scrub.1 \
+  man/Makefile \
+  man/scrub.1 \
   test/Makefile \
 )
 AC_OUTPUT

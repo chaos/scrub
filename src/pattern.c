@@ -139,6 +139,12 @@ static const sequence_t gutmann_seq = {
     },
 };
 
+static const sequence_t random_seq = { 
+    "random", "One Random Pass", 1, {
+        { RANDOM, 0, {0x00} },
+    },
+};
+
 static const sequence_t *sequences[] = {
 	&dirent_seq,
 	&fastold_seq,

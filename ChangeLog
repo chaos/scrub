@@ -1,3 +1,9 @@
+2008-12-23 Jim Garlick <garlick@llnl.gov>
+
+	* man/* : Moved man page here from src directory.
+
+	* src/pattern.c : Added 'random' pattern (one pass).
+
 2008-12-21 Jim Garlick <garlick@llnl.gov>
 
 	* config/x_ac_expand_install_dirs.m4 : New, from munge.
