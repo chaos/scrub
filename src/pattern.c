@@ -153,6 +153,7 @@ static const sequence_t *sequences[] = {
 	&nnsa_seq,
 	&bsi_seq,
 	&gutmann_seq,
+	&random_seq,
 };	
 
 const sequence_t *
