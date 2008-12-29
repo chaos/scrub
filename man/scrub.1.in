@@ -46,7 +46,7 @@ Print scrub version and exit.
 \fI-r\fR, \fI--remove\fR
 Remove the file after scrubbing.
 .TP
-\fI-p\fR, \fI--pattern\fR \fInnsa|dod|bsi|old|fastold|gutmann\fR
+\fI-p\fR, \fI--pattern\fR \fInnsa|dod|bsi|old|fastold|gutmann|random|random2\fR
 Select the patterns to write.
 .I "nnsa"
 selects patterns compliant with NNSA Policy Letter NAP-14.x;
@@ -61,7 +61,12 @@ selects pre-version 1.7 scrub patterns; and
 is old without the random pass.  
 .I "gutmann"
 is a 35-pass sequence described in Gutmann's paper cited below.
-See STANDARDS below for more detail.  Default: nnsa.
+See STANDARDS below for more detail.
+.I "random"
+is a single random pass.
+.I "random2"
+is two random passes.
+Default: nnsa.
 .TP
 \fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
 Perform read(2) and write(2) calls using the specified blocksize (in bytes).  

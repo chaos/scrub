@@ -145,6 +145,13 @@ static const sequence_t random_seq = {
     },
 };
 
+static const sequence_t random2_seq = { 
+    "random2", "Two Random Passes", 2, {
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+    },
+};
+
 static const sequence_t *sequences[] = {
 	&dirent_seq,
 	&fastold_seq,
@@ -154,6 +161,7 @@ static const sequence_t *sequences[] = {
 	&bsi_seq,
 	&gutmann_seq,
 	&random_seq,
+	&random2_seq,
 };	
 
 const sequence_t *
