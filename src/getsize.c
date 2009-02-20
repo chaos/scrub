@@ -47,6 +47,7 @@ extern char *prog;
 #include <sys/ioctl.h>
 #include <linux/fs.h>
 #include <sys/utsname.h>
+typedef unsigned long long u64; /* for BLKGETSIZE64 (slackware) */
 
 off_t 
 getsize(char *path)

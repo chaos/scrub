@@ -1,3 +1,7 @@
+2009-02-21 Jim Garlick <garlick@llnl.gov>
+
+	* src/getsize.c : Define u64 for slackware [Timothy Boronczyk]
+
 2008-12-23 Jim Garlick <garlick@llnl.gov>
 
 	* man/* : Moved man page here from src directory.
