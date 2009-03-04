@@ -1,3 +1,7 @@
+2009-03-03 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.2pre1
+
 2009-02-21 Jim Garlick <garlick@llnl.gov>
 
 	* src/getsize.c : Define u64 for slackware [Timothy Boronczyk]
