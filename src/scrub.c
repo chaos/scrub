@@ -459,8 +459,8 @@ scrub_file(char *path, off_t size, const sequence_t *seq,
             fprintf(stderr, "%s: warning: -s size < file size\n", prog);
     } else  {
         if (sb.st_size == 0) {
-            fprintf(stderr, "%s: %s is zero length\n", prog, path);
-            exit(1);
+            fprintf(stderr, "%s: warning: %s is zero length\n", prog, path);
+            return;
         }
         size = blkalign(sb.st_size, sb.st_blksize, UP);
         if (size != sb.st_size) {
