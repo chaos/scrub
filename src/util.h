@@ -26,7 +26,7 @@
 
 typedef enum { false, true } bool;
 
-typedef enum { NOEXIST, REGULAR, CHAR, BLOCK, OTHER } filetype_t;
+typedef enum { NOEXIST, REGULAR, CHAR, BLOCK, LINK, OTHER } filetype_t;
 typedef enum { UP, DOWN } round_t;
 
 int         read_all(int fd, unsigned char *buf, int count);

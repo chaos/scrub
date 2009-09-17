@@ -76,7 +76,12 @@ filetype_t
 filetype(char *path)
 {
     struct stat sb;
+
     filetype_t res = NOEXIST;
+
+    if (lstat(path, &sb) == 0 && S_ISLNK(sb.st_mode)) {
+        return LINK;
+    }
 
     if (stat(path, &sb) == 0) {
         if (S_ISREG(sb.st_mode))

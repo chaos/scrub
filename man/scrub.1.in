@@ -110,6 +110,10 @@ or
 .I "G"
 may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
+.TP
+\fI-L\fR, \fI--no-link\fR
+If \fIfile\fR is a symbolic link, do not scrub the link target.
+Do remove it, however, if \fI--remove\fR is specified.
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 
