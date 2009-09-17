@@ -76,7 +76,7 @@ static void       scrub_resfork(char *path, const sequence_t *seq,
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 
-#define OPTIONS "p:D:Xb:s:fSrvT"
+#define OPTIONS "p:D:Xb:s:fSrvTL"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -90,6 +90,7 @@ static struct option longopts[] = {
     {"remove",           no_argument,        0, 'r'},
     {"version",          no_argument,        0, 'v'},
     {"test-sparse",      no_argument,        0, 'T'},
+    {"no-link",          no_argument,        0, 'L'},
     {0, 0, 0, 0},
 };
 #else
@@ -111,6 +112,7 @@ main(int argc, char *argv[])
     bool Sopt = false;
     bool ropt = false;
     bool Topt = false;
+    bool Lopt = false;
     extern int optind;
     extern char *optarg;
     int c;
@@ -163,6 +165,9 @@ main(int argc, char *argv[])
             break;
         case 'T':   /* --test-sparse */
             Topt = true;
+            break;
+        case 'L':   /* --no-link */
+            Lopt = true;
             break;
         default:
             usage();
@@ -220,6 +225,18 @@ main(int argc, char *argv[])
             }
             scrub_disk(filename, sopt, seq, bopt, Sopt, Topt);
             break;
+        case LINK:
+            if (Lopt) {
+                if (ropt) {
+                    printf("%s: unlinking %s\n", prog, filename);
+                    if (unlink(filename) != 0) {
+                        fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
+                            strerror(errno));
+                        exit(1);
+                    }
+                }
+                break;
+            }
         case REGULAR:
             if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
@@ -259,7 +276,7 @@ main(int argc, char *argv[])
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [OPTIONS] file\n%s%s%s%s%s%s%s%s%s", prog,
+    fprintf(stderr, "Usage: %s [OPTIONS] file\n%s%s%s%s%s%s%s%s%s%s", prog,
 "  -v, --version           display scrub version and exit\n",
 "  -p, --pattern pat       select scrub pattern sequence\n",
 "  -b, --blocksize size    set I/O buffer size (default 1m)\n",
@@ -268,7 +285,8 @@ usage(void)
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n",
 "  -f, --force             scrub despite signature from previous scrub\n",
 "  -S, --no-signature      do not write scrub signature after scrub\n",
-"  -r, --remove            remove file after scrub\n");
+"  -r, --remove            remove file after scrub\n",
+"  -L, --no-link           do not scrub link target\n");
     exit(1);
 }
 
@@ -448,7 +466,7 @@ scrub_file(char *path, off_t size, const sequence_t *seq,
     struct stat sb;
     filetype_t ftype = filetype(path);
 
-    assert(ftype == REGULAR);
+    assert(ftype == REGULAR || ftype == LINK);
 
     if (stat(path, &sb) < 0) {
         fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
