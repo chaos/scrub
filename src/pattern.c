@@ -69,7 +69,7 @@ static const sequence_t fastold_seq = {
 };
 
 static const sequence_t nnsa_seq = { 
-    "nnsa", "NNSA NAP-14.x", 3, {
+    "nnsa", "NNSA NAP-14.1-C", 3, {
         { RANDOM, 0, {0x00} },
         { RANDOM, 0, {0x00} },
         { VERIFY, 1, {0x00} }, 

@@ -1,3 +1,13 @@
+2009-11-09 Jim Garlick <garlick@llnl.gov>
+
+	* man/scrub.1.in : Update NAP reference.
+
+2009-10-20 Jim Garlick <garlick@llnl.gov>
+
+	* src/util.c, src/sig.c, src/fillfile.c : Handle write(2) returning
+	zero as an error instead of retrying, as this may indicate a write
+	past the end of device.
+
 2009-09-17 Jim Garlick <garlick@llnl.gov>
 
 	* src/scrub.c, src/util.c, src/util.h, man/scrub.1.in : Add -L

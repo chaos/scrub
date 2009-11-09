@@ -65,7 +65,7 @@ write_all(int fd, const unsigned char *buf, int count)
             count -= n;
             buf += n;
         }
-    } while (n >= 0 && count > 0);
+    } while (n > 0 && count > 0);
 
     return n;
 }

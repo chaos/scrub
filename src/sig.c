@@ -91,6 +91,11 @@ writesig(char *path)
         fprintf(stderr, "%s: write %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
+    if (n == 0) {
+        fprintf(stderr, "%s: write %s: %s\n", prog, path,
+                "returned zero - attempt to write past end of device?");
+        exit(1);
+    }
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
