@@ -49,7 +49,7 @@ Remove the file after scrubbing.
 \fI-p\fR, \fI--pattern\fR \fInnsa|dod|bsi|old|fastold|gutmann|random|random2\fR
 Select the patterns to write.
 .I "nnsa"
-selects patterns compliant with NNSA Policy Letter NAP-14.x;
+selects patterns compliant with NNSA Policy Letter NAP-14.1-C;
 .I "dod"
 selects patterns compliant with DoD 5220.22-M;
 .I "bsi"
@@ -156,7 +156,7 @@ The
 (default)
 .B scrub
 sequence is compliant with a Dec. 2005 draft of
-NNSA Policy Letter NAP-14.x (see reference below) for sanitizing removable
+NNSA Policy Letter NAP-14.1-C (see reference below) for sanitizing removable
 and non-removable hard disks, which requires overwriting all locations with
 a pseudorandom pattern twice and then with a known pattern.
 Please refer to the NNSA document for additional constraints.
@@ -175,9 +175,9 @@ General Public License.
 DoD 5220.22-M, "National Industrial Security Program Operating Manual", 
 Chapter 8, 01/1995.
 .LP
-NNSA Policy Letter: NAP-14.x, "Clearing, Sanitizing, and 
+NNSA Policy Letter: NAP-14.1-C, "Clearing, Sanitizing, and 
 Destroying Information System Storage Media, Memory Devices, and other 
-Related Hardware", Unpublished Draft, 2005
+Related Hardware", 05-02-08, page XVI-8.
 .LP
 "Secure Deletion of Data from Magnetic and Solid-State Memory", by Peter 
 Gutmann, Sixth USENIX Security Symposium, San Jose, CA, July 22-25, 1996.

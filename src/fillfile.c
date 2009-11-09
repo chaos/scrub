@@ -84,6 +84,11 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
             n = write_all(fd, mem, memsize);
             if (creat && n < 0 && errno == ENOSPC)
                 break;
+            if (n == 0) {
+                fprintf(stderr, "%s: write %s: %s\n", prog, path,
+                    "returned zero - attempt to write past end of device?");
+                exit(1);
+            }
             if (n < 0) {
                 fprintf(stderr, "%s: write %s: %s\n", prog, path, 
                         strerror(errno));
