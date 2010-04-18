@@ -1,4 +1,15 @@
 ========================================================================
+scrub-2.2 Release Notes                                       2009-07-29
+========================================================================
+
+* Add --pattern random (one random pass) mode.
+
+* Portability fixes for Slackware [Timothy Boronczyk]
+
+* Fix bug where scrub --remove on a zero length file would abort
+  without removing the file.  Issue a warning and remove it.
+
+========================================================================
 scrub-2.1 Release Notes                                       2008-11-14
 ========================================================================
 

@@ -1,7 +1,6 @@
-2010-04-17 Jim Garlick <garlick@llnl.gov>
+2009-07-29 Jim Garlick <garlick@llnl.gov>
 
-	* src/getsize.c : Drop a spurious hyphen that looked like a negative
-	sign in size2str.
+	* : tag 2.2
 
 2009-07-24 Jim Garlick <garlick@llnl.gov>
 
