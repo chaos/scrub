@@ -276,7 +276,7 @@ size2str(char *str, int len, off_t size)
     } 
    
     if (unit)
-        snprintf(str, len, "%lld bytes (~%lld%s)", (long long int)size, 
+        snprintf(str, len, "%lld bytes (%lld%s)", (long long int)size, 
                  (long long int)num, unit);
     else
         snprintf(str, len, "%lld bytes", (long long int)size);
