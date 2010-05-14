@@ -152,6 +152,18 @@ static const sequence_t random2_seq = {
     },
 };
 
+static const sequence_t schneier_seq = {
+    "schneier", "Bruce Schneier Algorithm", 7, {
+        { NORMAL, 1, {0x00} },
+        { NORMAL, 1, {0xff} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+    },
+};
+
 static const sequence_t *sequences[] = {
 	&dirent_seq,
 	&fastold_seq,
@@ -162,6 +174,7 @@ static const sequence_t *sequences[] = {
 	&gutmann_seq,
 	&random_seq,
 	&random2_seq,
+	&schneier_seq,
 };	
 
 const sequence_t *

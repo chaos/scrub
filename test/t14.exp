@@ -38,14 +38,14 @@ scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
 Verifying dod last pass 0 with signature
-scrub: using NNSA NAP-14.x patterns
+scrub: using NNSA NAP-14.1-C patterns
 scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
 Verifying nnsa last pass 0 without signature
-scrub: using NNSA NAP-14.x patterns
+scrub: using NNSA NAP-14.1-C patterns
 scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
 scrub: random  |................................................|
 scrub: random  |................................................|
