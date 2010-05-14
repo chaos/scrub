@@ -1,5 +1,7 @@
 2010-05-14 Jim Garlick <garlick@llnl.gov>
 
+	* : tag 2.3
+
 	* src/pattern.c, man/scrub.1.in : Added schneier sequence [Joe].
 
 	* test/*.exp : Update for NAP string change.
