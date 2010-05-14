@@ -46,7 +46,7 @@ Print scrub version and exit.
 \fI-r\fR, \fI--remove\fR
 Remove the file after scrubbing.
 .TP
-\fI-p\fR, \fI--pattern\fR \fInnsa|dod|bsi|old|fastold|gutmann|random|random2\fR
+\fI-p\fR, \fI--pattern\fR \fIPATTERN\fR
 Select the patterns to write.
 .I "nnsa"
 selects patterns compliant with NNSA Policy Letter NAP-14.1-C;
@@ -66,6 +66,9 @@ See STANDARDS below for more detail.
 is a single random pass.
 .I "random2"
 is two random passes.
+.I "schneier"
+is the method described by Bruce Schneier in ''Applied Cryptography'' (1996)
+consisting of one 0x00 pass, one 0xff pass, and five random passes.
 Default: nnsa.
 .TP
 \fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
