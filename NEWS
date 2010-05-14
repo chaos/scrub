@@ -1,4 +1,16 @@
 ========================================================================
+scrub-2.3 Release Notes                                       2010-05-14
+========================================================================
+
+* Added -L option to not follow symbolic links [Timothy Boronczyk]
+
+* Treat a zero return from write(2) as an error.
+
+* New patterns:
+  - random2: two random passes
+  - schneier (one 0x00 pass, one 0xff pass, and five random passes) [Joe]
+
+========================================================================
 scrub-2.2 Release Notes                                       2009-07-29
 ========================================================================
 
