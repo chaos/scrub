@@ -164,6 +164,65 @@ static const sequence_t schneier_seq = {
     },
 };
 
+static const sequence_t pfitzner7_seq = {
+    "pfitzner7", "Roy Pfitzner 7-random-pass method", 33, {
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+    },
+};
+
+static const sequence_t pfitzner33_seq = {
+    "pfitzner33", "Roy Pfitzner 33-random-pass method", 33, {
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+        { RANDOM, 0, {0x00} },
+    },
+};
+
+static const sequence_t usarmy_seq = { 
+    "usarmy", "US Army AR380-19", 3, {
+        { NORMAL, 1, {0x00} }, 
+        { NORMAL, 1, {0xff} }, 
+        { RANDOM, 0, {0x00} },
+    },
+};
+
+
 static const sequence_t *sequences[] = {
 	&dirent_seq,
 	&fastold_seq,
@@ -175,6 +234,9 @@ static const sequence_t *sequences[] = {
 	&random_seq,
 	&random2_seq,
 	&schneier_seq,
+    &pfitzner7_seq,
+    &pfitzner33_seq,
+	&usarmy_seq,
 };	
 
 const sequence_t *

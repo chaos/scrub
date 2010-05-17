@@ -1,3 +1,8 @@
+2010-05-17 Jim Garlick <garlick@llnl.gov>
+
+	* src/pattern, man/scrub.1.in : Add usarmy, pfitzner7, and pfitzner33
+	methods [See http://mareichelt.de/pub/notmine/sanitizing.html].
+
 2010-05-14 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 2.3
