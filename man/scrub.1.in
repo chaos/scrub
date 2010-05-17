@@ -69,6 +69,13 @@ is two random passes.
 .I "schneier"
 is the method described by Bruce Schneier in ''Applied Cryptography'' (1996)
 consisting of one 0x00 pass, one 0xff pass, and five random passes.
+.I "pfitzner7"
+is Roy Pfitzner's 7-random-pass method.
+.I "pfitzner33"
+is Roy Pfitzner's 33-random-pass method.
+.I "usarmy"
+is the US Army AR380-19 method consisting of one 0x00 pass, one 0xff pass,
+and a random pass.
 Default: nnsa.
 .TP
 \fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
