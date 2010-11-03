@@ -1,3 +1,7 @@
+2010-11-03 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.4
+
 2010-05-17 Jim Garlick <garlick@llnl.gov>
 
 	* src/pattern, man/scrub.1.in : Add usarmy, pfitzner7, and pfitzner33
