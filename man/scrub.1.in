@@ -36,7 +36,7 @@ is created and filled with files until the file system is full,
 then the files are scrubbed as in 2). This mode is selected with the
 .I "-X" 
 option.  See CAVEATS below.
-.LP
+.SH OPTIONS
 .B Scrub 
 accepts the following options:
 .TP
@@ -47,36 +47,9 @@ Print scrub version and exit.
 Remove the file after scrubbing.
 .TP
 \fI-p\fR, \fI--pattern\fR \fIPATTERN\fR
-Select the patterns to write.
-.I "nnsa"
-selects patterns compliant with NNSA Policy Letter NAP-14.1-C;
-.I "dod"
-selects patterns compliant with DoD 5220.22-M;
-.I "bsi"
-selects patterns recommended by the German Center of Security in Information
-Technologies (http://www.bsi.bund.de);
-.I "old"
-selects pre-version 1.7 scrub patterns; and
-.I "fastold"
-is old without the random pass.  
-.I "gutmann"
-is a 35-pass sequence described in Gutmann's paper cited below.
-See STANDARDS below for more detail.
-.I "random"
-is a single random pass.
-.I "random2"
-is two random passes.
-.I "schneier"
-is the method described by Bruce Schneier in ''Applied Cryptography'' (1996)
-consisting of one 0x00 pass, one 0xff pass, and five random passes.
-.I "pfitzner7"
-is Roy Pfitzner's 7-random-pass method.
-.I "pfitzner33"
-is Roy Pfitzner's 33-random-pass method.
-.I "usarmy"
-is the US Army AR380-19 method consisting of one 0x00 pass, one 0xff pass,
-and a random pass.
-Default: nnsa.
+Select the patterns to write.  See SCRUB METHODS below.
+The default, \fInnsa\fR, is reasonable for sanitizing modern
+PRML/EPRML encoded disk devices.
 .TP
 \fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
 Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
@@ -93,8 +66,8 @@ Scrub even if target contains signature indicating it has already been
 scrubbed.
 .TP
 \fI-S\fR, \fI--no-signature\fR
-Do not write scrub signature.  
-.B Scrub 
+Do not write scrub signature.  Later,
+.B scrub 
 will not be able to ascertain if the disk has already been scrubbed.
 .TP
 \fI-X\fR, \fI--freespace\fR
@@ -124,14 +97,66 @@ KiBytes, MiBytes, or GiBytes, respectively.
 \fI-L\fR, \fI--no-link\fR
 If \fIfile\fR is a symbolic link, do not scrub the link target.
 Do remove it, however, if \fI--remove\fR is specified.
+.SH SCRUB METHODS
+.TP
+.I "dod"
+4-pass DoD 5220.22-M section 8-306 procedure (d) for sanitizing removeable
+and non-removeable rigid disks which requires overwriting all addressable
+locations with a character, its complement, a random character, then verify.
+\fBscrub\fR inserts an extra fixed pattern pass before the verify to
+avoid having to recreate the random patterns during verification:
+\fB0x00, 0xff, random, 0x00, verify\fR.
+.TP
+.I "nnsa"
+4-pass NNSA Policy Letter NAP-14.1-C (XVI-8) for sanitizing
+removable and non-removable hard disks, which requires overwriting all
+locations with a pseudorandom pattern twice and then with a known pattern:
+\fBrandom(x2), 0x00, verify\fR.
+.TP
+.I "bsi"
+9-pass method recommended by the German Center of Security in Information
+Technologies (http://www.bsi.bund.de):
+\fB0xff, 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f\fR.
+.TP
+.I "old"
+6-pass pre-version 1.7 scrub method:
+\fB0x00, 0xff, 0xaa, 0x00, 0x55, verify\fR.
+.TP
+.I "fastold"
+5-pass pattern:
+\fB0x00, 0xff, 0xaa, 0x55, verify\fR.
+.TP
+.I "gutmann"
+The canonical 35-pass sequence described in Gutmann's paper cited below.
+.TP
+.I "random"
+\fBrandom(x1)\fR.
+.TP
+.I "random2"
+\fBrandom(x2)\fR.
+.TP
+.I "schneier"
+7-pass method described by Bruce Schneier in "Applied Cryptography" (1996):
+\fB0x00, 0xff, random(x5)\fR
+.TP
+.I "pfitzner7"
+Roy Pfitzner's 7-random-pass method:
+\fBrandom(x7)\fR.
+.TP
+.I "pfitzner33"
+Roy Pfitzner's 33-random-pass method:
+\fBrandom(x33)\fR.
+.TP
+.I "usarmy"
+US Army AR380-19 method:
+\fB0x00, 0xff, random\fR.
+(Note: identical to DoD 522.22-M section 8-306 procedure (e)
+for sanitizing magnetic core memory).
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 
-in an appropriately equipped lab.
-.PP
-.B Scrub
-.I "nnsa"
-patterns are reasonable for sanitizing modern PRML/EPRML encoded disk devices.
+in an appropriately equipped lab.  If you need this level of
+protection, physical destruction is your best bet.
 .PP
 The effectiveness of scrubbing regular files through a file system
 will be limited by the OS and file system.  File systems that are
@@ -145,34 +170,23 @@ and in addition, is only useful to the extent the file system allows
 you to reallocate the target blocks as data blocks in a new file.
 If in doubt, scrub the raw disk device.
 .PP
-[MacOS X HFS file system] 
-.B Scrub 
+On MacOS X HFS file system,
+.B scrub 
 attempts to overwrite a file's resource fork if it exists.
-Although MacOS X will support additional named forks in the future,
+Although MacOS X claims it will support additional named forks in the future,
 .B scrub 
 is only aware of the traditional data and resource forks.
-.SH STANDARDS
-The 
-.I "dod"
-.B scrub
-sequence is compliant with the DoD 5220.22-M procedure for sanitizing 
-removeable and non-removeable rigid disks which requires overwriting
-all addressable locations with a character, its complement, then a random
-character, and verify.  
-Please refer to the DoD document for additional constraints.
 .PP
-The 
-.I "nnsa"
-(default)
 .B scrub
-sequence is compliant with a Dec. 2005 draft of
-NNSA Policy Letter NAP-14.1-C (see reference below) for sanitizing removable
-and non-removable hard disks, which requires overwriting all locations with
-a pseudorandom pattern twice and then with a known pattern.
-Please refer to the NNSA document for additional constraints.
-.PP
-Please consult local authorities regarding your site policy for
-disk sanitization.
+cannot access disk blocks that have been spared out by the disk controller.
+For SATA/PATA drives, the ATA "security erase" command built into the drive
+controller can do this.  Similarly, the ATA "enahanced security erase" can
+erase data on track edges and between tracks.
+The DOS utility HDDERASE from from the UCSD Center for Magnetic
+Recording Research can issue these commands, as can modern versions
+of Linux \fBhdparm\fR.
+Unfortunately, the analagous SCSI command is optional according to T-10,
+and not widely implemented.
 .SH AUTHOR
 Jim Garlick <garlick@llnl.gov>
 .LP
@@ -197,4 +211,11 @@ Gutmann, Sixth USENIX Security Symposium, San Jose, CA, July 22-25, 1996.
 Darik's boot and Nuke FAQ: 
 http://dban.sourceforge.net/faq/index.html
 .LP
-shred(1)
+"Tutorial on Disk Drive Data Sanitization", by Gordon Hugues and Tom Coughlin,
+.br
+http://cmrr.ucsd.edu/people/Hughes/DataSanitizationTutorial.pdf.
+.LP
+"Guidelines for Media Sanitization", NIST special publication 800-88,
+Kissel et al, September, 2006.
+.LP
+shred(1), hdparm(8)
