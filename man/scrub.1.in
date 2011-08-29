@@ -102,41 +102,26 @@ Do remove it, however, if \fI--remove\fR is specified.
 Print a summary of command line options on stderr.
 .SH SCRUB METHODS
 .TP
-.I "dod"
-4-pass DoD 5220.22-M section 8-306 procedure (d) for sanitizing removeable
-and non-removeable rigid disks which requires overwriting all addressable
-locations with a character, its complement, a random character, then verify.
-\fBscrub\fR inserts an extra fixed pattern pass before the verify to
-avoid having to recreate the random patterns during verification:
-\fB0x00, 0xff, random, 0x00, verify\fR.
-.TP
 .I "nnsa"
 4-pass NNSA Policy Letter NAP-14.1-C (XVI-8) for sanitizing
 removable and non-removable hard disks, which requires overwriting all
 locations with a pseudorandom pattern twice and then with a known pattern:
 \fBrandom(x2), 0x00, verify\fR.
 .TP
+.I "dod"
+4-pass DoD 5220.22-M section 8-306 procedure (d) for sanitizing removeable
+and non-removeable rigid disks which requires overwriting all addressable
+locations with a character, its complement, a random character, then verify.
+NOTE: \fBscrub\fR performs the random pass first to make verification
+easier: \fBrandom, 0x00, 0xff, verify\fR.
+.TP
 .I "bsi"
 9-pass method recommended by the German Center of Security in Information
 Technologies (http://www.bsi.bund.de):
 \fB0xff, 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f\fR.
 .TP
-.I "old"
-6-pass pre-version 1.7 scrub method:
-\fB0x00, 0xff, 0xaa, 0x00, 0x55, verify\fR.
-.TP
-.I "fastold"
-5-pass pattern:
-\fB0x00, 0xff, 0xaa, 0x55, verify\fR.
-.TP
 .I "gutmann"
 The canonical 35-pass sequence described in Gutmann's paper cited below.
-.TP
-.I "random"
-\fBrandom(x1)\fR.
-.TP
-.I "random2"
-\fBrandom(x2)\fR.
 .TP
 .I "schneier"
 7-pass method described by Bruce Schneier in "Applied Cryptography" (1996):
@@ -161,6 +146,20 @@ for sanitizing magnetic core memory).
 .TP
 .I "fillff"
 1-pass pattern: \fB0xff\fR.
+.TP
+.I "random"
+1-pass pattern: \fBrandom(x1)\fR.
+.TP
+.I "random2"
+2-pass pattern: \fBrandom(x2)\fR.
+.TP
+.I "old"
+6-pass pre-version 1.7 scrub method:
+\fB0x00, 0xff, 0xaa, 0x00, 0x55, verify\fR.
+.TP
+.I "fastold"
+5-pass pattern:
+\fB0x00, 0xff, 0xaa, 0x55, verify\fR.
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 
