@@ -3,6 +3,9 @@ check_PROGRAMS = pad trand aestest tprogress tgetsize tsig tsize pat
 TESTS_ENVIRONMENT = env 
 TESTS_ENVIRONMENT += "PATH_SCRUB=$(top_builddir)/src/scrub"
 TESTS = t00 t01 t02 t03 t04 t05 t06 t07 t08 t09 t10 t11 t12 t13 t14
+EXPS = t00.exp t01.exp t02.exp t03.exp t04.exp t05.exp t06.exp t07.exp \
+	t08.exp t10-cartman.exp t10-jimmy.exp t10-manbearpig.exp \
+	t10-marklar.exp t10-timmy.exp t11.exp t12.exp t13.exp t14.exp
 
 CLEANFILES = *.out *.diff testfile
 
@@ -23,3 +26,5 @@ tprogress_SOURCES = tprogress.c $(common_sources)
 tgetsize_SOURCES = tgetsize.c $(common_sources)
 tsig_SOURCES = tsig.c $(common_sources)
 pat_SOURCES = pat.c $(common_sources)
+
+EXTRA_DIST = $(TESTS) $(EXPS)

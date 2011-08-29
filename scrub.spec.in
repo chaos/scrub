@@ -1,12 +1,12 @@
-Name: 
-Version: 
-Release:
+Name: @META_NAME@
+Version: @META_VERSION@
+Release: @META_RELEASE@
 
 Summary: Disk scrubbing program
 License: GPL
 Group: System Environment/Base
-Url: http://sourceforge.net/projects/diskscrub/
-Source0: scrub-%{version}.tar.bz2
+Url: https://code.google.com/p/diskscrub/
+Source0: scrub-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 %description
@@ -24,8 +24,10 @@ retrieving the data more difficult.  It operates in one of three modes:
 
 %build
 %configure --program-prefix=%{?_program_prefix:%{_program_prefix}}
-make
-#make check
+make 
+
+%check
+make check
 
 %install
 rm -rf $RPM_BUILD_ROOT
