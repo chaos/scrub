@@ -1,4 +1,17 @@
 ========================================================================
+scrub-2.4.1 Release Notes                                     2011-08-29
+========================================================================
+
+* Fix bug in pfitzner7 pattern def and add fillff, fillzero
+  methods (issue 8) [Peter Hyman]
+    
+* Change dod method to perform random pass first and skip extra pass.
+
+* Add --help option that lists available scrub methods.
+
+* Make dist tarball work with rpmbuild -ta.
+
+========================================================================
 scrub-2.4 Release Notes                                       2010-11-03
 ========================================================================
 
