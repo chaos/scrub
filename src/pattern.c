@@ -292,6 +292,19 @@ pat2str(pattern_t p)
     return str;
 }
 
+void
+seq_list(void)
+{
+    int i;
+
+    for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++)
+        fprintf (stderr, "  %-10.10s %4.d-pass   %s\n",
+                 sequences[i]->key,
+                 sequences[i]->len,
+                 sequences[i]->desc
+        );
+}
+
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab
  */

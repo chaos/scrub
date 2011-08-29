@@ -41,6 +41,7 @@ typedef struct {
 } sequence_t;
 
 const sequence_t *seq_lookup(char *name);
+void              seq_list(void);
 char             *pat2str(pattern_t p);
 void              memset_pat(void *s, pattern_t p, size_t n);
 

@@ -288,7 +288,10 @@ usage(void)
 "  -f, --force             scrub despite signature from previous scrub\n",
 "  -S, --no-signature      do not write scrub signature after scrub\n",
 "  -r, --remove            remove file after scrub\n",
-"  -L, --no-link           do not scrub link target\n");
+"  -L, --no-link           do not scrub link target\n",
+"  -h, --help              display this help message\n");
+    fprintf(stderr, "Available patterns are:\n");
+    seq_list ();
     exit(1);
 }
 
