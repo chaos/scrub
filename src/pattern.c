@@ -165,7 +165,7 @@ static const sequence_t schneier_seq = {
 };
 
 static const sequence_t pfitzner7_seq = {
-    "pfitzner7", "Roy Pfitzner 7-random-pass method", 33, {
+    "pfitzner7", "Roy Pfitzner 7-random-pass method", 7, {
         { RANDOM, 0, {0x00} },
         { RANDOM, 0, {0x00} },
         { RANDOM, 0, {0x00} },
@@ -222,6 +222,17 @@ static const sequence_t usarmy_seq = {
     },
 };
 
+static const sequence_t fillzero_seq = {
+    "fillzero", "Quick Fill with 0x00", 1, {
+        { NORMAL, 1, {0x00} },
+    },
+};
+
+static const sequence_t fillff_seq = {
+    "fillff", "Quick Fill with 0xff", 1, {
+        { NORMAL, 1, {0xff} },
+    },
+};
 
 static const sequence_t *sequences[] = {
 	&dirent_seq,
@@ -237,6 +248,8 @@ static const sequence_t *sequences[] = {
     &pfitzner7_seq,
     &pfitzner33_seq,
 	&usarmy_seq,
+	&fillzero_seq,
+	&fillff_seq,
 };	
 
 const sequence_t *

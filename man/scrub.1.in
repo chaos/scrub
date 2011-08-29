@@ -97,6 +97,9 @@ KiBytes, MiBytes, or GiBytes, respectively.
 \fI-L\fR, \fI--no-link\fR
 If \fIfile\fR is a symbolic link, do not scrub the link target.
 Do remove it, however, if \fI--remove\fR is specified.
+.TP
+\fI-h\fR, \fI--help\fR
+Print a summary of command line options on stderr.
 .SH SCRUB METHODS
 .TP
 .I "dod"
@@ -152,6 +155,12 @@ US Army AR380-19 method:
 \fB0x00, 0xff, random\fR.
 (Note: identical to DoD 522.22-M section 8-306 procedure (e)
 for sanitizing magnetic core memory).
+.TP
+.I "fillzero"
+1-pass pattern: \fB0x00\fR.
+.TP
+.I "fillff"
+1-pass pattern: \fB0xff\fR.
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 

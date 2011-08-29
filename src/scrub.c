@@ -76,7 +76,7 @@ static void       scrub_resfork(char *path, const sequence_t *seq,
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 
-#define OPTIONS "p:D:Xb:s:fSrvTL"
+#define OPTIONS "p:D:Xb:s:fSrvTLh"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -91,6 +91,7 @@ static struct option longopts[] = {
     {"version",          no_argument,        0, 'v'},
     {"test-sparse",      no_argument,        0, 'T'},
     {"no-link",          no_argument,        0, 'L'},
+    {"help",             no_argument,        0, 'h'},
     {0, 0, 0, 0},
 };
 #else
@@ -169,6 +170,7 @@ main(int argc, char *argv[])
         case 'L':   /* --no-link */
             Lopt = true;
             break;
+        case 'h':   /* --help */
         default:
             usage();
         }
