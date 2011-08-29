@@ -77,11 +77,10 @@ static const sequence_t nnsa_seq = {
 };
 
 static const sequence_t dod_seq = { 
-    "dod", "DoD 5220.22-M", 4, {
-        { NORMAL, 1, {0x00} }, 
-        { NORMAL, 1, {0xff} }, 
+    "dod", "DoD 5220.22-M", 3, {
         { RANDOM, 0, {0x00} },
-        { VERIFY, 1, {0x00} }, 
+        { NORMAL, 1, {0x00} }, 
+        { VERIFY, 1, {0xff} }, 
     },
 };
 

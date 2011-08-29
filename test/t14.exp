@@ -24,20 +24,18 @@ scrub: 0x7f    |................................................|
 Verifying bsi last pass 0x7f with signature
 scrub: using DoD 5220.22-M patterns
 scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
-scrub: 0x00    |................................................|
-scrub: 0xff    |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
+scrub: 0xff    |................................................|
 scrub: verify  |................................................|
-Verifying dod last pass 0 without signature
+Verifying dod last pass 0xff without signature
 scrub: using DoD 5220.22-M patterns
 scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
-scrub: 0x00    |................................................|
-scrub: 0xff    |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
+scrub: 0xff    |................................................|
 scrub: verify  |................................................|
-Verifying dod last pass 0 with signature
+Verifying dod last pass 0xff with signature
 scrub: using NNSA NAP-14.1-C patterns
 scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
 scrub: random  |................................................|
