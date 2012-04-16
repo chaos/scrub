@@ -52,8 +52,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_scrub_OBJECTS = aes.$(OBJEXT) filldentry.$(OBJEXT) \
 	fillfile.$(OBJEXT) genrand.$(OBJEXT) getsize.$(OBJEXT) \
-	pattern.$(OBJEXT) progress.$(OBJEXT) scrub.$(OBJEXT) \
-	sig.$(OBJEXT) util.$(OBJEXT)
+	hwrand.$(OBJEXT) pattern.$(OBJEXT) progress.$(OBJEXT) \
+	scrub.$(OBJEXT) sig.$(OBJEXT) util.$(OBJEXT)
 scrub_OBJECTS = $(am_scrub_OBJECTS)
 scrub_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/config
@@ -191,10 +191,27 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 scrub_SOURCES = \
-	aes.c filldentry.c fillfile.c genrand.c \
-	getsize.c pattern.c progress.c scrub.c sig.c util.c \
-	aes.h filldentry.h fillfile.h genrand.h getsize.h \
-	pattern.h progress.h sig.h util.h
+	aes.c \
+	aes.h \
+	filldentry.c \
+	filldentry.h \
+	fillfile.c \
+	fillfile.h \
+	genrand.c \
+	genrand.h \
+	getsize.c \
+	getsize.h \
+	hwrand.c \
+	hwrand.h \
+	pattern.c \
+	pattern.h \
+	progress.c \
+	progress.h \
+	scrub.c \
+	sig.c \
+	sig.h \
+	util.c \
+	util.h
 
 all: all-am
 
@@ -282,6 +299,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fillfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getsize.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hwrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pattern.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/progress.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scrub.Po@am__quote@

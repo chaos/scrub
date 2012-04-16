@@ -49,8 +49,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__objects_1 = getsize.$(OBJEXT) genrand.$(OBJEXT) aes.$(OBJEXT) \
-	util.$(OBJEXT) progress.$(OBJEXT) sig.$(OBJEXT)
+am__objects_1 = getsize.$(OBJEXT) genrand.$(OBJEXT) hwrand.$(OBJEXT) \
+	aes.$(OBJEXT) util.$(OBJEXT) progress.$(OBJEXT) sig.$(OBJEXT)
 am_aestest_OBJECTS = aestest.$(OBJEXT) $(am__objects_1)
 aestest_OBJECTS = $(am_aestest_OBJECTS)
 aestest_LDADD = $(LDADD)
@@ -226,6 +226,7 @@ AM_CFLAGS = -I$(top_srcdir)/src
 common_sources = \
 	$(top_srcdir)/src/getsize.c \
 	$(top_srcdir)/src/genrand.c \
+	$(top_srcdir)/src/hwrand.c \
 	$(top_srcdir)/src/aes.c \
 	$(top_srcdir)/src/util.c \
 	$(top_srcdir)/src/progress.c \
@@ -311,6 +312,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aestest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getsize.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hwrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pad.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/progress.Po@am__quote@
@@ -363,6 +365,20 @@ genrand.obj: $(top_srcdir)/src/genrand.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/genrand.c' object='genrand.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o genrand.obj `if test -f '$(top_srcdir)/src/genrand.c'; then $(CYGPATH_W) '$(top_srcdir)/src/genrand.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/genrand.c'; fi`
+
+hwrand.o: $(top_srcdir)/src/hwrand.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT hwrand.o -MD -MP -MF $(DEPDIR)/hwrand.Tpo -c -o hwrand.o `test -f '$(top_srcdir)/src/hwrand.c' || echo '$(srcdir)/'`$(top_srcdir)/src/hwrand.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hwrand.Tpo $(DEPDIR)/hwrand.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/hwrand.c' object='hwrand.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o hwrand.o `test -f '$(top_srcdir)/src/hwrand.c' || echo '$(srcdir)/'`$(top_srcdir)/src/hwrand.c
+
+hwrand.obj: $(top_srcdir)/src/hwrand.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT hwrand.obj -MD -MP -MF $(DEPDIR)/hwrand.Tpo -c -o hwrand.obj `if test -f '$(top_srcdir)/src/hwrand.c'; then $(CYGPATH_W) '$(top_srcdir)/src/hwrand.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/hwrand.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hwrand.Tpo $(DEPDIR)/hwrand.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$(top_srcdir)/src/hwrand.c' object='hwrand.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o hwrand.obj `if test -f '$(top_srcdir)/src/hwrand.c'; then $(CYGPATH_W) '$(top_srcdir)/src/hwrand.c'; else $(CYGPATH_W) '$(srcdir)/$(top_srcdir)/src/hwrand.c'; fi`
 
 aes.o: $(top_srcdir)/src/aes.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT aes.o -MD -MP -MF $(DEPDIR)/aes.Tpo -c -o aes.o `test -f '$(top_srcdir)/src/aes.c' || echo '$(srcdir)/'`$(top_srcdir)/src/aes.c
