@@ -29,6 +29,7 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
+  stdbool.h \
 )
 
 ##

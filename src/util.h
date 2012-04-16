@@ -24,7 +24,11 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
+#ifdef HAVE_STDBOOL_H
+#include <stdbool.h>
+#else
 typedef enum { false, true } bool;
+#endif
 
 typedef enum { NOEXIST, REGULAR, CHAR, BLOCK, LINK, OTHER } filetype_t;
 typedef enum { UP, DOWN } round_t;
