@@ -195,7 +195,7 @@ main(int argc, char *argv[])
     /* Handle -X specially.
      */
     if (Xopt) {
-        if (filetype(filename) != NOEXIST) {
+        if (filetype(filename) != FILE_NOEXIST) {
             fprintf(stderr, "%s: -X argument cannot exist\n", prog);
             exit(1);
         }
@@ -208,14 +208,14 @@ main(int argc, char *argv[])
     } 
 
     switch (filetype(filename)) {
-        case NOEXIST:
+        case FILE_NOEXIST:
             fprintf(stderr, "%s: %s does not exist\n", prog, filename);
             exit(1);
-        case OTHER:
+        case FILE_OTHER:
             fprintf(stderr, "%s: %s is wrong type of file\n", prog, filename);
             exit(1);
-        case BLOCK:
-        case CHAR:
+        case FILE_BLOCK:
+        case FILE_CHAR:
             if (Dopt) {
                 fprintf(stderr, "%s: cannot use -D with special file\n", prog);
                 exit(1);
@@ -235,7 +235,7 @@ main(int argc, char *argv[])
             }
             scrub_disk(filename, sopt, seq, bopt, Sopt, Topt);
             break;
-        case LINK:
+        case FILE_LINK:
             if (Lopt) {
                 if (ropt) {
                     printf("%s: unlinking %s\n", prog, filename);
@@ -247,7 +247,7 @@ main(int argc, char *argv[])
                 }
                 break;
             }
-        case REGULAR:
+        case FILE_REGULAR:
             if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
                 exit(1);
@@ -286,19 +286,22 @@ main(int argc, char *argv[])
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [OPTIONS] file\n%s%s%s%s%s%s%s%s%s%s%s", prog,
-"  -v, --version           display scrub version and exit\n",
-"  -p, --pattern pat       select scrub pattern sequence\n",
-"  -b, --blocksize size    set I/O buffer size (default 1m)\n",
-"  -s, --device-size size  set device size manually\n",
-"  -X, --freespace         create dir+files, fill until ENOSPC, then scrub\n",
-"  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n",
-"  -f, --force             scrub despite signature from previous scrub\n",
-"  -S, --no-signature      do not write scrub signature after scrub\n",
-"  -r, --remove            remove file after scrub\n",
-"  -L, --no-link           do not scrub link target\n",
-"  -R, --no-hwrand         do not use a hardware random number generator\n",
-"  -h, --help              display this help message\n");
+    fprintf(stderr,
+"Usage: %s [OPTIONS] file\n"
+"  -v, --version           display scrub version and exit\n"
+"  -p, --pattern pat       select scrub pattern sequence\n"
+"  -b, --blocksize size    set I/O buffer size (default 1m)\n"
+"  -s, --device-size size  set device size manually\n"
+"  -X, --freespace         create dir+files, fill until ENOSPC, then scrub\n"
+"  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
+"  -f, --force             scrub despite signature from previous scrub\n"
+"  -S, --no-signature      do not write scrub signature after scrub\n"
+"  -r, --remove            remove file after scrub\n"
+"  -L, --no-link           do not scrub link target\n"
+"  -R, --no-hwrand         do not use a hardware random number generator\n"
+"  -h, --help              display this help message\n"
+    , prog);
+
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();
     exit(1);
@@ -333,7 +336,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
         if (i > 0)
             enospc = false;
         switch (seq->pat[i].ptype) {
-            case RANDOM:
+            case PAT_RANDOM:
                 printf("%s: %-8s", prog, "random");
                 progress_create(&p, 50);
                 churnrand();
@@ -342,7 +345,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                                    (refill_t)genrand, sparse, enospc);
                 progress_destroy(p);
                 break;
-            case NORMAL:
+            case PAT_NORMAL:
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
                 progress_create(&p, 50);
                 memset_pat(buf, seq->pat[i], bufsize);
@@ -351,7 +354,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                                    NULL, sparse, enospc);
                 progress_destroy(p);
                 break;
-            case VERIFY:
+            case PAT_VERIFY:
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
                 progress_create(&p, 50);
                 memset_pat(buf, seq->pat[i], bufsize);
@@ -413,7 +416,6 @@ static void
 scrub_free(char *dirpath, off_t size, const sequence_t *seq, 
            int bufsize, bool Sopt)
 {
-    char *buf;
     char path[MAXPATHLEN];
     int fileno = 0;
     struct stat sb;
@@ -452,12 +454,12 @@ scrub_dirent(char *path, char *newpath)
     filetype_t ftype = filetype(path);
 
     assert(seq != NULL);
-    assert(ftype == REGULAR);
+    assert(ftype == FILE_REGULAR);
 
     printf("%s: scrubbing directory entry\n", prog);
 
     for (i = 0; i < seq->len; i++) {
-        assert(seq->pat[i].ptype == REGULAR);
+        assert(seq->pat[i].ptype == PAT_NORMAL);
         assert(seq->pat[i].len == 1);
         printf("%s: %-8s", prog, pat2str(seq->pat[i]));
         progress_create(&p, 50);
@@ -480,7 +482,7 @@ scrub_file(char *path, off_t size, const sequence_t *seq,
     struct stat sb;
     filetype_t ftype = filetype(path);
 
-    assert(ftype == REGULAR || ftype == LINK);
+    assert(ftype == FILE_REGULAR || ftype == FILE_LINK);
 
     if (stat(path, &sb) < 0) {
         fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
@@ -514,7 +516,7 @@ scrub_resfork(char *path, const sequence_t *seq, int bufsize)
     off_t rsize; 
     filetype_t ftype = filetype(path);
 
-    assert(ftype == REGULAR);
+    assert(ftype == FILE_REGULAR);
     (void)snprintf(rpath, sizeof(rpath), "%s/..namedfork/rsrc", path);
     if (stat(rpath, &rsb) < 0)
         return;
@@ -540,7 +542,7 @@ scrub_disk(char *path, off_t size, const sequence_t *seq, int bufsize,
 {
     filetype_t ftype = filetype(path);
 
-    assert(ftype == BLOCK || ftype == CHAR);
+    assert(ftype == FILE_BLOCK || ftype == FILE_CHAR);
     if (size == 0) {
         size = getsize(path);
         if (size == 0) {

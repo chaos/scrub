@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <stdlib.h>
 
 #include "util.h"
 
@@ -78,21 +79,21 @@ filetype(char *path)
 {
     struct stat sb;
 
-    filetype_t res = NOEXIST;
+    filetype_t res = FILE_NOEXIST;
 
     if (lstat(path, &sb) == 0 && S_ISLNK(sb.st_mode)) {
-        return LINK;
+        return FILE_LINK;
     }
 
     if (stat(path, &sb) == 0) {
         if (S_ISREG(sb.st_mode))
-            res = REGULAR;
+            res = FILE_REGULAR;
         else if (S_ISCHR(sb.st_mode))
-            res = CHAR;
+            res = FILE_CHAR;
         else if (S_ISBLK(sb.st_mode))
-            res = BLOCK;
+            res = FILE_BLOCK;
         else
-            res = OTHER;
+            res = FILE_OTHER;
     }
     return res;
 }

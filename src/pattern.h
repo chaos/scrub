@@ -26,11 +26,15 @@
 
 #define MAXPATBYTES 3
 #define MAXSEQPATTERNS 35
-typedef enum { NORMAL, RANDOM, VERIFY } ptype_t;
+typedef enum {
+    PAT_NORMAL,
+    PAT_RANDOM,
+    PAT_VERIFY,
+} ptype_t;
 typedef struct {
     ptype_t     ptype;
     int         len;
-    int		pat[MAXPATBYTES];
+    int         pat[MAXPATBYTES];
 } pattern_t;
 
 typedef struct {
