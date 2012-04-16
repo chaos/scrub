@@ -14,6 +14,7 @@ AM_CFLAGS = -I$(top_srcdir)/src
 common_sources = \
 	$(top_srcdir)/src/getsize.c \
 	$(top_srcdir)/src/genrand.c \
+	$(top_srcdir)/src/hwrand.c \
 	$(top_srcdir)/src/aes.c \
 	$(top_srcdir)/src/util.c \
 	$(top_srcdir)/src/progress.c \
