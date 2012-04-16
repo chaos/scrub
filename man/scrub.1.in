@@ -98,6 +98,9 @@ KiBytes, MiBytes, or GiBytes, respectively.
 If \fIfile\fR is a symbolic link, do not scrub the link target.
 Do remove it, however, if \fI--remove\fR is specified.
 .TP
+\fI-R\fR, \fI--no-hwrand\fR
+Don't use a hardware random number generator even if one is available.
+.TP
 \fI-h\fR, \fI--help\fR
 Print a summary of command line options on stderr.
 .SH SCRUB METHODS
