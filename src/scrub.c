@@ -76,7 +76,7 @@ static void       scrub_resfork(char *path, const sequence_t *seq,
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 
-#define OPTIONS "p:D:Xb:s:fSrvTLh"
+#define OPTIONS "p:D:Xb:s:fSrvTLRh"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -91,6 +91,7 @@ static struct option longopts[] = {
     {"version",          no_argument,        0, 'v'},
     {"test-sparse",      no_argument,        0, 'T'},
     {"no-link",          no_argument,        0, 'L'},
+    {"no-hwrand",        no_argument,        0, 'R'},
     {"help",             no_argument,        0, 'h'},
     {0, 0, 0, 0},
 };
@@ -114,6 +115,7 @@ main(int argc, char *argv[])
     bool ropt = false;
     bool Topt = false;
     bool Lopt = false;
+    bool Ropt = false;
     extern int optind;
     extern char *optarg;
     int c;
@@ -170,6 +172,9 @@ main(int argc, char *argv[])
         case 'L':   /* --no-link */
             Lopt = true;
             break;
+        case 'R':   /* --no-hwrand */
+            Ropt = true;
+            break;
         case 'h':   /* --help */
         default:
             usage();
@@ -183,6 +188,9 @@ main(int argc, char *argv[])
         seq = seq_lookup("nnsa");
     assert(seq != NULL);
     printf("%s: using %s patterns\n", prog, seq->desc);
+
+    if (Ropt)
+        disable_hwrand();
 
     /* Handle -X specially.
      */
@@ -278,7 +286,7 @@ main(int argc, char *argv[])
 static void 
 usage(void)
 {
-    fprintf(stderr, "Usage: %s [OPTIONS] file\n%s%s%s%s%s%s%s%s%s%s", prog,
+    fprintf(stderr, "Usage: %s [OPTIONS] file\n%s%s%s%s%s%s%s%s%s%s%s", prog,
 "  -v, --version           display scrub version and exit\n",
 "  -p, --pattern pat       select scrub pattern sequence\n",
 "  -b, --blocksize size    set I/O buffer size (default 1m)\n",
@@ -289,6 +297,7 @@ usage(void)
 "  -S, --no-signature      do not write scrub signature after scrub\n",
 "  -r, --remove            remove file after scrub\n",
 "  -L, --no-link           do not scrub link target\n",
+"  -R, --no-hwrand         do not use a hardware random number generator\n",
 "  -h, --help              display this help message\n");
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();

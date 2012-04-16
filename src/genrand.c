@@ -41,6 +41,7 @@
 #include "aes.h"
 #include "util.h"
 #include "genrand.h"
+#include "hwrand.h"
 
 #define PATH_URANDOM    "/dev/urandom"
 
@@ -48,6 +49,9 @@
 #define KEY_SZ      16
 
 extern char *prog;
+
+static bool no_hwrand = false;
+static hwrand_t gen_hwrand;
 
 static aes_context  ctx;
 static unsigned char ctr[PAYLOAD_SZ];
@@ -115,6 +119,11 @@ initrand(void)
 {
     struct timeval tv;
 
+    if (!no_hwrand)
+        gen_hwrand = init_hwrand();
+
+    /* Always initialize the software random number generator as backup */
+
     if (access(PATH_URANDOM, R_OK) < 0) {
         if (gettimeofday(&tv, NULL) < 0) {
             fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
@@ -134,6 +143,12 @@ genrand(unsigned char *buf, int buflen)
     unsigned char out[PAYLOAD_SZ];
     int cpylen = PAYLOAD_SZ;
 
+    if (gen_hwrand) {
+        bool hwok = gen_hwrand(buf, buflen);
+        if (hwok)
+            return;
+    }
+
     for (i = 0; i < buflen; i += cpylen) {
         aes_encrypt(&ctx, ctr, out);
         incr128(ctr);
@@ -142,6 +157,15 @@ genrand(unsigned char *buf, int buflen)
         memcpy(&buf[i], out, cpylen);
     }
     assert(i == buflen);
+}
+
+/*
+ * Disable hardware random number generation
+ */
+void
+disable_hwrand(void)
+{
+    no_hwrand = true;
 }
 
 /*
