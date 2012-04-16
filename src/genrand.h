@@ -7,7 +7,7 @@
  *  UCRL-CODE-2003-006.
  *  
  *  This file is part of Scrub, a program for erasing disks
- *  For details, see <http://www.llnl.gov/linux/scrub/>.
+ *  For details, see https://code.google.com/p/diskscrub/
  *  
  *  Scrub is free software; you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
