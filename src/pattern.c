@@ -40,196 +40,196 @@
  */
 static const sequence_t dirent_seq = { 
     "dirent", "dirent", 6, {
-        { NORMAL, 1, {0x55} }, 
-        { NORMAL, 1, {0x22} }, 
-        { NORMAL, 1, {0x55} }, 
-        { NORMAL, 1, {0x22} }, 
-        { NORMAL, 1, {0x55} }, 
-        { NORMAL, 1, {0x22} }, 
+        { PAT_NORMAL, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x22} }, 
+        { PAT_NORMAL, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x22} }, 
+        { PAT_NORMAL, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x22} }, 
     },
 };
 
 static const sequence_t old_seq = { 
     "old", "pre v1.7 scrub", 5, {
-        { NORMAL, 1, {0x00} }, 
-        { NORMAL, 1, {0xff} }, 
-        { NORMAL, 1, {0xaa} }, 
-        { RANDOM, 0, {0x00} },
-        { VERIFY, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x00} }, 
+        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_VERIFY, 1, {0x55} }, 
     },
 };
 
 static const sequence_t fastold_seq = { 
     "fastold", "pre v1.7 scrub (skip random)", 4, {
-        { NORMAL, 1, {0x00} }, 
-        { NORMAL, 1, {0xff} }, 
-        { NORMAL, 1, {0xaa} }, 
-        { VERIFY, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x00} }, 
+        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_VERIFY, 1, {0x55} }, 
     },
 };
 
 static const sequence_t nnsa_seq = { 
     "nnsa", "NNSA NAP-14.1-C", 3, {
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { VERIFY, 1, {0x00} }, 
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_VERIFY, 1, {0x00} }, 
     },
 };
 
 static const sequence_t dod_seq = { 
     "dod", "DoD 5220.22-M", 3, {
-        { RANDOM, 0, {0x00} },
-        { NORMAL, 1, {0x00} }, 
-        { VERIFY, 1, {0xff} }, 
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_NORMAL, 1, {0x00} }, 
+        { PAT_VERIFY, 1, {0xff} }, 
     },
 };
 
 static const sequence_t bsi_seq = { 
     "bsi", "BSI", 9, {
-        { NORMAL, 1, {0xff} }, 
-        { NORMAL, 1, {0xfe} }, 
-        { NORMAL, 1, {0xfd} }, 
-        { NORMAL, 1, {0xfb} }, 
-        { NORMAL, 1, {0xf7} },
-        { NORMAL, 1, {0xef} }, 
-        { NORMAL, 1, {0xdf} }, 
-        { NORMAL, 1, {0xbf} }, 
-        { NORMAL, 1, {0x7f} },
+        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0xfe} }, 
+        { PAT_NORMAL, 1, {0xfd} }, 
+        { PAT_NORMAL, 1, {0xfb} }, 
+        { PAT_NORMAL, 1, {0xf7} },
+        { PAT_NORMAL, 1, {0xef} }, 
+        { PAT_NORMAL, 1, {0xdf} }, 
+        { PAT_NORMAL, 1, {0xbf} }, 
+        { PAT_NORMAL, 1, {0x7f} },
     },
 };
 
 static const sequence_t gutmann_seq = {
     "gutmann", "Gutmann", 35, {
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { NORMAL, 1, {0x55} }, 
-        { NORMAL, 1, {0xaa} }, 
-        { NORMAL, 3, {0x92, 0x49, 0x24} },
-        { NORMAL, 3, {0x49, 0x24, 0x92} },
-        { NORMAL, 3, {0x24, 0x92, 0x49} },
-        { NORMAL, 1, {0x00} }, 
-        { NORMAL, 1, {0x11} }, 
-        { NORMAL, 1, {0x22} }, 
-        { NORMAL, 1, {0x33} }, 
-        { NORMAL, 1, {0x44} }, 
-        { NORMAL, 1, {0x55} }, 
-        { NORMAL, 1, {0x66} }, 
-        { NORMAL, 1, {0x77} }, 
-        { NORMAL, 1, {0x88} }, 
-        { NORMAL, 1, {0x99} }, 
-        { NORMAL, 1, {0xaa} }, 
-        { NORMAL, 1, {0xbb} }, 
-        { NORMAL, 1, {0xcc} }, 
-        { NORMAL, 1, {0xdd} }, 
-        { NORMAL, 1, {0xee} }, 
-        { NORMAL, 1, {0xff} }, 
-        { NORMAL, 3, {0x92, 0x49, 0x24} },
-        { NORMAL, 3, {0x49, 0x24, 0x92} },
-        { NORMAL, 3, {0x24, 0x92, 0x49} },
-        { NORMAL, 3, {0x6d, 0xb6, 0xdb} },
-        { NORMAL, 3, {0xb6, 0xdb, 0x6d} },
-        { NORMAL, 3, {0xdb, 0x6d, 0xb6} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_NORMAL, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_NORMAL, 3, {0x92, 0x49, 0x24} },
+        { PAT_NORMAL, 3, {0x49, 0x24, 0x92} },
+        { PAT_NORMAL, 3, {0x24, 0x92, 0x49} },
+        { PAT_NORMAL, 1, {0x00} }, 
+        { PAT_NORMAL, 1, {0x11} }, 
+        { PAT_NORMAL, 1, {0x22} }, 
+        { PAT_NORMAL, 1, {0x33} }, 
+        { PAT_NORMAL, 1, {0x44} }, 
+        { PAT_NORMAL, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x66} }, 
+        { PAT_NORMAL, 1, {0x77} }, 
+        { PAT_NORMAL, 1, {0x88} }, 
+        { PAT_NORMAL, 1, {0x99} }, 
+        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_NORMAL, 1, {0xbb} }, 
+        { PAT_NORMAL, 1, {0xcc} }, 
+        { PAT_NORMAL, 1, {0xdd} }, 
+        { PAT_NORMAL, 1, {0xee} }, 
+        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 3, {0x92, 0x49, 0x24} },
+        { PAT_NORMAL, 3, {0x49, 0x24, 0x92} },
+        { PAT_NORMAL, 3, {0x24, 0x92, 0x49} },
+        { PAT_NORMAL, 3, {0x6d, 0xb6, 0xdb} },
+        { PAT_NORMAL, 3, {0xb6, 0xdb, 0x6d} },
+        { PAT_NORMAL, 3, {0xdb, 0x6d, 0xb6} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t random_seq = { 
     "random", "One Random Pass", 1, {
-        { RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t random2_seq = { 
     "random2", "Two Random Passes", 2, {
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t schneier_seq = {
     "schneier", "Bruce Schneier Algorithm", 7, {
-        { NORMAL, 1, {0x00} },
-        { NORMAL, 1, {0xff} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0xff} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t pfitzner7_seq = {
     "pfitzner7", "Roy Pfitzner 7-random-pass method", 7, {
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t pfitzner33_seq = {
     "pfitzner33", "Roy Pfitzner 33-random-pass method", 33, {
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
-        { RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t usarmy_seq = { 
     "usarmy", "US Army AR380-19", 3, {
-        { NORMAL, 1, {0x00} }, 
-        { NORMAL, 1, {0xff} }, 
-        { RANDOM, 0, {0x00} },
+        { PAT_NORMAL, 1, {0x00} }, 
+        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_RANDOM, 0, {0x00} },
     },
 };
 
 static const sequence_t fillzero_seq = {
     "fillzero", "Quick Fill with 0x00", 1, {
-        { NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0x00} },
     },
 };
 
 static const sequence_t fillff_seq = {
     "fillff", "Quick Fill with 0xff", 1, {
-        { NORMAL, 1, {0xff} },
+        { PAT_NORMAL, 1, {0xff} },
     },
 };
 
@@ -280,10 +280,10 @@ pat2str(pattern_t p)
 
     assert(sizeof(str) > p.len*2 + 2);
     switch (p.ptype) {
-        case RANDOM:
+        case PAT_RANDOM:
             snprintf(str, sizeof(str), "random");
-        case VERIFY:
-        case NORMAL:
+        case PAT_VERIFY:
+        case PAT_NORMAL:
             snprintf(str, sizeof(str), "0x");
             for (i = 0; i < p.len; i++)
                 snprintf(str+2*i+2, sizeof(str)-2*i-2, "%.2x", p.pat[i]);

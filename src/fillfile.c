@@ -60,7 +60,7 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     int openflags = O_WRONLY;
 
 #if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
-    if (filetype(path) != CHAR)
+    if (filetype(path) != FILE_CHAR)
         openflags |= O_DIRECT;
 #endif
     if (creat)
@@ -137,7 +137,7 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         exit(1);
     }
 #if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
-    if (filetype(path) != CHAR)
+    if (filetype(path) != FILE_CHAR)
         openflags |= O_DIRECT;
 #endif
     fd = open(path, openflags);
