@@ -25,6 +25,7 @@ AC_PROG_CC
 ##
 # Checks for header files.
 ##
+AC_USE_SYSTEM_EXTENSIONS
 AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
@@ -41,6 +42,9 @@ AC_C_CONST
 ##
 AC_CHECK_FUNCS( \
   getopt_long \
+  posix_memalign \
+  memalign \
+  posix_fadvise \
 )
 
 ##

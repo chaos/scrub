@@ -59,8 +59,10 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     off_t written = 0LL;
     int openflags = O_WRONLY;
 
+#if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
     if (filetype(path) != CHAR)
-        openflags |= O_SYNC;
+        openflags |= O_DIRECT;
+#endif
     if (creat)
         openflags |= O_CREAT;
     fd = open(path, openflags, 0644);
@@ -99,6 +101,17 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         if (progress)
             progress(arg, (double)written/filesize);
     } while (written < filesize);
+    if (fsync(fd) < 0) {
+        fprintf(stderr, "%s: fsync %s: %s\n", prog, path, strerror(errno));
+        exit(1);
+    }
+#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_DONTNEED)
+    /* Try to fool the kernel into dropping any device cache */
+    if (posix_fadvise(fd, 0, filesize, POSIX_FADV_DONTNEED)) {
+	fprintf(stderr, "%s: posix_fadvise %s: %s\n",
+		prog, path, strerror(errno));
+    }
+#endif
     if (close(fd) < 0) {
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
@@ -116,13 +129,18 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     off_t n;
     off_t verified = 0LL;
     unsigned char *buf;
+    int openflags = O_RDONLY;
 
-    buf = malloc(memsize);
+    buf = alloc_buffer(memsize);
     if (!buf) {
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
-    fd = open(path, O_RDONLY);
+#if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
+    if (filetype(path) != CHAR)
+        openflags |= O_DIRECT;
+#endif
+    fd = open(path, openflags);
     if (fd < 0) {
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);

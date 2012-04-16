@@ -29,6 +29,7 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <unistd.h>
 #include <libgen.h>
 
@@ -115,6 +116,29 @@ blkalign(off_t offset, int blocksize, round_t rtype)
     }
 
     return offset;
+}
+
+/* Allocate an aligned buffer
+ */
+#define ALIGNMENT	(16*1024*1024) /* Hopefully good enough */
+void *
+alloc_buffer(int bufsize)
+{
+    void *ptr;
+
+#ifdef HAVE_POSIX_MEMALIGN
+    int err = posix_memalign(&ptr, ALIGNMENT, bufsize);
+    if (err) {
+	errno = err;
+	ptr = NULL;
+    }
+#elif defined(HAVE_MEMALIGN)
+    ptr = memalign(ALIGNMENT, bufsize);
+#else
+    ptr = malloc(bufsize);	/* Hope for the best? */
+#endif
+
+    return ptr;
 }
 
 /*
