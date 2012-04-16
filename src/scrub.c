@@ -320,7 +320,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
     bool isfull = false;
     off_t written;
 
-    if (!(buf = malloc(bufsize))) {
+    if (!(buf = alloc_buffer(bufsize))) {
         fprintf(stderr, "%s: out of memory\n", prog);
         exit(1);
     }
