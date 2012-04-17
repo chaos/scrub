@@ -41,6 +41,12 @@
 
 extern char *prog;
 
+#if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
+# define MY_O_DIRECT O_DIRECT
+#else
+# define MY_O_DIRECT 0
+#endif
+
 /* Fill file (can be regular or special file) with pattern in mem.
  * Writes will use memsize blocks.
  * If 'refill' is non-null, call it before each write (for random fill).
@@ -59,13 +65,16 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     off_t written = 0LL;
     int openflags = O_WRONLY;
 
-#if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
     if (filetype(path) != FILE_CHAR)
-        openflags |= O_DIRECT;
-#endif
+        openflags |= MY_O_DIRECT;
     if (creat)
         openflags |= O_CREAT;
     fd = open(path, openflags, 0644);
+    if (fd < 0 && errno == EINVAL && openflags & MY_O_DIRECT) {
+        /* Try again without (MY_)O_DIRECT */
+        openflags &= ~MY_O_DIRECT;
+        fd = open(path, openflags, 0644);
+    }
     if (fd < 0) {
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);
@@ -136,11 +145,14 @@ checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         fprintf(stderr, "out of memory\n");
         exit(1);
     }
-#if defined(O_DIRECT) && (defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN))
     if (filetype(path) != FILE_CHAR)
-        openflags |= O_DIRECT;
-#endif
+        openflags |= MY_O_DIRECT;
     fd = open(path, openflags);
+    if (fd < 0 && errno == EINVAL && openflags & MY_O_DIRECT) {
+        /* Try again without (MY_)O_DIRECT */
+        openflags &= ~MY_O_DIRECT;
+        fd = open(path, openflags);
+    }
     if (fd < 0) {
         fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
         exit(1);

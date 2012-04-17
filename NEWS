@@ -17,6 +17,10 @@ scrub-2.5.0 Release Notes                                     2012-04-17
   Allow C style numerical escapes in string: \nnn (octal) and \xnn (hex).
   This is a single-pass sequence with a custom pattern.
 
+* Change default buffer size from 1m to 4m [H. Peter Anvin]
+
+* Avoid closing and re-opening /dev/urandom [H. Peter Anvin]
+
 ========================================================================
 scrub-2.4.2 Release Notes                                     2011-08-29
 ========================================================================
