@@ -77,23 +77,31 @@ incr128(unsigned char *val)
 static void 
 genrandraw(unsigned char *buf, int buflen)
 {
-    int fd, n;
+    static int fd = -1;
+    int n;
 
-    if ((fd = open(PATH_URANDOM, O_RDONLY)) >= 0) {
-        n = read_all(fd, buf, buflen);
-        if (n < 0) {
-            fprintf(stderr, "%s: open %s: %s\n", prog, PATH_URANDOM, 
-                    strerror(errno));
-            exit(1);
+    if (fd < 0) {
+        fd = open(PATH_URANDOM, O_RDONLY);
+
+        if (fd < 0) {
+            /* Still can't open /dev/urandom - this is weak */
+
+            for (n = 0; n < buflen; n++)
+                buf[n] = rand();
+
+	    return;
         }
-        if (n == 0) {
-            fprintf(stderr, "%s: premature EOF on %s\n", prog, PATH_URANDOM);
-            exit(1);
-        }
-        (void)close(fd);
-    } else {
-        for (n = 0; n < buflen; n++)
-            buf[n] = rand();
+    }
+
+    n = read_all(fd, buf, buflen);
+    if (n < 0) {
+        fprintf(stderr, "%s: read %s: %s\n", prog, PATH_URANDOM, 
+                strerror(errno));
+        exit(1);
+    }
+    if (n == 0) {
+        fprintf(stderr, "%s: premature EOF on %s\n", prog, PATH_URANDOM);
+        exit(1);
     }
 }
 
@@ -124,13 +132,12 @@ initrand(void)
 
     /* Always initialize the software random number generator as backup */
 
-    if (access(PATH_URANDOM, R_OK) < 0) {
-        if (gettimeofday(&tv, NULL) < 0) {
-            fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
-            exit(1);
-        }
-        srand(tv.tv_usec);
+    if (gettimeofday(&tv, NULL) < 0) {
+        fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
+        exit(1);
     }
+    srand(tv.tv_usec);
+
     churnrand();
 }
 
