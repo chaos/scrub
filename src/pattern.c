@@ -23,11 +23,18 @@
  *  with Scrub; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
+
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "pattern.h"
+
+extern char *prog;
 
 /* N.B.
  * The number of patterns in a sequence is limited to MAXSEQPATTERNS.
@@ -249,17 +256,107 @@ static const sequence_t *sequences[] = {
 	&usarmy_seq,
 	&fillzero_seq,
 	&fillff_seq,
-};	
+};
+
+#define isoctdigit(c)  (((c) >= '0' && (c) <= '7'))
+
+#define ishexdigit(c)  (((c) >= '0' && (c) <= '9') \
+                     || ((c) >= 'a' && (c) <= 'f') \
+                     || ((c) >= 'A' && (c) <= 'F'))
+
+/* Expand C style numerical escapes: \nnn (octal), \xnn (hex), and \\.
+ */
+static int 
+strtomem (int *data, int len, char *s)
+{
+    char tmp[16];
+    int i = 0;
+
+    while (*s && i < len) {
+        if  (*s == '\\' && *(s + 1) == '\\') {
+            data[i++] = *s;
+            s += 2;
+            continue;
+        }
+        if (*s == '\\' && strlen (s) >= 4 && *(s + 1) == 'x'
+                       && ishexdigit(*(s + 2)) && ishexdigit(*(s + 3))) {
+            memcpy (tmp, s + 2, 2);
+            tmp[2] = '\0';
+            data[i++] = strtoul (tmp, NULL, 16);
+            s += 4;
+            continue;
+        }
+        if (*s == '\\' && strlen (s) >= 4 && isoctdigit (*(s + 1))
+                       && isoctdigit (*(s + 2)) && isoctdigit (*(s + 3))) {
+            memcpy (tmp, s + 1, 3);
+            tmp[3] = '\0';
+            data[i++] = strtoul (tmp, NULL, 8);
+            s += 4;
+            continue;
+        }
+        data[i++] = *s++;
+    }
+    return (*s ? -1 : i);
+}
+
+static sequence_t *custom_seq = NULL;
+
+static void
+seq_destroy (sequence_t *sp)
+{
+    if (sp->key)
+        free (sp->key);
+    if (sp->desc)
+        free (sp->desc);
+    free (sp);
+}
+
+static sequence_t *
+seq_create (char *key, char *desc, char *s)
+{
+    sequence_t *sp;
+    int len;
+
+    assert (custom_seq == NULL);
+    if (!(sp = malloc (sizeof (*sp))))
+        goto nomem;
+    memset (sp, 0, sizeof (*sp));
+    if (!(sp->key = strdup (key)))
+        goto nomem;
+    if (!(sp->desc = strdup (desc)))
+        goto nomem;
+    sp->len = 1;
+    len = strtomem (sp->pat[0].pat, MAXPATBYTES, s);
+    if (len < 0) {
+        fprintf (stderr, "%s: custom pattern is too long\n", prog);
+        exit (1);
+    }
+    sp->pat[0].len = len;
+    custom_seq = sp;
+    return sp;
+nomem:
+    fprintf (stderr, "%s: out of memory\n", prog);
+    exit (1);
+    /*NOTREACHED*/
+}
 
 const sequence_t *
 seq_lookup(char *key)
 {
+    const sequence_t *seq = NULL;
     int i;
 
-    for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++)
-        if (!strcmp(sequences[i]->key, key))
-            return sequences[i];
-    return NULL;
+    if (strncmp (key, "custom=", 7) == 0 && key[7] != '\0')
+        seq = seq_create ("custom", "Custom single-pass pattern", &key[7]);
+    else {
+        for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++) {
+            if (!strcmp(sequences[i]->key, key)) {
+                seq = sequences[i];
+                break;
+            }
+        }
+    }
+    return seq;
 }
 
 void
@@ -277,8 +374,10 @@ pat2str(pattern_t p)
 {
     static char str[MAXPATBYTES*2 + 3];
     int i;
+    int len = p.len;
 
-    assert(sizeof(str) > p.len*2 + 2);
+    if (len > 4)
+        len = 4;
     switch (p.ptype) {
         case PAT_RANDOM:
             snprintf(str, sizeof(str), "random");
@@ -286,7 +385,7 @@ pat2str(pattern_t p)
         case PAT_VERIFY:
         case PAT_NORMAL:
             snprintf(str, sizeof(str), "0x");
-            for (i = 0; i < p.len; i++)
+            for (i = 0; i < len; i++)
                 snprintf(str+2*i+2, sizeof(str)-2*i-2, "%.2x", p.pat[i]);
             break;
     }
@@ -304,6 +403,15 @@ seq_list(void)
                  sequences[i]->len,
                  sequences[i]->desc
         );
+}
+
+void
+pattern_finalize (void)
+{
+    if (custom_seq) {
+        seq_destroy(custom_seq);
+        custom_seq = NULL;
+    }
 }
 
 /*
