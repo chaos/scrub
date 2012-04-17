@@ -1,6 +1,6 @@
 scrub: /tmp/scrub-t13 is wrong type of file
 scrub: using NNSA NAP-14.1-C patterns
-scrub: -X argument cannot exist
+scrub: -X directory already exists
 scrub: using NNSA NAP-14.1-C patterns
 scrub: /tmp/scrub-t13 does not exist
 scrub: using NNSA NAP-14.1-C patterns
