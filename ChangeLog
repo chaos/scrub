@@ -1,67 +1,6 @@
-2010-11-03 Jim Garlick <garlick@llnl.gov>
+This file is no longer used.
 
-	* : tag 2.4
-
-2010-05-17 Jim Garlick <garlick@llnl.gov>
-
-	* src/pattern, man/scrub.1.in : Add usarmy, pfitzner7, and pfitzner33
-	methods [See http://mareichelt.de/pub/notmine/sanitizing.html].
-
-2010-05-14 Jim Garlick <garlick@llnl.gov>
-
-	* : tag 2.3
-
-	* src/pattern.c, man/scrub.1.in : Added schneier sequence [Joe].
-
-	* test/*.exp : Update for NAP string change.
-
-2009-11-09 Jim Garlick <garlick@llnl.gov>
-
-	* man/scrub.1.in : Update NAP reference.
-
-2009-10-20 Jim Garlick <garlick@llnl.gov>
-
-	* src/util.c, src/sig.c, src/fillfile.c : Handle write(2) returning
-	zero as an error instead of retrying, as this may indicate a write
-	past the end of device.
-
-2009-09-17 Jim Garlick <garlick@llnl.gov>
-
-	* src/scrub.c, src/util.c, src/util.h, man/scrub.1.in : Add -L
-	option to modfiy symlink handling [Timothy Boronczyk]
-	
-2009-07-29 Jim Garlick <garlick@llnl.gov>
-
-	* : tag 2.2
-
-2009-07-24 Jim Garlick <garlick@llnl.gov>
-
-	* src/scrub.c : In scrub_file(), just warn, don't abort on zero length
-	file or -r (remove) option will not be honored [Timothy Boronczyk]
-
-2009-03-03 Jim Garlick <garlick@llnl.gov>
-
-	* : tag 2.2pre1
-
-2009-02-21 Jim Garlick <garlick@llnl.gov>
-
-	* src/getsize.c : Define u64 for slackware [Timothy Boronczyk]
-
-2008-12-23 Jim Garlick <garlick@llnl.gov>
-
-	* man/* : Moved man page here from src directory.
-
-	* src/pattern.c : Added 'random' pattern (one pass).
-
-2008-12-21 Jim Garlick <garlick@llnl.gov>
-
-	* config/x_ac_expand_install_dirs.m4 : New, from munge.
-
-	* config/x_ac_meta.m4 : New, from munge, supercedes ac_meta.m4.
-
-	* src/scrub.1.in : Rename from scrub.1.in, fix formatting.
-
-	* autogen.sh : Rename from bootstrap.sh.
+See git log at https://code.google.com/p/diskscrub/
 
 2008-11-14 Jim Garlick <garlick@llnl.gov>
 

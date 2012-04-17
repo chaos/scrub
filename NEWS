@@ -1,4 +1,23 @@
 ========================================================================
+scrub-2.5.0 Release Notes                                     2012-04-17
+========================================================================
+
+* Replace O_SYNC with O_DIRECT+fsync+posix_fadvise [H. Peter Anvin]
+  This produces a significant performance improvement, at least on Linux.
+
+* Add support for RDRAND instr. [H. Peter Anvin]
+
+* Use <stdbool.h> if the system has it [H. Peter Anvin]
+
+* Fix incorrect assertion in scrub --dirent handling (issue 9) [Peter Hyman]
+
+* Clean up tmp files after scrub --freespace (issue 9) [Peter Hyman]
+
+* Allow scrub --pattern=custom="string" (issue 11) [Peter Hyman]
+  Allow C style numerical escapes in string: \nnn (octal) and \xnn (hex).
+  This is a single-pass sequence with a custom pattern.
+
+========================================================================
 scrub-2.4.2 Release Notes                                     2011-08-29
 ========================================================================
 
