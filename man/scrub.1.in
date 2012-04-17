@@ -59,7 +59,7 @@ or
 .I "G"
 may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
-Default: 1M.
+Default: 4M.
 .TP
 \fI-f\fR, \fI--force\fR
 Scrub even if target contains signature indicating it has already been
