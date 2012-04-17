@@ -282,6 +282,7 @@ pat2str(pattern_t p)
     switch (p.ptype) {
         case PAT_RANDOM:
             snprintf(str, sizeof(str), "random");
+            break;
         case PAT_VERIFY:
         case PAT_NORMAL:
             snprintf(str, sizeof(str), "0x");
