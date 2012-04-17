@@ -55,11 +55,7 @@
 #include "sig.h"
 #include "pattern.h"
 
-/* NOTE: default blocksize was 8K in scrub 1.8, however on hpux
- * it was found that raising the default to 1M raised performance from
- * ~1.3 MB/s to 20MB/s. [Graham Smith]
- */
-#define BUFSIZE (1024*1024) /* default blocksize */
+#define BUFSIZE (4*1024*1024) /* default blocksize */
 
 static void       usage(void);
 static bool       scrub(char *path, off_t size, const sequence_t *seq,
@@ -292,7 +288,7 @@ usage(void)
 "Usage: %s [OPTIONS] file\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence\n"
-"  -b, --blocksize size    set I/O buffer size (default 1m)\n"
+"  -b, --blocksize size    set I/O buffer size (default 4m)\n"
 "  -s, --device-size size  set device size manually\n"
 "  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
