@@ -24,7 +24,7 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-#define MAXPATBYTES 3
+#define MAXPATBYTES 16
 #define MAXSEQPATTERNS 35
 typedef enum {
     PAT_NORMAL,
@@ -48,6 +48,8 @@ const sequence_t *seq_lookup(char *name);
 void              seq_list(void);
 char             *pat2str(pattern_t p);
 void              memset_pat(void *s, pattern_t p, size_t n);
+void              pattern_finalize(void);
+
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

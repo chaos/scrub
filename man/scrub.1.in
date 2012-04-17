@@ -163,6 +163,10 @@ for sanitizing magnetic core memory).
 .I "fastold"
 5-pass pattern:
 \fB0x00, 0xff, 0xaa, 0x55, verify\fR.
+.TP
+.I "custom=string"
+1-pass custom pattern.  String may contain C-style numerical escapes:
+\\nnn (octal) or \\xnn (hex).
 .SH CAVEATS
 .B Scrub 
 may be insufficient to thwart heroic efforts to recover data 

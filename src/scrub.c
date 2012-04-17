@@ -204,7 +204,7 @@ main(int argc, char *argv[])
             exit(1);
         }
         scrub_free(filename, sopt, seq, bopt, Sopt);
-        exit(0);
+        goto done;
     } 
 
     switch (filetype(filename)) {
@@ -280,6 +280,8 @@ main(int argc, char *argv[])
             }
             break;
     }
+done:
+    pattern_finalize ();
     exit(0);
 }
 
@@ -292,7 +294,7 @@ usage(void)
 "  -p, --pattern pat       select scrub pattern sequence\n"
 "  -b, --blocksize size    set I/O buffer size (default 1m)\n"
 "  -s, --device-size size  set device size manually\n"
-"  -X, --freespace         create dir+files, fill until ENOSPC, then scrub\n"
+"  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
 "  -f, --force             scrub despite signature from previous scrub\n"
 "  -S, --no-signature      do not write scrub signature after scrub\n"
