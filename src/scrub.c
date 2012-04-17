@@ -196,7 +196,7 @@ main(int argc, char *argv[])
      */
     if (Xopt) {
         if (filetype(filename) != FILE_NOEXIST) {
-            fprintf(stderr, "%s: -X argument cannot exist\n", prog);
+            fprintf(stderr, "%s: -X directory already exists\n", prog);
             exit(1);
         }
         if (Dopt) {
@@ -374,6 +374,11 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             assert(enospc == true);
             isfull = true; 
             size = written;
+            if (size == 0) {
+                fprintf(stderr, "%s: file system is full (0 bytes written)\n",
+                        prog);
+                break;
+            }
         }
     }
     if (!Sopt)
@@ -425,6 +430,7 @@ scrub_free(char *dirpath, off_t size, const sequence_t *seq,
         fprintf(stderr, "%s: mkdir %s: %s\n", prog, path, strerror(errno));
         exit(1);
     } 
+    fprintf (stderr, "%s: created directory %s\n", prog, dirpath);
     if (stat(dirpath, &sb) < 0) {
         fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
         exit(1);
@@ -436,11 +442,21 @@ scrub_free(char *dirpath, off_t size, const sequence_t *seq,
     if (size == 0)
         size = 1024*1024*1024;
     size = blkalign(size, sb.st_blksize, DOWN);
-
     do {
         snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno++);
         isfull = scrub(path, size, seq, bufsize, Sopt, false, true);
     } while (!isfull);
+    while (--fileno >= 0) {
+        snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno);
+        if (unlink(path) < 0)
+            fprintf(stderr, "%s: unlink %s: %s\n", prog, path, strerror(errno));
+        else
+            fprintf(stderr, "%s: unlinked %s\n", prog, path);
+    }
+    if (rmdir(dirpath) < 0)
+        fprintf(stderr, "%s: rmdir %s: %s\n", prog, dirpath, strerror(errno));
+    else
+        fprintf(stderr, "%s: removed %s\n", prog, dirpath);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
