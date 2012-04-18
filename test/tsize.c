@@ -47,7 +47,7 @@ main(int argc, char *argv[])
         perror(argv[1]);
         exit(1);
     }
-    printf("%ld\n", sb.st_size);
+    printf("%lld\n", (unsigned long long)sb.st_size);
     exit(0);
 }
 
