@@ -347,7 +347,7 @@ seq_lookup(char *key)
     int i;
 
     if (strncmp (key, "custom=", 7) == 0 && key[7] != '\0')
-        seq = seq_create ("custom", "Custom single-pass pattern", &key[7]);
+        seq = seq_create ("custom", "Custom single-pass", &key[7]);
     else {
         for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++) {
             if (!strcmp(sequences[i]->key, key)) {
