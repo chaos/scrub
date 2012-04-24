@@ -75,7 +75,7 @@ Create specified directory and fill it with files until
 write returns ENOSPC (file system full), then scrub the files as usual.
 The size of each file can be set with \fI-s\fR, otherwise it will be
 the maximum file size creatable given the user's file size limit or 
-1g if umlimited.
+1g if unlimited.
 .TP
 \fI-D\fR, \fI--dirent\fR \fInewname\fR
 After scrubbing the file, scrub its name in the directory entry, 
@@ -112,8 +112,8 @@ locations with a pseudorandom pattern twice and then with a known pattern:
 \fBrandom(x2), 0x00, verify\fR.
 .TP
 .I "dod"
-4-pass DoD 5220.22-M section 8-306 procedure (d) for sanitizing removeable
-and non-removeable rigid disks which requires overwriting all addressable
+4-pass DoD 5220.22-M section 8-306 procedure (d) for sanitizing removable
+and non-removable rigid disks which requires overwriting all addressable
 locations with a character, its complement, a random character, then verify.
 NOTE: \fBscrub\fR performs the random pass first to make verification
 easier: \fBrandom, 0x00, 0xff, verify\fR.
@@ -195,12 +195,12 @@ is only aware of the traditional data and resource forks.
 .B scrub
 cannot access disk blocks that have been spared out by the disk controller.
 For SATA/PATA drives, the ATA "security erase" command built into the drive
-controller can do this.  Similarly, the ATA "enahanced security erase" can
+controller can do this.  Similarly, the ATA "enhanced security erase" can
 erase data on track edges and between tracks.
-The DOS utility HDDERASE from from the UCSD Center for Magnetic
+The DOS utility HDDERASE from the UCSD Center for Magnetic
 Recording Research can issue these commands, as can modern versions
 of Linux \fBhdparm\fR.
-Unfortunately, the analagous SCSI command is optional according to T-10,
+Unfortunately, the analogous SCSI command is optional according to T-10,
 and not widely implemented.
 .SH AUTHOR
 Jim Garlick <garlick@llnl.gov>
