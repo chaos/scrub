@@ -47,12 +47,12 @@ extern char *prog;
  */
 static const sequence_t dirent_seq = { 
     "dirent", "dirent", 6, {
-        { PAT_NORMAL, 1, {0x55} }, 
-        { PAT_NORMAL, 1, {0x22} }, 
-        { PAT_NORMAL, 1, {0x55} }, 
-        { PAT_NORMAL, 1, {0x22} }, 
-        { PAT_NORMAL, 1, {0x55} }, 
-        { PAT_NORMAL, 1, {0x22} }, 
+        { PAT_NORMAL, 1, {0x32} },
+        { PAT_NORMAL, 1, {0x4d} },
+        { PAT_NORMAL, 1, {0x32} },
+        { PAT_NORMAL, 1, {0x4d} },
+        { PAT_NORMAL, 1, {0x32} },
+        { PAT_NORMAL, 1, {0x4d} },
     },
 };
 
