@@ -77,7 +77,7 @@ static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
     {"pattern",          required_argument,  0, 'p'},
-    {"dirent",           no_argument,        0, 'D'},
+    {"dirent",           required_argument,  0, 'D'},
     {"freespace",        no_argument,        0, 'X'},
     {"blocksize",        required_argument,  0, 'b'},
     {"device-size",      required_argument,  0, 's'},
