@@ -24,6 +24,12 @@
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
 
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
+
+/* Define to 1 if you have the `random_r' function. */
+#undef HAVE_RANDOM_R
+
 /* Define to 1 if you have the <stdbool.h> header file. */
 #undef HAVE_STDBOOL_H
 
@@ -121,6 +127,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Define to 1 if working pthreads support is available. */
+#undef WITH_PTHREADS
+
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
@@ -190,6 +199,12 @@
 
 /* Define to 1 if you need to in order for `stat' and other things to work. */
 #undef _POSIX_SOURCE
+
+/* Define to 1 if you plan to link against multithreaded code. */
+#undef _REENTRANT
+
+/* Define to 1 if you plan to link against multithreaded code. */
+#undef _THREAD_SAFE
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
