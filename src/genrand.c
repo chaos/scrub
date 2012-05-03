@@ -56,6 +56,15 @@ static hwrand_t gen_hwrand;
 static aes_context  ctx;
 static unsigned char ctr[PAYLOAD_SZ];
 
+#if HAVE_RAND_R
+static unsigned int seed;
+#elif HAVE_RANDOM_R
+static char rstate[128];
+static struct random_data rdata;
+#else
+#error Neither rand_r nor random_r are available
+#endif
+
 /* Increment 128 bit counter.
  * NOTE: we are not concerned with endianness here since the counter is
  * just sixteen bytes of payload to AES and outside of this function isn't 
@@ -86,12 +95,9 @@ genrandraw(unsigned char *buf, int buflen)
         /* Still can't open /dev/urandom - this is weak */
         if (fd < 0) {
 #if HAVE_RAND_R
-            static unsigned int seed = 0;
-
             for (n = 0; n < buflen; n++)
                 buf[n] = rand_r (&seed);
 #elif HAVE_RANDOM_R
-            static struct random_data rdata;
             int32_t result;
 
             for (n = 0; n < buflen; n++) {
@@ -102,8 +108,6 @@ genrandraw(unsigned char *buf, int buflen)
                 }
                 buf[n] = result;
             }
-#else
-#error write code to replace random_r/rand_r on this platform
 #endif
             return;
         }
@@ -152,8 +156,14 @@ initrand(void)
         fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
         exit(1);
     }
-    srand(tv.tv_usec);
-
+#if HAVE_RAND_R
+    seed = tv.tv_usec;
+#elif HAVE_RANDOM_R
+    if (initstate_r(tv.tv_usec, rstate, sizeof(rstate), &rdata) < 0) {
+        fprintf (stderr, "%s: initstate_r: %s\n", prog, strerror(errno));
+        exit (1);
+    }
+#endif
     churnrand();
 }
 
