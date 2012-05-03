@@ -35,9 +35,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
+#include <assert.h>
 
 #include "util.h"
 #include "fillfile.h"
+
+struct memstruct {
+    refill_t refill;
+    unsigned char *buf;
+    int size;
+#if WITH_PTHREADS
+    pthread_t thd;
+    int err;
+    bool running;
+#endif
+};
 
 extern char *prog;
 
@@ -46,6 +61,83 @@ extern char *prog;
 #else
 # define MY_O_DIRECT 0
 #endif
+
+static void
+oom(void)
+{
+    fprintf (stderr, "%s: out of memory\n", prog);
+    exit (1);
+}
+
+static void *
+refill_thread(void *arg)
+{
+    struct memstruct *mp = (struct memstruct *)arg;
+
+    mp->refill(mp->buf, mp->size);
+    return mp;
+}
+
+static void
+refill_memcpy(struct memstruct *mp, unsigned char *mem, int memsize,
+              int filesize, int written)
+{
+#if WITH_PTHREADS
+    if ((mp->err = pthread_join(mp->thd, NULL))) {
+        fprintf(stderr, "%s: pthread_join: %s\n", prog, strerror(mp->err));
+        exit(1);
+    }
+    mp->running = false;
+#else
+    refill_thread (mp);
+#endif
+    assert (memsize == mp->size);
+    memcpy(mem, mp->buf, memsize);
+#if WITH_PTHREADS
+    written += memsize;
+    if (filesize - written > 0) {
+        if (mp->size > filesize - written)
+            mp->size = filesize - written;
+        mp->running = true;
+        if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
+            fprintf(stderr, "%s: pthread_create: %s\n", prog,
+                    strerror(mp->err));
+            exit(1);
+        }
+    }
+#endif
+}
+
+static void
+refill_init(struct memstruct **mpp, refill_t refill, int memsize)
+{
+    struct memstruct *mp = NULL;
+
+    if (!(mp = malloc(sizeof(struct memstruct))))
+        oom();
+    if (!(mp->buf = malloc(memsize)))
+        oom();
+    mp->size = memsize;
+    mp->refill = refill;
+#if WITH_PTHREADS
+    mp->running = true;
+    if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
+        fprintf(stderr, "%s: pthread_create: %s\n", prog, strerror(mp->err));
+        exit(1);
+    }
+#endif
+    *mpp = mp;
+}
+
+static void
+refill_fini(struct memstruct *mp)
+{
+#if WITH_PTHREADS
+    assert(mp->running == false);
+#endif
+    free (mp->buf);
+    free (mp);
+}
 
 /* Fill file (can be regular or special file) with pattern in mem.
  * Writes will use memsize blocks.
@@ -64,6 +156,7 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
     off_t n;
     off_t written = 0LL;
     int openflags = O_WRONLY;
+    struct memstruct *mp = NULL;
 
     if (filetype(path) != FILE_CHAR)
         openflags |= MY_O_DIRECT;
@@ -80,10 +173,13 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         exit(1);
     }
     do {
-        if (refill && !sparse)
-            refill(mem, memsize);
         if (written + memsize > filesize)
             memsize = filesize - written;
+        if (refill && !sparse) {
+            if (!mp)
+                refill_init(&mp, refill, memsize);
+            refill_memcpy(mp, mem, memsize, filesize, written);
+        }
         if (sparse && !(written == 0) && !(written + memsize == filesize)) {
             if (lseek(fd, memsize, SEEK_CUR) < 0) {
                 fprintf(stderr, "%s: lseek %s: %s\n", prog, path, 
@@ -125,6 +221,8 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         fprintf(stderr, "%s: close %s: %s\n", prog, path, strerror(errno));
         exit(1);
     }
+    if (refill && !sparse)
+        refill_fini(mp);
     return written;
 }
 

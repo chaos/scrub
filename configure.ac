@@ -30,6 +30,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
   stdbool.h \
+  pthread.h \
 )
 
 ##
@@ -48,6 +49,7 @@ AC_CHECK_FUNCS( \
   posix_fadvise \
   random_r \
 )
+X_AC_CHECK_PTHREADS
 
 ##
 # Arrange for large file support

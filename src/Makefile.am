@@ -22,3 +22,5 @@ scrub_SOURCES = \
 	sig.h \
 	util.c \
 	util.h
+
+scrub_LDADD = $(LIBPTHREAD)
