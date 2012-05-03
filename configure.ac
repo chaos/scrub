@@ -46,6 +46,7 @@ AC_CHECK_FUNCS( \
   posix_memalign \
   memalign \
   posix_fadvise \
+  random_r \
 )
 
 ##

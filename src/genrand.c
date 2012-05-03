@@ -83,13 +83,25 @@ genrandraw(unsigned char *buf, int buflen)
     if (fd < 0) {
         fd = open(PATH_URANDOM, O_RDONLY);
 
+        /* Still can't open /dev/urandom - this is weak */
         if (fd < 0) {
-            /* Still can't open /dev/urandom - this is weak */
+#if HAVE_RANDOM_R
+            struct random_data rdata;
+            int32_t result;
 
-            for (n = 0; n < buflen; n++)
-                buf[n] = rand();
-
-	    return;
+            for (n = 0; n < buflen; n += sizeof (result)) {
+                if (random_r(&rdata, &result) < 0) {
+                    fprintf (stderr, "%s: random_r: %s\n",
+                             prog, strerror (errno));
+                    exit (1);
+                }
+                memcpy (&buf[n], &result, buflen - n < sizeof (result)
+                                        ? buflen - n : sizeof (result));
+            }
+#else
+#error write code to replace random_r on this platform
+#endif
+            return;
         }
     }
 
