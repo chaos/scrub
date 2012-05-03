@@ -1,6 +1,8 @@
 ========================================================================
-scrub-2.5.0 Release Notes                                     2012-04-17
+scrub-2.5.0 Release Notes                                     2012-05-03
 ========================================================================
+
+* Generate randomness and do I/O in parallel [Richard B. Hill]
 
 * Replace O_SYNC with O_DIRECT+fsync+posix_fadvise [H. Peter Anvin]
   This produces a significant performance improvement, at least on Linux.

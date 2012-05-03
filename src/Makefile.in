@@ -39,7 +39,7 @@ bin_PROGRAMS = scrub$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps =  \
+am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_check_pthreads.m4 \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
 	$(top_srcdir)/config/x_ac_meta.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -55,7 +55,8 @@ am_scrub_OBJECTS = aes.$(OBJEXT) filldentry.$(OBJEXT) \
 	hwrand.$(OBJEXT) pattern.$(OBJEXT) progress.$(OBJEXT) \
 	scrub.$(OBJEXT) sig.$(OBJEXT) util.$(OBJEXT)
 scrub_OBJECTS = $(am_scrub_OBJECTS)
-scrub_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+scrub_DEPENDENCIES = $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/config
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -96,6 +97,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
+LIBPTHREAD = @LIBPTHREAD@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
@@ -213,6 +215,7 @@ scrub_SOURCES = \
 	util.c \
 	util.h
 
+scrub_LDADD = $(LIBPTHREAD)
 all: all-am
 
 .SUFFIXES:
