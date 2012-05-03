@@ -47,6 +47,7 @@ AC_CHECK_FUNCS( \
   posix_memalign \
   memalign \
   posix_fadvise \
+  rand_r \
   random_r \
 )
 X_AC_CHECK_PTHREADS
