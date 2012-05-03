@@ -5688,11 +5688,13 @@ fi
 
 
 
+
 for ac_func in \
   getopt_long \
   posix_memalign \
   memalign \
   posix_fadvise \
+  rand_r \
   random_r \
 
 do
