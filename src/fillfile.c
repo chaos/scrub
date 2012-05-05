@@ -213,8 +213,8 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
 #if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_DONTNEED)
     /* Try to fool the kernel into dropping any device cache */
     if (posix_fadvise(fd, 0, filesize, POSIX_FADV_DONTNEED)) {
-	fprintf(stderr, "%s: posix_fadvise %s: %s\n",
-		prog, path, strerror(errno));
+        fprintf(stderr, "%s: posix_fadvise %s: %s\n",
+                prog, path, strerror(errno));
     }
 #endif
     if (close(fd) < 0) {
