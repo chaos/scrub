@@ -406,7 +406,7 @@ seq_list(void)
     fprintf (stderr, "  %-10.10s %4.d-pass   %s\n",
              "custom",
              1,
-             "custom=\"string\" (C-style escapes \\xnn, \\nnn, \\\\ work)");
+             "custom=\"string\" 16b max, use escapes \\xnn, \\nnn, \\\\");
             
 }
 
