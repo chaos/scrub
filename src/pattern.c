@@ -403,6 +403,11 @@ seq_list(void)
                  sequences[i]->len,
                  sequences[i]->desc
         );
+    fprintf (stderr, "  %-10.10s %4.d-pass   %s\n",
+             "custom",
+             1,
+             "custom=\"string\" (C-style escapes \\xnn, \\nnn, \\\\ work)");
+            
 }
 
 void
