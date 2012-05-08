@@ -203,7 +203,7 @@ of Linux \fBhdparm\fR.
 Unfortunately, the analogous SCSI command is optional according to T-10,
 and not widely implemented.
 .SH EXAMPLES
-To scrub a raw device ``/dev/sdf1'' with default NNSA patterns:
+To scrub a raw device \fI/dev/sdf1\fR with default NNSA patterns:
 .IP
 .nf
 # scrub /dev/sdf1
@@ -216,7 +216,7 @@ scrub: 0x00    |................................................|
 scrub: verify  |................................................|
 .fi
 .PP
-To scrub the file ``/tmp/scrubme'' with a sequence of 0xff 0xaa bytes:
+To scrub the file \fI/tmp/scrubme\fR with a sequence of 0xff 0xaa bytes:
 .IP
 .nf
 # scrub -p custom="\\xff\\xaa" /tmp/scrubme
