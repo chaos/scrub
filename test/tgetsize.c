@@ -64,10 +64,9 @@ main(int argc, char *argv[])
 	    }
     } else {
         if (S_ISCHR(sb.st_mode) || S_ISBLK(sb.st_mode)) {
-            sz = getsize(argv[1]);
-            if (sz == 0) {
-                    fprintf(stderr, "%s: could not determine device size\n", prog);
-                    exit(1);
+            if (getsize(argv[1], &sz) < 0) {
+                fprintf(stderr, "%s: %s: %s\n", prog, argv[1], strerror(errno));
+                exit(1);
             }
         } else {
             sz = sb.st_size;

@@ -49,19 +49,16 @@ extern char *prog;
 #include <sys/utsname.h>
 typedef unsigned long long u64; /* for BLKGETSIZE64 (slackware) */
 
-off_t 
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
     struct utsname ut;
     unsigned long long numbytes;
     int valid_blkgetsize64 = 1;
-    int fd;
+    int fd = -1;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
 
     /* Ref: e2fsprogs-1.39 - apparently BLKGETSIZE64 doesn't work pre 2.6 */
     if ((uname(&ut) == 0) &&
@@ -69,25 +66,24 @@ getsize(char *path)
              (ut.release[2] < '6') && (ut.release[3] == '.')))
                 valid_blkgetsize64 = 0;
     if (valid_blkgetsize64) {
-        if (ioctl(fd, BLKGETSIZE64, &numbytes) < 0) {
-            fprintf(stderr, "%s: ioctl BLKGETSIZE64 %s: %s\n", prog, path,
-                    strerror(errno));
-            exit(1);
-        }
+        if (ioctl(fd, BLKGETSIZE64, &numbytes) < 0)
+            goto error;
     } else {
         unsigned long numblocks;
 
-        if (ioctl(fd, BLKGETSIZE, &numblocks) < 0) {
-            fprintf(stderr, "%s: ioctl BLKGETSIZE %s: %s\n", prog, path,
-                    strerror(errno));
-            exit(1);
-        }
+        if (ioctl(fd, BLKGETSIZE, &numblocks) < 0)
+            goto error;
         numbytes = (off_t)numblocks*512; /* 2TB limit here */
     }
 
-    (void)close(fd);
-
-    return (off_t)numbytes;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = (off_t)numbytes;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 
 #elif defined(__FreeBSD__)
@@ -95,25 +91,24 @@ getsize(char *path)
 #include <sys/ioctl.h>
 #include <sys/disk.h>
 
-off_t 
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
     off_t numbytes;
-    int fd;
+    int fd = -1;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, DIOCGMEDIASIZE, &numbytes) < 0) {
-        fprintf(stderr, "%s: ioctl DIOCGMEDIASIZE %s: %s\n", prog, path,
-                strerror(errno));
-        exit(1);
-    }
-    (void)close(fd);
-
-    return numbytes;
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
+    if (ioctl(fd, DIOCGMEDIASIZE, &numbytes) < 0)
+        goto error;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = numbytes;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 
 #elif defined(sun)
@@ -122,25 +117,24 @@ getsize(char *path)
 #include <sys/dkio.h>
 #include <sys/vtoc.h>
 
-off_t 
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
     struct dk_minfo dkmp;
-    int fd;
+    int fd = -1;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, DKIOCGMEDIAINFO, &dkmp) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOCGMEDIAINFO %s: %s\n", prog, path,
-                strerror(errno));
-        exit(1);
-    }
-    (void)close(fd);
-
-    return (off_t)dkmp.dki_capacity * dkmp.dki_lbsize;
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
+    if (ioctl(fd, DKIOCGMEDIAINFO, &dkmp) < 0)
+        goto error;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = (off_t)dkmp.dki_capacity * dkmp.dki_lbsize;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 
 #elif defined(__APPLE__)
@@ -149,31 +143,27 @@ getsize(char *path)
 #include <sys/ioctl.h>
 #include <sys/disk.h>
 
-off_t 
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
     uint32_t blocksize;
     uint64_t blockcount;
-    int fd;
+    int fd = -1;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, DKIOCGETBLOCKSIZE, &blocksize) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOCGETBLOCKSIZE %s: %s\n", prog, path,
-                strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, DKIOCGETBLOCKCOUNT, &blockcount) < 0) {
-        fprintf(stderr, "%s: ioctl DKIOGETBLOCKCOUNT %s: %s\n", prog, path,
-                strerror(errno));
-        exit(1);
-    }
-    (void)close(fd);
-
-    return (off_t)blockcount * blocksize;
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
+    if (ioctl(fd, DKIOCGETBLOCKSIZE, &blocksize) < 0)
+        goto error;
+    if (ioctl(fd, DKIOCGETBLOCKCOUNT, &blockcount) < 0)
+        goto error;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = (off_t)blockcount * blocksize;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 #elif defined(_AIX)
 /* scrub-1.7 tested AIX 5.1 and 5.3 */
@@ -181,23 +171,17 @@ getsize(char *path)
 #include <sys/ioctl.h>
 #include <sys/devinfo.h>
 
-off_t 
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
-    int fd;
+    int fd = -1;
     struct devinfo devinfo;
     off_t size;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, IOCINFO, &devinfo) == -1) {
-        fprintf(stderr, "%s: ioctl IOCINFO %s: %s\n", prog, path, 
-                strerror(errno));
-        exit(1);
-    }
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
+    if (ioctl(fd, IOCINFO, &devinfo) == -1)
+        goto error;
     switch (devinfo.devtype) {
         case DD_DISK:   /* disk */
             size = (off_t)devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
@@ -209,34 +193,38 @@ getsize(char *path)
             size = 0;
             break;
     }
-
-    (void)close(fd);
-    return size;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = size;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 #elif defined (__hpux)
 
 #include <stropts.h>
 #include <sys/scsi.h>
 
-off_t
-getsize(char *path)
+int
+getsize(char *path, off_t *sizep)
 {
-    int fd;
+    int fd = -1;
     struct capacity cap;
 
-    fd = open(path, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open %s: %s\n", prog, path, strerror(errno));
-        exit(1);
-    }
-    if (ioctl(fd, SIOC_CAPACITY, &cap) == -1) {
-        fprintf(stderr, "%s: ioctl SIOC_CAPACITY %s: %s\n", prog, path,
-                strerror(errno));
-        exit(1);
-    }
-
-    (void)close(fd);
-    return (off_t)cap.lba * cap.blksz;
+    if ((fd = open(path, O_RDONLY)) < 0)
+        goto error;
+    if (ioctl(fd, SIOC_CAPACITY, &cap) == -1)
+        goto error;
+    if (close(fd) < 0)
+        goto error;
+    *sizep = (off_t)cap.lba * cap.blksz;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 }
 
 #else
@@ -245,7 +233,8 @@ getsize(char *path)
 off_t 
 getsize(char *path)
 {
-    return 0;
+    errno = ENOSYS;
+    return -1;
 }
 #endif
 
