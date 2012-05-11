@@ -130,8 +130,8 @@ alloc_buffer(int bufsize)
 #ifdef HAVE_POSIX_MEMALIGN
     int err = posix_memalign(&ptr, ALIGNMENT, bufsize);
     if (err) {
-	errno = err;
-	ptr = NULL;
+        errno = err;
+        ptr = NULL;
     }
 #elif defined(HAVE_MEMALIGN)
     ptr = memalign(ALIGNMENT, bufsize);
