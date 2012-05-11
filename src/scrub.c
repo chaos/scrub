@@ -516,7 +516,10 @@ scrub_dirent(char *path, char *newpath)
         assert(seq->pat[i].len == 1);
         printf("%s: %-8s", prog, pat2str(seq->pat[i]));
         progress_create(&p, 50);
-        filldentry(path, seq->pat[i].pat[0]); /* path: in/out */
+        if (filldentry(path, seq->pat[i].pat[0]) < 0) {/* path: in/out */
+            fprintf(stderr, "%s: filldentry: %s\n", prog, strerror(errno));
+            exit(1);
+        } 
         progress_update(p, 1.0);
         progress_destroy(p);
     }

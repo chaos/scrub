@@ -46,27 +46,26 @@ extern char *prog;
 
 /* fsync(2) directory.
  */
-static void 
+static int
 dirsync(char *dir)
 {
 #if defined(_AIX) /* FIXME: need HAVE_FSYNC_DIR macro */
     sync();
+    return 0;
 #else
-    int fd;
+    int fd = -1;
 
-    fd = open(dir, O_RDONLY);
-    if (fd < 0) {
-        fprintf(stderr, "%s: open: %s\n", prog, strerror(errno));
-        exit(1);
-    }
-    if (fsync(fd) < 0) {
-        fprintf(stderr, "%s: fsync: %s\n", prog, strerror(errno));
-        exit(1);
-    }
-    if (close(fd) < 0) {
-        fprintf(stderr, "%s: close: %s\n", prog, strerror(errno));
-        exit(1);
-    }
+    if ((fd = open(dir, O_RDONLY)) < 0)
+        goto error;
+    if (fsync(fd) < 0)
+        goto error;
+    if (close(fd) < 0)
+        goto error;
+    return 0;
+error:
+    if (fd != -1)
+        (void)close(fd);
+    return -1;
 #endif
 }
 
@@ -99,33 +98,36 @@ newname(char *old, int pat)
 /* Rename file to pattern and fsync the directory.
  * Modifies 'path' so it is valid on successive calls.
  */
-void 
+int
 filldentry(char *path, int pat)
 {
-    char *new = newname(path, pat);
-    char *cpy = strdup(path);
+    char *new = NULL;
+    char *cpy = NULL;
     char *dir;
 
+    if (!(new = newname(path, pat)))
+        goto nomem;
+    if (!(cpy = strdup(path)))
+        goto nomem;
     assert(strlen(cpy) == strlen(new));
-   
-    if (!cpy || !new) {
-        fprintf(stderr, "%s: out of memory\n", prog);
-        exit(1);
-    }
-
-    if (rename(path, new) == -1) {
-        fprintf(stderr, "%s: rename %s to %s: %s\n", prog, path, new, 
-                strerror(errno)); 
-        exit(1);
-    }
-
+    if (rename(path, new) == -1)
+        goto error;
     dir = dirname(cpy);
-    dirsync(dir);
+    if (dirsync(dir) < 0)
+        goto error;
     free(cpy);
-
     assert(strlen(path) == strlen(new));
     strcpy(path, new);
     free(new);
+    return 0;
+nomem:
+    errno = ENOMEM;
+error:
+    if (cpy)
+        free(cpy);
+    if (new)
+        free(new);
+    return -1;
 }
 
 /*
