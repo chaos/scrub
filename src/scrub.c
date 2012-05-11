@@ -57,7 +57,6 @@
 
 #define BUFSIZE (4*1024*1024) /* default blocksize */
 
-static void       usage(void);
 static bool       scrub(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse, bool enospc);
 static void       scrub_free(char *path, off_t size, const sequence_t *seq,
@@ -96,6 +95,30 @@ static struct option longopts[] = {
 #endif
 
 char *prog;
+
+static void 
+usage(void)
+{
+    fprintf(stderr,
+"Usage: %s [OPTIONS] file\n"
+"  -v, --version           display scrub version and exit\n"
+"  -p, --pattern pat       select scrub pattern sequence\n"
+"  -b, --blocksize size    set I/O buffer size (default 4m)\n"
+"  -s, --device-size size  set device size manually\n"
+"  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
+"  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
+"  -f, --force             scrub despite signature from previous scrub\n"
+"  -S, --no-signature      do not write scrub signature after scrub\n"
+"  -r, --remove            remove file after scrub\n"
+"  -L, --no-link           do not scrub link target\n"
+"  -R, --no-hwrand         do not use a hardware random number generator\n"
+"  -h, --help              display this help message\n"
+    , prog);
+
+    fprintf(stderr, "Available patterns are:\n");
+    seq_list ();
+    exit(1);
+}
 
 int 
 main(int argc, char *argv[])
@@ -308,30 +331,6 @@ done:
     exit(0);
 }
 
-static void 
-usage(void)
-{
-    fprintf(stderr,
-"Usage: %s [OPTIONS] file\n"
-"  -v, --version           display scrub version and exit\n"
-"  -p, --pattern pat       select scrub pattern sequence\n"
-"  -b, --blocksize size    set I/O buffer size (default 4m)\n"
-"  -s, --device-size size  set device size manually\n"
-"  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
-"  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
-"  -f, --force             scrub despite signature from previous scrub\n"
-"  -S, --no-signature      do not write scrub signature after scrub\n"
-"  -r, --remove            remove file after scrub\n"
-"  -L, --no-link           do not scrub link target\n"
-"  -R, --no-hwrand         do not use a hardware random number generator\n"
-"  -h, --help              display this help message\n"
-    , prog);
-
-    fprintf(stderr, "Available patterns are:\n");
-    seq_list ();
-    exit(1);
-}
-
 /* Scrub 'path', a file/device of size 'size'.
  * Fill using the pattern sequence specified by 'seq'.
  * Use 'bufsize' length for I/O buffers.
@@ -346,7 +345,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
     prog_t p;
     char sizestr[80];
     bool isfull = false;
-    off_t written;
+    off_t written, checked;
 
     if (!(buf = alloc_buffer(bufsize))) {
         fprintf(stderr, "%s: out of memory\n", prog);
@@ -368,13 +367,18 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 printf("%s: %-8s", prog, "random");
                 progress_create(&p, 50);
                 if (churnrand() < 0) {
-                    fprintf (stderr, "%s: churnrand: %s\n", prog,
+                    fprintf(stderr, "%s: churnrand: %s\n", prog,
                              strerror(errno));
                     exit(1);
                 }
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
                                    (refill_t)genrand, sparse, enospc);
+                if (written == (off_t)-1) {
+                    fprintf(stderr, "%s: %s: %s\n", prog, path,
+                             strerror(errno));
+                    exit(1);
+                }
                 progress_destroy(p);
                 break;
             case PAT_NORMAL:
@@ -384,6 +388,11 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
                                    NULL, sparse, enospc);
+                if (written == (off_t)-1) {
+                    fprintf(stderr, "%s: %s: %s\n", prog, path,
+                             strerror(errno));
+                    exit(1);
+                }
                 progress_destroy(p);
                 break;
             case PAT_VERIFY:
@@ -393,11 +402,26 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
                                    NULL, sparse, enospc);
+                if (written == (off_t)-1) {
+                    fprintf(stderr, "%s: %s: %s\n", prog, path,
+                             strerror(errno));
+                    exit(1);
+                }
                 progress_destroy(p);
                 printf("%s: %-8s", prog, "verify");
                 progress_create(&p, 50);
-                checkfile(path, written, buf, bufsize, 
-                          (progress_t)progress_update, p, sparse);
+                checked = checkfile(path, written, buf, bufsize, 
+                                    (progress_t)progress_update, p, sparse);
+                if (checked == (off_t)-1) {
+                    fprintf(stderr, "%s: %s: %s\n", prog, path,
+                             strerror(errno));
+                    exit(1);
+                }
+                if (checked < written) {
+                    fprintf(stderr, "%s: %s: verification error\n",
+                             prog, path);
+                    exit(1);
+                }
                 progress_destroy(p);
                 break;
         }
