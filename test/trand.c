@@ -42,7 +42,10 @@ int main(int argc, char *argv[])
 
     prog = basename(argv[0]);
 
-    initrand();
+    if (initrand() < 0) {
+        perror("initrand");
+        exit(1);
+    }
     for (j = 0; j < 20; j++) {
         genrand(buf, 24);
         for (i = 0; i < 24; i++)

@@ -83,7 +83,7 @@ incr128(unsigned char *val)
 
 /* Copy 'buflen' bytes of raw randomness into 'buf'.
  */
-static void 
+static int
 genrandraw(unsigned char *buf, int buflen)
 {
     static int fd = -1;
@@ -101,11 +101,8 @@ genrandraw(unsigned char *buf, int buflen)
             int32_t result;
 
             for (n = 0; n < buflen; n++) {
-                if (random_r(&rdata, &result) < 0) {
-                    fprintf (stderr, "%s: random_r: %s\n",
-                             prog, strerror (errno));
-                    exit (1);
-                }
+                if (random_r(&rdata, &result) < 0)
+                    goto error;
                 buf[n] = result;
             }
 #endif
@@ -114,35 +111,40 @@ genrandraw(unsigned char *buf, int buflen)
     }
 
     n = read_all(fd, buf, buflen);
-    if (n < 0) {
-        fprintf(stderr, "%s: read %s: %s\n", prog, PATH_URANDOM, 
-                strerror(errno));
-        exit(1);
-    }
+    if (n < 0)
+        goto error;
     if (n == 0) {
-        fprintf(stderr, "%s: premature EOF on %s\n", prog, PATH_URANDOM);
-        exit(1);
+        errno = EIO; /* early EOF */
+        goto error;
     }
+    return 0;
+error:
+    return -1;
 }
 
 /* Pick new (random) key and counter values.
  */
-void 
+int
 churnrand(void)
 {
     unsigned char key[KEY_SZ];
 
-    genrandraw(ctr, PAYLOAD_SZ);
-    genrandraw(key, KEY_SZ);
+    if (genrandraw(ctr, PAYLOAD_SZ) < 0)
+        goto error;
+    if (genrandraw(key, KEY_SZ) < 0)
+        goto error;
     if (aes_set_key(&ctx, key, KEY_SZ*8) != 0) {
-        fprintf(stderr, "%s: aes_set_key error\n", prog);
-        exit(1);
+        errno = EINVAL;
+        goto error;
     }
+    return 0;
+error:
+    return -1;
 }
 
 /* Initialize the module.
  */
-void 
+int
 initrand(void)
 {
     struct timeval tv;
@@ -152,19 +154,19 @@ initrand(void)
 
     /* Always initialize the software random number generator as backup */
 
-    if (gettimeofday(&tv, NULL) < 0) {
-        fprintf(stderr, "%s: gettimeofday: %s\n", prog, strerror(errno));
-        exit(1);
-    }
+    if (gettimeofday(&tv, NULL) < 0)
+        goto error;
 #if HAVE_RAND_R
     seed = tv.tv_usec;
 #elif HAVE_RANDOM_R
-    if (initstate_r(tv.tv_usec, rstate, sizeof(rstate), &rdata) < 0) {
-        fprintf (stderr, "%s: initstate_r: %s\n", prog, strerror(errno));
-        exit (1);
-    }
+    if (initstate_r(tv.tv_usec, rstate, sizeof(rstate), &rdata) < 0)
+        goto error;
 #endif
-    churnrand();
+    if (churnrand() < 0)
+        goto error;
+    return 0;
+error:
+    return -1;
 }
 
 /* Fill buf with random data.
