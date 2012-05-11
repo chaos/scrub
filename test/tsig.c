@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include <errno.h>
 
 #include "util.h"
 #include "sig.h"
@@ -43,14 +44,23 @@ char *prog;
 
 int main(int argc, char *argv[])
 {
+    bool result;
+
     prog = basename(argv[0]);
     if (argc != 2) {
         fprintf(stderr, "Usage: %s filename\n", prog);
         exit(1);
     }
-    if (!checksig(argv[1])) {
+    if (checksig (argv[1], &result)) {
+        fprintf(stderr, "%s: %s: %s\n", prog, argv[1], strerror(errno));
+        exit(1);
+    }
+    if (!result) {
         fprintf(stderr, "%s: no signature, writing one\n", prog);
-        writesig(argv[1]);
+        if (writesig(argv[1]) < 0) {
+            fprintf(stderr, "%s: %s: %s\n", prog, argv[1], strerror(errno));
+            exit(1);
+        }
     } else {
         fprintf(stderr, "%s: signature present\n", prog);
     }
