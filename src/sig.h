@@ -23,8 +23,8 @@
  *  with Scrub; if not, write to the Free Software Foundation, Inc.,
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
-void writesig(char *path);
-int checksig(char *path);
+int writesig(char *path);
+int checksig(char *path, bool *status);
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

@@ -115,6 +115,7 @@ main(int argc, char *argv[])
     extern int optind;
     extern char *optarg;
     int c;
+    bool havesig;
 
     assert(sizeof(off_t) == 8);
 
@@ -224,7 +225,12 @@ main(int argc, char *argv[])
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
                 exit(1);
             }
-            if (checksig(filename) && !fopt) {
+            if (checksig(filename, &havesig) < 0) {
+                fprintf(stderr, "%s: %s: %s\n", prog, filename,
+                        strerror(errno));
+                exit (1);
+            }
+            if (havesig && !fopt) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 exit(1);
@@ -248,7 +254,12 @@ main(int argc, char *argv[])
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
                 exit(1);
             }
-            if (checksig(filename) && !fopt) {
+            if (checksig(filename, &havesig) < 0) {
+                fprintf(stderr, "%s: %s: %s\n", prog, filename,
+                        strerror(errno));
+                exit (1);
+            }
+            if (havesig && !fopt) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 exit(1);
@@ -379,8 +390,13 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             }
         }
     }
-    if (!Sopt)
-        writesig(path);
+    if (!Sopt) {
+        if (writesig(path) < 0) {
+            fprintf(stderr, "%s: writing signature to %s: %s\n", prog,
+                    path, strerror (errno));
+            exit (1);
+        }
+    }
 
     free(buf);
     return isfull;
