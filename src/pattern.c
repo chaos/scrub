@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <assert.h>
 
 #include "pattern.h"
@@ -299,9 +300,7 @@ strtomem (int *data, int len, char *s)
     return (*s ? -1 : i);
 }
 
-static sequence_t *custom_seq = NULL;
-
-static void
+void
 seq_destroy (sequence_t *sp)
 {
     if (sp->key)
@@ -311,13 +310,12 @@ seq_destroy (sequence_t *sp)
     free (sp);
 }
 
-static sequence_t *
+sequence_t *
 seq_create (char *key, char *desc, char *s)
 {
-    sequence_t *sp;
+    sequence_t *sp = NULL;
     int len;
 
-    assert (custom_seq == NULL);
     if (!(sp = malloc (sizeof (*sp))))
         goto nomem;
     memset (sp, 0, sizeof (*sp));
@@ -328,16 +326,17 @@ seq_create (char *key, char *desc, char *s)
     sp->len = 1;
     len = strtomem (sp->pat[0].pat, MAXPATBYTES, s);
     if (len < 0) {
-        fprintf (stderr, "%s: custom pattern is too long\n", prog);
-        exit (1);
+        errno = EINVAL;
+        goto error;
     }
     sp->pat[0].len = len;
-    custom_seq = sp;
     return sp;
 nomem:
-    fprintf (stderr, "%s: out of memory\n", prog);
-    exit (1);
-    /*NOTREACHED*/
+    errno = ENOMEM;
+error:
+    if (sp)
+        seq_destroy (sp);
+    return -1;
 }
 
 const sequence_t *
@@ -346,14 +345,10 @@ seq_lookup(char *key)
     const sequence_t *seq = NULL;
     int i;
 
-    if (strncmp (key, "custom=", 7) == 0 && key[7] != '\0')
-        seq = seq_create ("custom", "Custom single-pass", &key[7]);
-    else {
-        for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++) {
-            if (!strcmp(sequences[i]->key, key)) {
-                seq = sequences[i];
-                break;
-            }
+    for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++) {
+        if (!strcmp(sequences[i]->key, key)) {
+            seq = sequences[i];
+            break;
         }
     }
     return seq;
@@ -408,15 +403,6 @@ seq_list(void)
              1,
              "custom=\"string\" 16b max, use escapes \\xnn, \\nnn, \\\\");
             
-}
-
-void
-pattern_finalize (void)
-{
-    if (custom_seq) {
-        seq_destroy(custom_seq);
-        custom_seq = NULL;
-    }
 }
 
 /*

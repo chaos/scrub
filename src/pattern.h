@@ -48,8 +48,9 @@ const sequence_t *seq_lookup(char *name);
 void              seq_list(void);
 char             *pat2str(pattern_t p);
 void              memset_pat(void *s, pattern_t p, size_t n);
-void              pattern_finalize(void);
 
+sequence_t *seq_create (char *key, char *desc, char *s);
+void seq_destroy (sequence_t *sp);
 
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab

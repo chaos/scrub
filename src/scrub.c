@@ -101,6 +101,7 @@ int
 main(int argc, char *argv[])
 {
     const sequence_t *seq = NULL;
+    sequence_t *custom_seq = NULL;
     bool Xopt = false;
     int bopt = BUFSIZE;
     off_t sopt = 0;
@@ -128,10 +129,24 @@ main(int argc, char *argv[])
             printf("scrub version %s\n", VERSION);
             exit(0);
         case 'p':   /* --pattern */
-            seq = seq_lookup(optarg);
-            if (!seq) {
-                fprintf(stderr, "%s: no such pattern sequence\n", prog);
+            if (seq != NULL) {
+                fprintf(stderr, "%s: only one pattern can be selected\n", prog);
                 exit(1);
+            }
+            if (!strncmp (optarg, "custom=", 7) && strlen (optarg) > 7) {
+                if (!(custom_seq = seq_create ("custom", "Custom single-pass",
+                                               &optarg[7]))) {
+                    fprintf(stderr, "%s: custom sequence: %s\n", prog,
+                            strerror(errno));
+                    exit(1);
+                }
+                seq = custom_seq;
+            } else {
+                seq = seq_lookup(optarg);
+                if (!seq) {
+                    fprintf(stderr, "%s: no such pattern sequence\n", prog);
+                    exit(1);
+                }
             }
             break;
         case 'X':   /* --freespace */
@@ -288,7 +303,8 @@ main(int argc, char *argv[])
             break;
     }
 done:
-    pattern_finalize ();
+    if (custom_seq)
+        seq_destroy (custom_seq);
     exit(0);
 }
 
