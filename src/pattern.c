@@ -336,7 +336,7 @@ nomem:
 error:
     if (sp)
         seq_destroy (sp);
-    return -1;
+    return NULL;
 }
 
 const sequence_t *

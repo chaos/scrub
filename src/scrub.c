@@ -356,7 +356,10 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
     size2str(sizestr, sizeof(sizestr), size);
     printf("%s: scrubbing %s %s\n", prog, path, sizestr);
 
-    initrand();
+    if (initrand() < 0) {
+        fprintf (stderr, "%s: initrand: %s\n", prog, strerror(errno));
+        exit(1);
+    }
     for (i = 0; i < seq->len; i++) {
         if (i > 0)
             enospc = false;
@@ -364,7 +367,11 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             case PAT_RANDOM:
                 printf("%s: %-8s", prog, "random");
                 progress_create(&p, 50);
-                churnrand();
+                if (churnrand() < 0) {
+                    fprintf (stderr, "%s: churnrand: %s\n", prog,
+                             strerror(errno));
+                    exit(1);
+                }
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
                                    (refill_t)genrand, sparse, enospc);
@@ -590,8 +597,8 @@ scrub_disk(char *path, off_t size, const sequence_t *seq, int bufsize,
 
     assert(ftype == FILE_BLOCK || ftype == FILE_CHAR);
     if (size == 0) {
-        size = getsize(path);
-        if (size == 0) {
+        if (getsize(path, &size) < 0) {
+            fprintf(stderr, "%s: %s: %s\n", prog, path, strerror(errno));
             fprintf(stderr, "%s: could not determine size, use -s\n", prog);
             exit(1);
         }

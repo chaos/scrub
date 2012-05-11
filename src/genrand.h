@@ -25,8 +25,8 @@
 \*****************************************************************************/
 
 void disable_hwrand(void);
-void initrand(void);
-void churnrand(void);
+int initrand(void);
+int churnrand(void);
 void genrand(unsigned char *buf, int buflen);
 
 /*
