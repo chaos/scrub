@@ -24,4 +24,4 @@
  *  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 \*****************************************************************************/
 
-void filldentry(char *name, int pat);
+int filldentry(char *name, int pat);
