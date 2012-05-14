@@ -1,0 +1,6 @@
+{
+  global:
+    scrub_*;
+  local:
+    *;
+};
