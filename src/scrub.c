@@ -71,7 +71,7 @@ static void       scrub_resfork(char *path, const sequence_t *seq,
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 
-#define OPTIONS "p:D:Xb:s:fSrvTLRh"
+#define OPTIONS "p:D:Xb:s:fSrvTLRth"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -87,6 +87,7 @@ static struct option longopts[] = {
     {"test-sparse",      no_argument,        0, 'T'},
     {"no-link",          no_argument,        0, 'L'},
     {"no-hwrand",        no_argument,        0, 'R'},
+    {"no-threads",       no_argument,        0, 't'},
     {"help",             no_argument,        0, 'h'},
     {0, 0, 0, 0},
 };
@@ -112,6 +113,7 @@ usage(void)
 "  -r, --remove            remove file after scrub\n"
 "  -L, --no-link           do not scrub link target\n"
 "  -R, --no-hwrand         do not use a hardware random number generator\n"
+"  -t, --no-threads        do not compute random data in a parallel thread\n"
 "  -h, --help              display this help message\n"
     , prog);
 
@@ -136,6 +138,7 @@ main(int argc, char *argv[])
     bool Topt = false;
     bool Lopt = false;
     bool Ropt = false;
+    bool topt = false;
     extern int optind;
     extern char *optarg;
     int c;
@@ -210,6 +213,9 @@ main(int argc, char *argv[])
         case 'R':   /* --no-hwrand */
             Ropt = true;
             break;
+        case 't':   /* --no-threads */
+            topt = true;
+            break;
         case 'h':   /* --help */
         default:
             usage();
@@ -226,6 +232,8 @@ main(int argc, char *argv[])
 
     if (Ropt)
         disable_hwrand();
+    if (topt)
+        disable_threads();
 
     /* Handle -X specially.
      */

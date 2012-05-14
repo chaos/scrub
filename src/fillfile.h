@@ -32,3 +32,4 @@ off_t fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         bool sparse, bool creat);
 off_t checkfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         progress_t progress, void *arg, bool sparse);
+void  disable_threads(void);

@@ -101,6 +101,9 @@ Do remove it, however, if \fI--remove\fR is specified.
 \fI-R\fR, \fI--no-hwrand\fR
 Don't use a hardware random number generator even if one is available.
 .TP
+\fI-t\fR, \fI--no-threads\fR
+Don't generate random data in parallel with I/O.
+.TP
 \fI-h\fR, \fI--help\fR
 Print a summary of command line options on stderr.
 .SH SCRUB METHODS
