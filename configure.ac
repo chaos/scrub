@@ -17,6 +17,19 @@ AM_INIT_AUTOMAKE($META_NAME, $META_VERSION)
 AM_CONFIG_HEADER([config/config.h])
 AM_MAINTAINER_MODE
 
+
+##
+# Conditionally build libscrub
+##
+AC_ARG_ENABLE(libscrub,
+[  --enable-libscrub       Build libscrub],
+[case "${enableval}" in
+  yes) libscrub=true ;;
+  no) libscrub=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-libscrub) ;;
+esac],[libscrub=false])
+AM_CONDITIONAL(LIBSCRUB, test x$libscrub = xtrue)
+
 ##
 # Checks for programs
 ##
@@ -32,6 +45,9 @@ AC_CHECK_HEADERS( \
   stdbool.h \
   pthread.h \
 )
+
+AC_PROG_LIBTOOL
+AC_PKGCONFIG
 
 ##
 # Checks for typedefs, structures, and compiler characteristics
@@ -67,5 +83,7 @@ AC_CONFIG_FILES( \
   man/Makefile \
   man/scrub.1 \
   test/Makefile \
+  libscrub/Makefile \
+  libscrub/libscrub.pc \
 )
 AC_OUTPUT

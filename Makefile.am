@@ -1,5 +1,9 @@
 SUBDIRS = src man test
 
+if LIBSCRUB
+SUBDIRS += libscrub
+endif
+
 rpmdirs:
 	mkdir -p $(top_builddir)/rpm/SPECS
 	mkdir -p $(top_builddir)/rpm/SOURCES
