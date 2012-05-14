@@ -43,6 +43,8 @@
 #include "util.h"
 #include "fillfile.h"
 
+static int no_threads = 0;
+
 struct memstruct {
     refill_t refill;
     unsigned char *buf;
@@ -75,9 +77,13 @@ refill_memcpy(struct memstruct *mp, unsigned char *mem, int memsize,
               int filesize, int written)
 {
 #if WITH_PTHREADS
-    if ((mp->err = pthread_join(mp->thd, NULL))) {
-        errno = mp->err;
-        goto error;
+    if (no_threads)
+        refill_thread (mp);
+    else {
+        if ((mp->err = pthread_join(mp->thd, NULL))) {
+            errno = mp->err;
+            goto error;
+        }
     }
 #else
     refill_thread (mp);
@@ -88,13 +94,15 @@ refill_memcpy(struct memstruct *mp, unsigned char *mem, int memsize,
     }
     memcpy(mem, mp->buf, memsize);
 #if WITH_PTHREADS
-    written += memsize;
-    if (filesize - written > 0) {
-        if (mp->size > filesize - written)
-            mp->size = filesize - written;
-        if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
-            errno = mp->err;
-            goto error;
+    if (!no_threads) {
+        written += memsize;
+        if (filesize - written > 0) {
+            if (mp->size > filesize - written)
+                mp->size = filesize - written;
+            if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
+                errno = mp->err;
+                goto error;
+            }
         }
     }
 #endif
@@ -115,9 +123,11 @@ refill_init(struct memstruct **mpp, refill_t refill, int memsize)
     mp->size = memsize;
     mp->refill = refill;
 #if WITH_PTHREADS
-    if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
-        errno = mp->err;
-        goto error;
+    if (!no_threads) {
+        if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {
+            errno = mp->err;
+            goto error;
+        }
     }
 #endif
     *mpp = mp;
@@ -132,7 +142,8 @@ static void
 refill_fini(struct memstruct *mp)
 {
 #if WITH_PTHREADS
-    (void)pthread_join(mp->thd, NULL);
+    if (!no_threads)
+        (void)pthread_join(mp->thd, NULL);
 #endif
     free (mp->buf);
     free (mp);
@@ -275,6 +286,12 @@ error:
     if (fd != -1)
         (void)close(fd);
     return (off_t)-1;
+}
+
+void
+disable_threads(void)
+{
+    no_threads = 1;
 }
 
 /*
