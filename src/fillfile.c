@@ -77,21 +77,20 @@ refill_memcpy(struct memstruct *mp, unsigned char *mem, int memsize,
               int filesize, int written)
 {
 #if WITH_PTHREADS
-    if (no_threads)
+    if (no_threads) {
+        mp->size = memsize;
         refill_thread (mp);
-    else {
+    } else {
         if ((mp->err = pthread_join(mp->thd, NULL))) {
             errno = mp->err;
             goto error;
         }
+        assert (memsize == mp->size);
     }
 #else
+    mp->size = memsize;
     refill_thread (mp);
 #endif
-    if (memsize != mp->size) {
-        errno = EINVAL;
-        goto error;
-    }
     memcpy(mem, mp->buf, memsize);
 #if WITH_PTHREADS
     if (!no_threads) {
