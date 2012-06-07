@@ -241,23 +241,34 @@ static const sequence_t fillff_seq = {
     },
 };
 
+static const sequence_t custom_seq = {
+    "custom", "custom=\"string\" 16b max, use escapes \\xnn, \\nnn, \\\\", 1, {
+    },
+};
+
 static const sequence_t *sequences[] = {
-	&dirent_seq,
-	&fastold_seq,
-	&old_seq,
-	&dod_seq,
 	&nnsa_seq,
+	&dod_seq,
 	&bsi_seq,
-	&gutmann_seq,
+	&usarmy_seq,
 	&random_seq,
 	&random2_seq,
 	&schneier_seq,
     &pfitzner7_seq,
     &pfitzner33_seq,
-	&usarmy_seq,
+	&gutmann_seq,
+	&fastold_seq,
+	&old_seq,
+	&dirent_seq,
 	&fillzero_seq,
 	&fillff_seq,
 };
+
+const int
+seq_count(void)
+{
+    return sizeof(sequences)/sizeof(sequences[0]);
+}
 
 #define isoctdigit(c)  (((c) >= '0' && (c) <= '7'))
 
@@ -342,16 +353,24 @@ error:
 const sequence_t *
 seq_lookup(char *key)
 {
+    const int len = seq_count();
     const sequence_t *seq = NULL;
     int i;
 
-    for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++) {
+    for (i = 0; i < len; i++) {
         if (!strcmp(sequences[i]->key, key)) {
             seq = sequences[i];
             break;
         }
     }
     return seq;
+}
+
+const sequence_t *
+seq_lookup_byindex (int i)
+{
+    assert (i >= 0 && i < seq_count);
+    return sequences[i];
 }
 
 void
@@ -388,21 +407,25 @@ pat2str(pattern_t p)
 }
 
 void
+seq2str(const sequence_t *sp, char *buf, int len)
+{
+    snprintf (buf, len, "  %-10.10s %4.d-pass   %s",
+              sp->key, sp->len, sp->desc);
+}
+
+void
 seq_list(void)
 {
+    const int len = seq_count();
+    char buf[80];
     int i;
 
-    for (i = 0; i < sizeof(sequences)/sizeof(sequences[0]); i++)
-        fprintf (stderr, "  %-10.10s %4.d-pass   %s\n",
-                 sequences[i]->key,
-                 sequences[i]->len,
-                 sequences[i]->desc
-        );
-    fprintf (stderr, "  %-10.10s %4.d-pass   %s\n",
-             "custom",
-             1,
-             "custom=\"string\" 16b max, use escapes \\xnn, \\nnn, \\\\");
-            
+    for (i = 0; i < len; i++) {
+        seq2str(sequences[i], buf, sizeof(buf));
+        fprintf(stderr, "%s\n", buf);
+    }
+    seq2str(&custom_seq, buf, sizeof(buf));
+    fprintf(stderr, "%s\n", buf);
 }
 
 /*

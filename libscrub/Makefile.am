@@ -2,8 +2,16 @@ AM_CPPFLAGS = -I$(top_srcdir)/src
 
 lib_LTLIBRARIES = libscrub.la
 
+noinst_PROGRAMS = tscrub
+
+tscrub_SOURCES = \
+	tscrub.c
+
+tscrub_LDADD = libscrub.la $(LIBPTHREAD)
+
 libscrub_la_SOURCES = \
 	libscrub.c \
+	scrub.h \
 	../src/aes.c \
 	../src/filldentry.c \
 	../src/fillfile.c \
