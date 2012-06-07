@@ -49,6 +49,10 @@ void              seq_list(void);
 char             *pat2str(pattern_t p);
 void              memset_pat(void *s, pattern_t p, size_t n);
 
+const sequence_t *seq_lookup_byindex(int i);
+const int         seq_count(void);
+void              seq2str(const sequence_t *sp, char *buf, int len);
+
 sequence_t *seq_create (char *key, char *desc, char *s);
 void seq_destroy (sequence_t *sp);
 
