@@ -369,7 +369,7 @@ seq_lookup(char *key)
 const sequence_t *
 seq_lookup_byindex (int i)
 {
-    assert (i >= 0 && i < seq_count);
+    assert (i >= 0 && i < seq_count());
     return sequences[i];
 }
 
