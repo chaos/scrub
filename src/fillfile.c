@@ -74,7 +74,7 @@ refill_thread(void *arg)
 
 static int
 refill_memcpy(struct memstruct *mp, unsigned char *mem, int memsize,
-              int filesize, int written)
+              off_t filesize, off_t written)
 {
 #if WITH_PTHREADS
     if (no_threads) {
