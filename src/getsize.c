@@ -252,15 +252,15 @@ size2str(char *str, int len, off_t size)
 
     if (eb >= 1) {
         num = eb; unit = "EB";
-    } else if (pb >= 1) {
+    } else if (pb >= 10) {
         num = pb; unit = "PB";
-    } else if (tb >= 1) {
+    } else if (tb >= 10) {
         num = tb; unit = "TB";
-    } else if (gb >= 1) {
+    } else if (gb >= 10) {
         num = gb; unit = "GB";
-    } else if (mb >= 1) {
+    } else if (mb >= 10) {
         num = mb; unit = "MB";
-    } else if (kb >= 1) {
+    } else if (kb >= 10) {
         num = kb; unit = "KB";
     } 
    

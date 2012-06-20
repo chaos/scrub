@@ -1,5 +1,5 @@
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing file 5368709120 bytes (~5GB)
+scrub: scrubbing file 5368709120 bytes (~5120MB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
