@@ -1,5 +1,5 @@
 Name: scrub
-Version: 2.5.1
+Version: 2.5.2
 Release: 1
 
 Summary: Disk scrubbing program
