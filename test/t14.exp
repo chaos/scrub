@@ -1,5 +1,5 @@
 scrub: using BSI patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0xff    |................................................|
 scrub: 0xfe    |................................................|
 scrub: 0xfd    |................................................|
@@ -11,7 +11,7 @@ scrub: 0xbf    |................................................|
 scrub: 0x7f    |................................................|
 Verifying bsi last pass 0x7f without signature
 scrub: using BSI patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0xff    |................................................|
 scrub: 0xfe    |................................................|
 scrub: 0xfd    |................................................|
@@ -23,35 +23,35 @@ scrub: 0xbf    |................................................|
 scrub: 0x7f    |................................................|
 Verifying bsi last pass 0x7f with signature
 scrub: using DoD 5220.22-M patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: verify  |................................................|
 Verifying dod last pass 0xff without signature
 scrub: using DoD 5220.22-M patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: verify  |................................................|
 Verifying dod last pass 0xff with signature
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
 Verifying nnsa last pass 0 without signature
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
 Verifying nnsa last pass 0 with signature
 scrub: using pre v1.7 scrub (skip random) patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|
@@ -59,7 +59,7 @@ scrub: 0x55    |................................................|
 scrub: verify  |................................................|
 Verifying fastold last pass 0x55 without signature
 scrub: using pre v1.7 scrub (skip random) patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|
@@ -67,7 +67,7 @@ scrub: 0x55    |................................................|
 scrub: verify  |................................................|
 Verifying fastold last pass 0x55 with signature
 scrub: using pre v1.7 scrub patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|
@@ -76,7 +76,7 @@ scrub: 0x55    |................................................|
 scrub: verify  |................................................|
 Verifying old last pass 0x55 without signature
 scrub: using pre v1.7 scrub patterns
-scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4MB)
+scrub: scrubbing /tmp/scrub-t14 4194304 bytes (~4096KB)
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|
