@@ -1,4 +1,18 @@
 ========================================================================
+scrub-2.5.2 Release Notes                                     2012-06-20
+========================================================================
+
+* Fix scrub abort on files/disks > 2G in size (issue 19)
+  This was introduced in 2.5.0 and the failure is quick and obvious.
+
+* Fix loss of precision in disk size approximation (issue 18)
+
+* Add -t option to disable creation of thread to generate randomness
+  in parallel with I/O.
+
+* Prepare source for a libscrub api (work in progress)
+
+========================================================================
 scrub-2.5.1 Release Notes                                     2012-05-08
 ========================================================================
 
