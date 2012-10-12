@@ -106,7 +106,7 @@ genrandraw(unsigned char *buf, int buflen)
                 buf[n] = result;
             }
 #endif
-            return;
+            return 0;
         }
     }
 
