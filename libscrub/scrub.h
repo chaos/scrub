@@ -8,6 +8,7 @@ typedef enum {
 	ESCRUB_INVAL = 6,
 	ESCRUB_FILETYPE = 7,
 	ESCRUB_PERM = 8,
+	ESCRUB_PLATFORM = 9,
 } scrub_errnum_t;
 
 typedef enum {

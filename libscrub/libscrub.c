@@ -1,9 +1,10 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <sys/types.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <errno.h>
 
 #include "util.h"
@@ -17,6 +18,12 @@
 #include "sig.h"
 
 #include "scrub.h"
+
+//TODO: REMOVE
+#include <stdio.h>
+
+#define BUFSIZE (4*1024*1024) /* default blocksize */
+#define COND_ESCRUB_ERROR(_cond) if (_cond) return ESCRUB_PLATFORM
 
 struct scrub_ctx_struct {
     char *path;
@@ -116,14 +123,137 @@ einval:
     return -1;
 }
 
+static scrub_errnum_t
+scrub(char *path, off_t size, const sequence_t *seq, unsigned char *buf)
+{
+    int i;
+    prog_t p;
+    int bufsize = BUFSIZE;
+    bool sparse = false, enospc = false;
+    off_t written, checked;
+
+    COND_ESCRUB_ERROR(initrand() < 0);
+    for (i = 0; i < seq->len; i++) {
+        switch (seq->pat[i].ptype) {
+            case PAT_RANDOM:
+                COND_ESCRUB_ERROR(churnrand() < 0);
+                progress_create(&p, 50);
+                
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t) progress_update, p,
+                                   (refill_t) genrand, sparse, enospc);
+                
+                progress_destroy(p);
+                COND_ESCRUB_ERROR(written == (off_t) -1);
+                break;
+            case PAT_NORMAL:
+                progress_create(&p, 50);
+                
+                memset_pat(buf, seq->pat[i], bufsize);
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t) progress_update, p,
+                                   NULL, sparse, enospc);
+                
+                progress_destroy(p);                
+                COND_ESCRUB_ERROR(written == (off_t) -1);
+                break;
+            case PAT_VERIFY:
+                progress_create(&p, 50);
+                
+                memset_pat(buf, seq->pat[i], bufsize);
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t) progress_update, p,
+                                   NULL, sparse, enospc);
+                
+                progress_destroy(p);
+                COND_ESCRUB_ERROR(written == (off_t) -1);
+                progress_create(&p, 50);
+                
+                checked = checkfile(path, written, buf, bufsize,
+                                    (progress_t) progress_update, p, sparse);
+                
+                progress_destroy(p);
+                COND_ESCRUB_ERROR(checked == (off_t) -1);
+                COND_ESCRUB_ERROR(checked < written);
+                break;
+        }
+        if (written < size) {            
+            size = written;
+            COND_ESCRUB_ERROR(i != 0 || size == 0);
+        }
+    }
+    return ESCRUB_SUCCESS;
+}
+
 int
 scrub_write (scrub_ctx_t c, void (*progress_cb)(void *arg, double pct_done),
              void *arg)
 {
+    char *path;
+    off_t size;
+    const sequence_t *seq;
+    unsigned char *buf;
+    filetype_t ft;
+    struct stat sb;
+
     if (!c->path) {
         c->errnum = ESCRUB_NOPATH;
         goto error;
     }
+    if (!c->method) {
+        c->errnum = ESCRUB_INVAL;
+        goto error;
+    }
+    if (!(buf = alloc_buffer(BUFSIZE))) {
+        c->errnum = ESCRUB_NOMEM;
+        goto error;
+    }
+    
+    path = c->path;
+    seq = seq_lookup_byindex(c->method);
+    ft = filetype(path);
+   
+    switch (ft) {
+        case FILE_NOEXIST:
+        case FILE_OTHER:
+            c->errnum = ESCRUB_FILETYPE;
+            goto finish;    
+        case FILE_BLOCK:
+        case FILE_CHAR:
+            if (access(path, R_OK|W_OK) < 0) {
+                c->errnum = ESCRUB_PERM;
+                goto finish;
+            }
+            if (getsize(path, &size) < 0) {
+                c->errnum = ESCRUB_PLATFORM;
+                goto finish;
+            }
+            break;
+        case FILE_LINK:
+        case FILE_REGULAR:
+            if (access(path, R_OK|W_OK) < 0) {
+                c->errnum = ESCRUB_PERM;
+                goto finish;
+            }
+            if (stat(path, &sb) < 0) {
+                c->errnum = ESCRUB_PLATFORM;
+                goto finish;
+            }
+            if (sb.st_size == 0) {
+                // TODO: new error for this?
+                c->errnum = ESCRUB_SUCCESS;
+                goto finish;
+            }
+            size = blkalign(sb.st_size, sb.st_blksize, UP);
+            break;
+    }
+
+    c->errnum = scrub (path, size, seq, buf);
+
+finish:
+    free(buf);
+    if (!c->errnum || c->errnum != ESCRUB_SUCCESS)
+        goto error;
     return 0;
 error:
     return -1;
@@ -202,12 +332,13 @@ static struct etab etable[] = {
     { ESCRUB_NOMEM,       "Out of memory" },
     { ESCRUB_NOPATH,      "Path is not set" },
     { ESCRUB_SIGCHECK,    "Error checking for scrub signature" },
-    { ESCRUB_SIGCHECK,    "Error checking for scrub signature" },
     { ESCRUB_ISDIR,       "Path refers to a directory" },
     { ESCRUB_NOENT,       "No such file or directory" },
     { ESCRUB_INVAL,       "Invalid argument" },
     { ESCRUB_FILETYPE,    "Path refers to unsupported file type"},
     { ESCRUB_PERM,        "Permission denied"},
+    // TODO: break out errors?
+    { ESCRUB_PLATFORM,    "Platform error"},
     { -1, NULL },
 };
 
