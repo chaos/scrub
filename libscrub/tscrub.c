@@ -10,7 +10,8 @@ usage(void)
 {
     fprintf(stderr,
 "Usage: tscrub [OPTIONS] [FILE...]\n"
-"  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
+"  -X dir     create dir+files, fill until ENOSPC, then scrub\n"
+"  -p n       select pattern sequence number\n"
     );
     exit(1);
 }
@@ -79,18 +80,22 @@ main (int argc, char *argv[])
     char *dirpath = NULL; /* scrub_free */
     scrub_ctx_t c;
     int i, il;
+    int method = 4; /* default method 4 = one random pass */
 
-    while ((f = getopt (argc, argv, "X:")) != -1) {
+    while ((f = getopt (argc, argv, "X:p:")) != -1) {
         switch (f) {
             case 'X':
                 dirpath = optarg;
+                break;
+            case 'p':
+                method = strtoul (optarg, NULL, 10);
                 break;
             default:
                 usage();
                 exit(1);
         }
     } 
-    if (!dirpath && ((argc - optind) == 0))
+    if (dirpath && ((argc - optind) > 0))
         usage();
 
     if (scrub_init (&c) < 0) {
@@ -98,9 +103,8 @@ main (int argc, char *argv[])
         exit (1);
     }
 
-    /* Pretend user selected method 4 from a menu of methods.
-     */
-    if (scrub_attr_set (c, SCRUB_ATTR_METHOD, 4) < 0) {
+    /* select method */
+    if (scrub_attr_set (c, SCRUB_ATTR_METHOD, method) < 0) {
         fprintf (stderr, "scrub_attr_set: %s\n", scrub_strerror (c));
         exit (1);
     }
