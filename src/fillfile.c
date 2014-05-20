@@ -207,8 +207,11 @@ fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
         if (progress)
             progress(arg, (double)written/filesize);
     } while (written < filesize);
-    if (fsync(fd) < 0)
-        goto error;
+    if (fsync(fd) < 0) {
+        if (errno != EINVAL)
+            goto error;
+        errno = 0;
+    }
 #if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_DONTNEED)
     /* Try to fool the kernel into dropping any device cache */
     (void)posix_fadvise(fd, 0, filesize, POSIX_FADV_DONTNEED);
