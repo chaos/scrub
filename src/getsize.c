@@ -187,7 +187,12 @@ getsize(char *path, off_t *sizep)
             size = (off_t)devinfo.un.dk.segment_size * devinfo.un.dk.segment_count;
             break;
         case DD_SCDISK: /* scsi disk */
+#ifdef DF_LGDSK
+            /* T.P.Starrin@NASA.gov for AIX 6.1 */
+            size = (off_t)((unsigned)(devinfo.un.scdk64.hi_numblks << 32) | ((unsigned)devinfo.un.scdk64.lo_numblks)) * devinfo.un.scdk64.blksize;
+#else
             size = (off_t)devinfo.un.scdk.blksize * devinfo.un.scdk.numblks;
+#endif
             break;
         default:        /* unknown */
             size = 0;
