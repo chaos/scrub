@@ -2,7 +2,7 @@
 #include "config.h"
 #endif
 #include <sys/stat.h>
-#include <sys/param.h> 
+#include <sys/param.h>
 #include <sys/resource.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +98,7 @@ scrub_attr_set (scrub_ctx_t c, scrub_attr_t attr, int val)
             c->method = val;
             break;
         default:
-            goto einval;        
+            goto einval;
     }
     return 0;
 einval:
@@ -114,7 +114,7 @@ scrub_attr_get (scrub_ctx_t c, scrub_attr_t attr, int *val)
             *val = c->method;
             break;
         default:
-            goto einval;        
+            goto einval;
     }
     return 0;
 einval:
@@ -123,7 +123,7 @@ einval:
 }
 
 static scrub_errnum_t
-scrub(char *path, off_t size, const sequence_t *seq, bool sparse, 
+scrub(char *path, off_t size, const sequence_t *seq, bool sparse,
       bool enospc, bool *isfull)
 {
     int i;
@@ -144,40 +144,40 @@ scrub(char *path, off_t size, const sequence_t *seq, bool sparse,
             case PAT_RANDOM:
                 COND_ESCRUB_ERROR(churnrand() < 0);
                 progress_create(&p, 50);
-                
+
                 written = fillfile(path, size, buf, bufsize,
                                    (progress_t) progress_update, p,
                                    (refill_t) genrand, sparse, enospc);
-                
+
                 progress_destroy(p);
                 COND_ESCRUB_ERROR(written == (off_t) -1);
                 break;
             case PAT_NORMAL:
                 progress_create(&p, 50);
-                
+
                 memset_pat(buf, seq->pat[i], bufsize);
                 written = fillfile(path, size, buf, bufsize,
                                    (progress_t) progress_update, p,
                                    NULL, sparse, enospc);
-                
-                progress_destroy(p);                
+
+                progress_destroy(p);
                 COND_ESCRUB_ERROR(written == (off_t) -1);
                 break;
             case PAT_VERIFY:
                 progress_create(&p, 50);
-                
+
                 memset_pat(buf, seq->pat[i], bufsize);
                 written = fillfile(path, size, buf, bufsize,
                                    (progress_t) progress_update, p,
                                    NULL, sparse, enospc);
-                
+
                 progress_destroy(p);
                 COND_ESCRUB_ERROR(written == (off_t) -1);
                 progress_create(&p, 50);
-                
+
                 checked = checkfile(path, written, buf, bufsize,
                                     (progress_t) progress_update, p, sparse);
-                
+
                 progress_destroy(p);
                 COND_ESCRUB_ERROR(checked == (off_t) -1);
                 if (checked < written) {
@@ -186,7 +186,7 @@ scrub(char *path, off_t size, const sequence_t *seq, bool sparse,
                 }
                 break;
         }
-        if (written < size) {            
+        if (written < size) {
             if (isfull)
                 *isfull = true;
             size = written;
@@ -237,16 +237,16 @@ scrub_write (scrub_ctx_t c, void (*progress_cb)(void *arg, double pct_done),
         c->errnum = ESCRUB_INVAL;
         goto error;
     }
-    
+
     path = c->path;
     seq = seq_lookup_byindex(c->method);
     ft = filetype(path);
-   
+
     switch (ft) {
         case FILE_NOEXIST:
         case FILE_OTHER:
             c->errnum = ESCRUB_FILETYPE;
-            goto error;    
+            goto error;
         case FILE_BLOCK:
         case FILE_CHAR:
             if (access(path, R_OK|W_OK) < 0) {
@@ -283,7 +283,7 @@ error:
 }
 
 int
-scrub_write_free (scrub_ctx_t c, 
+scrub_write_free (scrub_ctx_t c,
                   void (*progress_cb)(void *arg, double pct_done), void *arg)
 {
     char *dirpath;
@@ -305,14 +305,14 @@ scrub_write_free (scrub_ctx_t c,
         c->errnum = ESCRUB_INVAL;
         goto error;
     }
-    
+
     dirpath = c->path;
     seq = seq_lookup_byindex(c->method);
     c->errnum = ESCRUB_SUCCESS;
-    
+
     if (filetype(dirpath) != FILE_NOEXIST) {
         c->errnum = ESCRUB_DIREXISTS;
-        goto error; 
+        goto error;
     }
     if (mkdir(dirpath, 0755) < 0) {
         c->errnum = ESCRUB_PLATFORM;
@@ -339,23 +339,23 @@ scrub_write_free (scrub_ctx_t c,
     if (size == 0 || size == RLIM_INFINITY)
         size = 1024*1024*1024;
     size = blkalign(size, sb.st_blksize, DOWN);
-    
+
     do {
         snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno++);
         se = scrub(path, size, seq, false, true, &isfull);
         if (se != ESCRUB_SUCCESS)
             c->errnum = se;
     } while (!isfull);
-    
+
     while (--fileno >= 0) {
         snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno);
         if (unlink(path) < 0)
-            c->errnum = (c->errnum == ESCRUB_FAILED) ? 
+            c->errnum = (c->errnum == ESCRUB_FAILED) ?
                          ESCRUB_FAILED : ESCRUB_PLATFORM;
     }
     if (rmdir(dirpath) < 0)
         c->errnum = ESCRUB_PLATFORM;
-    
+
     return 0;
 error:
     return -1;
@@ -459,7 +459,7 @@ scrub_strerror (scrub_ctx_t c)
     return "Unknown error";
 }
 
-scrub_errnum_t 
+scrub_errnum_t
 scrub_errnum (scrub_ctx_t c)
 {
     return c->errnum;
