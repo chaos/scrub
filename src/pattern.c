@@ -302,7 +302,7 @@ strtomem (int *data, int len, char *s)
                        && isoctdigit (*(s + 2)) && isoctdigit (*(s + 3))) {
             memcpy (tmp, s + 1, 3);
             tmp[3] = '\0';
-            data[i++] = strtoul (tmp, NULL, 8);
+            data[i++] = strtoul (tmp, NULL, 8) & 0xff;
             s += 4;
             continue;
         }
