@@ -339,6 +339,17 @@ done:
     exit(0);
 }
 
+static int progress_col (const sequence_t *seq)
+{
+    int i, max = 0, col = 50;
+    for (i = 0; i < seq->len; i++)
+        if (seq->pat[i].len > max)
+            max = seq->pat[i].len;
+    if (max > 3)
+        col -= (2 * (max - 3));
+    return col;
+}
+
 /* Scrub 'path', a file/device of size 'size'.
  * Fill using the pattern sequence specified by 'seq'.
  * Use 'bufsize' length for I/O buffers.
@@ -354,6 +365,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
     char sizestr[80];
     bool isfull = false;
     off_t written, checked;
+    int pcol = progress_col(seq);
 
     if (!(buf = alloc_buffer(bufsize))) {
         fprintf(stderr, "%s: out of memory\n", prog);
@@ -373,7 +385,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
         switch (seq->pat[i].ptype) {
             case PAT_RANDOM:
                 printf("%s: %-8s", prog, "random");
-                progress_create(&p, 50);
+                progress_create(&p, pcol);
                 if (churnrand() < 0) {
                     fprintf(stderr, "%s: churnrand: %s\n", prog,
                              strerror(errno));
@@ -391,7 +403,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 break;
             case PAT_NORMAL:
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
-                progress_create(&p, 50);
+                progress_create(&p, pcol);
                 memset_pat(buf, seq->pat[i], bufsize);
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
@@ -405,7 +417,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 break;
             case PAT_VERIFY:
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
-                progress_create(&p, 50);
+                progress_create(&p, pcol);
                 memset_pat(buf, seq->pat[i], bufsize);
                 written = fillfile(path, size, buf, bufsize, 
                                    (progress_t)progress_update, p, 
@@ -417,7 +429,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 }
                 progress_destroy(p);
                 printf("%s: %-8s", prog, "verify");
-                progress_create(&p, 50);
+                progress_create(&p, pcol);
                 checked = checkfile(path, written, buf, bufsize, 
                                     (progress_t)progress_update, p, sparse);
                 if (checked == (off_t)-1) {
@@ -547,7 +559,7 @@ scrub_dirent(char *path, char *newpath)
         assert(seq->pat[i].ptype == PAT_NORMAL);
         assert(seq->pat[i].len == 1);
         printf("%s: %-8s", prog, pat2str(seq->pat[i]));
-        progress_create(&p, 50);
+        progress_create(&p, progress_col(seq));
         if (filldentry(path, seq->pat[i].pat[0]) < 0) {/* path: in/out */
             fprintf(stderr, "%s: filldentry: %s\n", prog, strerror(errno));
             exit(1);

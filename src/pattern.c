@@ -242,7 +242,7 @@ static const sequence_t fillff_seq = {
 };
 
 static const sequence_t custom_seq = {
-    "custom", "custom=\"string\" 16b max, use escapes \\xnn, \\nnn, \\\\", 1, {
+    "custom", "custom=\"str\" 16 chr max, C esc like \\r, \\xFF, \\377, \\\\", 1, {
     },
 };
 
@@ -390,8 +390,8 @@ pat2str(pattern_t p)
     int i;
     int len = p.len;
 
-    if (len > 4)
-        len = 4;
+    if (len > MAXPATBYTES)
+        len = MAXPATBYTES;
     switch (p.ptype) {
         case PAT_RANDOM:
             snprintf(str, sizeof(str), "random");
