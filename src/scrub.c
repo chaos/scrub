@@ -105,7 +105,7 @@ static void
 usage(void)
 {
     fprintf(stderr,
-"Usage: %s [OPTIONS] file\n"
+"Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence\n"
 "  -b, --blocksize size    set I/O buffer size (default 4m)\n"
@@ -135,7 +135,6 @@ main(int argc, char *argv[])
     int bopt = BUFSIZE;
     off_t sopt = 0;
     char *Dopt = NULL;
-    char *filename = NULL;
     bool fopt = false;
     bool Sopt = false;
     bool ropt = false;
@@ -146,6 +145,7 @@ main(int argc, char *argv[])
     extern int optind;
     extern char *optarg;
     int c;
+    int i;
 
     assert(sizeof(off_t) == 8);
 
@@ -224,9 +224,16 @@ main(int argc, char *argv[])
             usage();
         }
     }
-    if (argc - optind != 1)
+    if (argc == optind)
         usage();
-    filename = argv[optind];
+    if (Xopt && argc - optind > 1) {
+        fprintf(stderr, "%s: -X only takes one directory name", prog);
+        exit(1);
+    }
+    if (Dopt && argc - optind > 1) {
+        fprintf(stderr, "%s: -D can only be used with one file", prog);
+        exit(1);
+    }
 
     if (!seq)
         seq = seq_lookup("nnsa");
@@ -241,7 +248,7 @@ main(int argc, char *argv[])
     /* Handle -X specially.
      */
     if (Xopt) {
-        if (filetype(filename) != FILE_NOEXIST) {
+        if (filetype(argv[optind]) != FILE_NOEXIST) {
             fprintf(stderr, "%s: -X directory already exists\n", prog);
             exit(1);
         }
@@ -249,10 +256,12 @@ main(int argc, char *argv[])
             fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
             exit(1);
         }
-        scrub_free(filename, sopt, seq, bopt, Sopt);
+        scrub_free(argv[optind], sopt, seq, bopt, Sopt);
         goto done;
     } 
-    scrub_object (filename, sopt, seq, bopt, Sopt, Topt, Dopt, ropt, fopt, Lopt);
+    for (i = optind; i < argc; i++) {
+        scrub_object (argv[i], sopt, seq, bopt, Sopt, Topt, Dopt, ropt, fopt, Lopt);
+    }
 done:
     if (custom_seq)
         seq_destroy (custom_seq);
