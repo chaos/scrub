@@ -57,23 +57,30 @@
 
 #define BUFSIZE (4*1024*1024) /* default blocksize */
 
-static bool       scrub(char *path, off_t size, const sequence_t *seq,
-                      int bufsize, bool Sopt, bool sparse, bool enospc);
-static void       scrub_free(char *path, off_t size, const sequence_t *seq,
-                      int bufsize, bool Sopt);
-static void       scrub_dirent(char *path, char *newpath);
-static void       scrub_file(char *path, off_t size, const sequence_t *seq,
-                      int bufsize, bool Sopt, bool sparse);
-#if __APPLE__
-static void       scrub_resfork(char *path, const sequence_t *seq,
-                      int bufsize);
-#endif
-static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
-                      int bufsize, bool Sopt, bool sparse);
+struct opt_struct {
+    const sequence_t *seq;
+    int blocksize;
+    off_t devsize;
+    char *dirent;
+    bool force;
+    bool nosig;
+    bool remove;
+    bool sparse;
+    bool nofollow;
+    bool nohwrand;
+    bool nothreads;
+};
 
-static int        scrub_object (char *filename, off_t sopt,
-                      const sequence_t *seq, int bopt, bool Sopt, bool Topt,
-                      char *Dopt, bool ropt, bool fopt, bool Lopt);
+static bool       scrub(char *path, off_t size, const sequence_t *seq,
+                      int bufsize, bool nosig, bool sparse, bool enospc);
+static void       scrub_free(char *path, const struct opt_struct *opt);
+static void       scrub_dirent(char *path, const struct opt_struct *opt);
+static void       scrub_file(char *path, const struct opt_struct *opt);
+#if __APPLE__
+static void       scrub_resfork(char *path, const struct opt_struct *opt);
+#endif
+static void       scrub_disk(char *path, const struct opt_struct *opt);
+static int        scrub_object (char *filename, const struct opt_struct *opt);
 
 #define OPTIONS "p:D:Xb:s:fSrvTLRth"
 #if HAVE_GETOPT_LONG
@@ -129,25 +136,18 @@ usage(void)
 int 
 main(int argc, char *argv[])
 {
-    const sequence_t *seq = NULL;
+    struct opt_struct opt;
     sequence_t *custom_seq = NULL;
     bool Xopt = false;
-    int bopt = BUFSIZE;
-    off_t sopt = 0;
-    char *Dopt = NULL;
-    bool fopt = false;
-    bool Sopt = false;
-    bool ropt = false;
-    bool Topt = false;
-    bool Lopt = false;
-    bool Ropt = false;
-    bool topt = false;
     extern int optind;
     extern char *optarg;
     int c;
     int i;
 
     assert(sizeof(off_t) == 8);
+
+    memset (&opt, 0, sizeof (opt));
+    opt.blocksize = BUFSIZE;
 
     /* Handle arguments.
      */
@@ -158,7 +158,7 @@ main(int argc, char *argv[])
             printf("scrub version %s\n", VERSION);
             exit(0);
         case 'p':   /* --pattern */
-            if (seq != NULL) {
+            if (opt.seq != NULL) {
                 fprintf(stderr, "%s: only one pattern can be selected\n", prog);
                 exit(1);
             }
@@ -169,10 +169,10 @@ main(int argc, char *argv[])
                             strerror(errno));
                     exit(1);
                 }
-                seq = custom_seq;
+                opt.seq = custom_seq;
             } else {
-                seq = seq_lookup(optarg);
-                if (!seq) {
+                opt.seq = seq_lookup(optarg);
+                if (!opt.seq) {
                     fprintf(stderr, "%s: no such pattern sequence\n", prog);
                     exit(1);
                 }
@@ -182,42 +182,42 @@ main(int argc, char *argv[])
             Xopt = true;
             break;
         case 'D':   /* --dirent */
-            Dopt = optarg;
+            opt.dirent = optarg;
             break;
         case 'r':   /* --remove */
-            ropt = true;
+            opt.remove = true;
             break;
         case 'b':   /* --blocksize */
-            bopt = str2int(optarg);
-            if (bopt == 0) {
+            opt.blocksize = str2int(optarg);
+            if (opt.blocksize == 0) {
                 fprintf(stderr, "%s: error parsing blocksize string\n", prog);
                 exit(1);
             }
             break;
         case 's':   /* --device-size */
-            sopt = str2size(optarg);
-            if (sopt == 0) {
+            opt.devsize = str2size(optarg);
+            if (opt.devsize == 0) {
                 fprintf(stderr, "%s: error parsing size string\n", prog);
                 exit(1);
             }
             break;
         case 'f':   /* --force */
-            fopt = true;
+            opt.force = true;
             break;
         case 'S':   /* --no-signature */
-            Sopt = true;
+            opt.nosig = true;
             break;
         case 'T':   /* --test-sparse */
-            Topt = true;
+            opt.sparse = true;
             break;
         case 'L':   /* --no-link */
-            Lopt = true;
+            opt.nofollow = true;
             break;
         case 'R':   /* --no-hwrand */
-            Ropt = true;
+            opt.nohwrand = true;
             break;
         case 't':   /* --no-threads */
-            topt = true;
+            opt.nothreads = true;
             break;
         case 'h':   /* --help */
         default:
@@ -230,19 +230,19 @@ main(int argc, char *argv[])
         fprintf(stderr, "%s: -X only takes one directory name", prog);
         exit(1);
     }
-    if (Dopt && argc - optind > 1) {
+    if (opt.dirent && argc - optind > 1) {
         fprintf(stderr, "%s: -D can only be used with one file", prog);
         exit(1);
     }
 
-    if (!seq)
-        seq = seq_lookup("nnsa");
-    assert(seq != NULL);
-    printf("%s: using %s patterns\n", prog, seq->desc);
+    if (!opt.seq)
+        opt.seq = seq_lookup("nnsa");
+    assert(opt.seq != NULL);
+    printf("%s: using %s patterns\n", prog, opt.seq->desc);
 
-    if (Ropt)
+    if (opt.nohwrand)
         disable_hwrand();
-    if (topt)
+    if (opt.nothreads)
         disable_threads();
 
     /* Handle -X specially.
@@ -252,15 +252,15 @@ main(int argc, char *argv[])
             fprintf(stderr, "%s: -X directory already exists\n", prog);
             exit(1);
         }
-        if (Dopt) {
+        if (opt.dirent) {
             fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
             exit(1);
         }
-        scrub_free(argv[optind], sopt, seq, bopt, Sopt);
+        scrub_free(argv[optind], &opt);
         goto done;
     } 
     for (i = optind; i < argc; i++) {
-        scrub_object (argv[i], sopt, seq, bopt, Sopt, Topt, Dopt, ropt, fopt, Lopt);
+        scrub_object (argv[i], &opt);
     }
 done:
     if (custom_seq)
@@ -268,9 +268,7 @@ done:
     exit(0);
 }
 
-static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
-                         int bopt, bool Sopt, bool Topt, char *Dopt,
-                         bool ropt, bool fopt, bool Lopt)
+static int scrub_object (char *filename, const struct opt_struct *opt)
 {
     bool havesig = false;
 
@@ -283,11 +281,11 @@ static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
             exit(1);
         case FILE_BLOCK:
         case FILE_CHAR:
-            if (Dopt) {
+            if (opt->dirent) {
                 fprintf(stderr, "%s: cannot use -D with special file\n", prog);
                 exit(1);
             }
-            if (ropt) {
+            if (opt->remove) {
                 fprintf(stderr, "%s: cannot use -r with special file\n", prog);
                 exit(1);
             }
@@ -300,16 +298,16 @@ static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
                         strerror(errno));
                 exit (1);
             }
-            if (havesig && !fopt) {
+            if (havesig && !opt->force) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 exit(1);
             }
-            scrub_disk(filename, sopt, seq, bopt, Sopt, Topt);
+            scrub_disk(filename, opt);
             break;
         case FILE_LINK:
-            if (Lopt) {
-                if (ropt) {
+            if (opt->nofollow) {
+                if (opt->remove) {
                     printf("%s: unlinking %s\n", prog, filename);
                     if (unlink(filename) != 0) {
                         fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
@@ -319,6 +317,7 @@ static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
                 }
                 break;
             }
+            /* FALL THRU */
         case FILE_REGULAR:
             if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
@@ -329,28 +328,27 @@ static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
                         strerror(errno));
                 exit (1);
             }
-            if (havesig && !fopt) {
+            if (havesig && !opt->force) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 exit(1);
             }
-            if (Dopt && *Dopt != '/' && *filename == '/') {
+            if (opt->dirent && opt->dirent[0] != '/' && filename[0] == '/') {
                 fprintf(stderr, "%s: %s should be a full path like %s\n",
-                        prog, Dopt, filename);
+                        prog, opt->dirent, filename);
                 exit(1);
             }
-            scrub_file(filename, sopt, seq, bopt, Sopt, Topt);
+            scrub_file(filename, opt);
 #if __APPLE__
-            scrub_resfork(filename, seq, bopt);
+            scrub_resfork(filename, opt);
 #endif
-            if (Dopt) {
-                scrub_dirent(filename, Dopt);
-                filename = Dopt; /* -r needs this below */
-            }
-            if (ropt) {
-                printf("%s: unlinking %s\n", prog, filename);
-                if (unlink(filename) != 0) {
-                    fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
+            if (opt->dirent)
+                scrub_dirent(filename, opt);
+            if (opt->remove) {
+                char *rmfile = opt->dirent ? opt->dirent : filename;
+                printf("%s: unlinking %s\n", prog, rmfile);
+                if (unlink(rmfile) != 0) {
+                    fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
                             strerror(errno));
                     exit(1);
                 }
@@ -377,7 +375,7 @@ static int progress_col (const sequence_t *seq)
  */
 static bool
 scrub(char *path, off_t size, const sequence_t *seq, int bufsize, 
-      bool Sopt, bool sparse, bool enospc)
+      bool nosig, bool sparse, bool enospc)
 {
     unsigned char *buf;
     int i;
@@ -477,7 +475,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             }
         }
     }
-    if (!Sopt) {
+    if (!nosig) {
         if (writesig(path) < 0) {
             fprintf(stderr, "%s: writing signature to %s: %s\n", prog,
                     path, strerror (errno));
@@ -516,16 +514,16 @@ set_rlimit_fsize(off_t val)
 }
 
 /* Scrub free space (-X) by creating a directory, then filling it
- * with 'size' length files (use RLIMIT_FSIZE if no -s).
+ * with opt->devsize length files (use RLIMIT_FSIZE if no opt->devsize).
  */
 static void
-scrub_free(char *dirpath, off_t size, const sequence_t *seq, 
-           int bufsize, bool Sopt)
+scrub_free(char *dirpath, const struct opt_struct *opt)
 {
     char path[MAXPATHLEN];
     int fileno = 0;
     struct stat sb;
     bool isfull;
+    off_t size = opt->devsize;
 
     if (mkdir(dirpath, 0755) < 0) {
         fprintf(stderr, "%s: mkdir %s: %s\n", prog, path, strerror(errno));
@@ -545,7 +543,8 @@ scrub_free(char *dirpath, off_t size, const sequence_t *seq,
     size = blkalign(size, sb.st_blksize, DOWN);
     do {
         snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno++);
-        isfull = scrub(path, size, seq, bufsize, Sopt, false, true);
+        isfull = scrub(path, size, opt->seq, opt->blocksize, opt->nosig,
+                       false, true);
     } while (!isfull);
     while (--fileno >= 0) {
         snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno);
@@ -563,8 +562,9 @@ scrub_free(char *dirpath, off_t size, const sequence_t *seq,
 /* Scrub name component of a directory entry through succesive renames.
  */
 static void
-scrub_dirent(char *path, char *newpath)
+scrub_dirent(char *path, const struct opt_struct *opt)
 {
+    char *newpath = opt->dirent;
     const sequence_t *seq = seq_lookup("dirent");
     prog_t p;
     int i;
@@ -596,11 +596,11 @@ scrub_dirent(char *path, char *newpath)
 /* Scrub a regular file.
  */
 static void 
-scrub_file(char *path, off_t size, const sequence_t *seq, 
-           int bufsize, bool Sopt, bool sparse)
+scrub_file(char *path, const struct opt_struct *opt)
 {
     struct stat sb;
     filetype_t ftype = filetype(path);
+    off_t size = opt->devsize;
 
     assert(ftype == FILE_REGULAR || ftype == FILE_LINK);
 
@@ -622,14 +622,14 @@ scrub_file(char *path, off_t size, const sequence_t *seq,
                     prog, path, (int)(size - sb.st_size)); 
         }
     }
-    scrub(path, size, seq, bufsize, Sopt, sparse, false);
+    scrub(path, size, opt->seq, opt->blocksize, opt->nosig, opt->sparse, false);
 }
 
 /* Scrub apple resource fork component of file.
  */
 #if __APPLE__
 static void
-scrub_resfork(char *path, const sequence_t *seq, int bufsize)
+scrub_resfork(char *path, const struct opt_struct *opt)
 {
     struct stat rsb;
     char rpath[MAXPATHLEN];
@@ -650,28 +650,29 @@ scrub_resfork(char *path, const sequence_t *seq, int bufsize)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                         prog, rpath, (int)(rsize - rsb.st_size)); 
     }
-    scrub(rpath, rsize, seq, bufsize, false, false, false);
+    scrub(rpath, rsize, opt->seq, opt->bufsize, false, false, false);
 }
 #endif
 
 /* Scrub a special file corresponding to a disk.
  */
 static void
-scrub_disk(char *path, off_t size, const sequence_t *seq, int bufsize, 
-           bool Sopt, bool sparse)
+scrub_disk(char *path, const struct opt_struct *opt)
 {
     filetype_t ftype = filetype(path);
+    off_t devsize = opt->devsize;
 
     assert(ftype == FILE_BLOCK || ftype == FILE_CHAR);
-    if (size == 0) {
-        if (getsize(path, &size) < 0) {
+    if (devsize == 0) {
+        if (getsize(path, &devsize) < 0) {
             fprintf(stderr, "%s: %s: %s\n", prog, path, strerror(errno));
             fprintf(stderr, "%s: could not determine size, use -s\n", prog);
             exit(1);
         }
         printf("%s: please verify that device size below is correct!\n", prog);
     }
-    scrub(path, size, seq, bufsize, Sopt, sparse, false);
+    scrub(path, devsize, opt->seq, opt->blocksize, opt->nosig, opt->sparse,
+          false);
 }
 
 /*
