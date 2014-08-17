@@ -80,7 +80,8 @@ static void       scrub_file(char *path, const struct opt_struct *opt);
 static void       scrub_resfork(char *path, const struct opt_struct *opt);
 #endif
 static void       scrub_disk(char *path, const struct opt_struct *opt);
-static int        scrub_object (char *filename, const struct opt_struct *opt);
+static int        scrub_object(char *path, const struct opt_struct *opt,
+                               bool noexec);
 
 #define OPTIONS "p:D:Xb:s:fSrvTLRth"
 #if HAVE_GETOPT_LONG
@@ -142,7 +143,6 @@ main(int argc, char *argv[])
     extern int optind;
     extern char *optarg;
     int c;
-    int i;
 
     assert(sizeof(off_t) == 8);
 
@@ -227,11 +227,11 @@ main(int argc, char *argv[])
     if (argc == optind)
         usage();
     if (Xopt && argc - optind > 1) {
-        fprintf(stderr, "%s: -X only takes one directory name", prog);
+        fprintf(stderr, "%s: -X only takes one directory name\n", prog);
         exit(1);
     }
     if (opt.dirent && argc - optind > 1) {
-        fprintf(stderr, "%s: -D can only be used with one file", prog);
+        fprintf(stderr, "%s: -D can only be used with one file\n", prog);
         exit(1);
     }
 
@@ -245,7 +245,7 @@ main(int argc, char *argv[])
     if (opt.nothreads)
         disable_threads();
 
-    /* Handle -X specially.
+    /* Scrub free space
      */
     if (Xopt) {
         if (filetype(argv[optind]) != FILE_NOEXIST) {
@@ -257,57 +257,73 @@ main(int argc, char *argv[])
             exit(1);
         }
         scrub_free(argv[optind], &opt);
-        goto done;
-    } 
-    for (i = optind; i < argc; i++) {
-        scrub_object (argv[i], &opt);
+    /* Scrub multiple files/devices
+     */
+    } else if (argc - optind > 1) {
+        int i, errcount = 0;
+        for (i = optind; i < argc; i++)
+            errcount += scrub_object(argv[i], &opt, true);
+        if (errcount > 0) {
+            fprintf (stderr, "%s: no files were scrubbed\n", prog);
+            exit(1); 
+        }
+        for (i = optind; i < argc; i++) {
+            if (scrub_object(argv[i], &opt, false) > 0)
+                exit(1);
+        }
+        
+    /* Scrub single file/device.
+     */
+    } else {
+        if (scrub_object(argv[optind], &opt, false) > 0)
+            exit(1);
     }
-done:
+
     if (custom_seq)
         seq_destroy (custom_seq);
     exit(0);
 }
 
-static int scrub_object (char *filename, const struct opt_struct *opt)
+static int scrub_object(char *filename, const struct opt_struct *opt,
+                         bool noexec)
 {
     bool havesig = false;
+    int errcount = 0;
 
     switch (filetype(filename)) {
         case FILE_NOEXIST:
             fprintf(stderr, "%s: %s does not exist\n", prog, filename);
-            exit(1);
+            errcount++;
+            break;
         case FILE_OTHER:
             fprintf(stderr, "%s: %s is wrong type of file\n", prog, filename);
-            exit(1);
+            errcount++;
+            break;
         case FILE_BLOCK:
         case FILE_CHAR:
             if (opt->dirent) {
                 fprintf(stderr, "%s: cannot use -D with special file\n", prog);
-                exit(1);
-            }
-            if (opt->remove) {
+                errcount++;
+            } else if (opt->remove) {
                 fprintf(stderr, "%s: cannot use -r with special file\n", prog);
-                exit(1);
-            }
-            if (access(filename, R_OK|W_OK) < 0) {
+                errcount++;
+            } else if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
-                exit(1);
-            }
-            if (checksig(filename, &havesig) < 0) {
+                errcount++;
+            } else if (checksig(filename, &havesig) < 0) {
                 fprintf(stderr, "%s: %s: %s\n", prog, filename,
                         strerror(errno));
-                exit (1);
-            }
-            if (havesig && !opt->force) {
+                errcount++;
+            } else if (havesig && !opt->force) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
-                exit(1);
-            }
-            scrub_disk(filename, opt);
+                errcount++;
+            } else if (!noexec)
+                scrub_disk(filename, opt);
             break;
         case FILE_LINK:
             if (opt->nofollow) {
-                if (opt->remove) {
+                if (opt->remove && !noexec) {
                     printf("%s: unlinking %s\n", prog, filename);
                     if (unlink(filename) != 0) {
                         fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
@@ -321,40 +337,39 @@ static int scrub_object (char *filename, const struct opt_struct *opt)
         case FILE_REGULAR:
             if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
-                exit(1);
-            }
-            if (checksig(filename, &havesig) < 0) {
+                errcount++;
+            } else if (checksig(filename, &havesig) < 0) {
                 fprintf(stderr, "%s: %s: %s\n", prog, filename,
                         strerror(errno));
-                exit (1);
-            }
-            if (havesig && !opt->force) {
+                errcount++;
+            } else if (havesig && !opt->force) {
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
-                exit(1);
-            }
-            if (opt->dirent && opt->dirent[0] != '/' && filename[0] == '/') {
+                errcount++;
+            } else if (opt->dirent && opt->dirent[0] != '/' && filename[0] == '/') {
                 fprintf(stderr, "%s: %s should be a full path like %s\n",
                         prog, opt->dirent, filename);
-                exit(1);
-            }
-            scrub_file(filename, opt);
+                errcount++;
+            } else if (!noexec) {
+                scrub_file(filename, opt);
 #if __APPLE__
-            scrub_resfork(filename, opt);
+                scrub_resfork(filename, opt);
 #endif
-            if (opt->dirent)
-                scrub_dirent(filename, opt);
-            if (opt->remove) {
-                char *rmfile = opt->dirent ? opt->dirent : filename;
-                printf("%s: unlinking %s\n", prog, rmfile);
-                if (unlink(rmfile) != 0) {
-                    fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
-                            strerror(errno));
-                    exit(1);
+                if (opt->dirent)
+                    scrub_dirent(filename, opt);
+                if (opt->remove) {
+                    char *rmfile = opt->dirent ? opt->dirent : filename;
+                    printf("%s: unlinking %s\n", prog, rmfile);
+                    if (unlink(rmfile) != 0) {
+                        fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
+                                strerror(errno));
+                        exit(1);
+                    }
                 }
             }
             break;
     }
+    return errcount;
 }
 
 static int progress_col (const sequence_t *seq)
