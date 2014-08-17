@@ -3,10 +3,10 @@
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
 .B scrub
-.I "[OPTIONS] special-file"
+.I "[OPTIONS] special-file [special-file ...]"
 .br
 .B scrub
-.I "[OPTIONS] file"
+.I "[OPTIONS] file [file ...]"
 .br
 .B scrub
 .I "-X [OPTIONS] directory"
@@ -82,6 +82,7 @@ After scrubbing the file, scrub its name in the directory entry,
 then rename it to the new name.  
 The scrub patterns used on the directory entry are constrained by the 
 operating system and thus are not compliant with cited standards.
+This option only works with a single target.
 .TP
 \fI-s\fR, \fI--device-size\fR \fIsize\fR
 Override the device size (in bytes). Without this option,
