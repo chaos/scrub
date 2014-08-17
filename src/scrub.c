@@ -71,6 +71,10 @@ static void       scrub_resfork(char *path, const sequence_t *seq,
 static void       scrub_disk(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool Sopt, bool sparse);
 
+static int        scrub_object (char *filename, off_t sopt,
+                      const sequence_t *seq, int bopt, bool Sopt, bool Topt,
+                      char *Dopt, bool ropt, bool fopt, bool Lopt);
+
 #define OPTIONS "p:D:Xb:s:fSrvTLRth"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
@@ -142,7 +146,6 @@ main(int argc, char *argv[])
     extern int optind;
     extern char *optarg;
     int c;
-    bool havesig;
 
     assert(sizeof(off_t) == 8);
 
@@ -249,6 +252,18 @@ main(int argc, char *argv[])
         scrub_free(filename, sopt, seq, bopt, Sopt);
         goto done;
     } 
+    scrub_object (filename, sopt, seq, bopt, Sopt, Topt, Dopt, ropt, fopt, Lopt);
+done:
+    if (custom_seq)
+        seq_destroy (custom_seq);
+    exit(0);
+}
+
+static int scrub_object (char *filename, off_t sopt, const sequence_t *seq,
+                         int bopt, bool Sopt, bool Topt, char *Dopt,
+                         bool ropt, bool fopt, bool Lopt)
+{
+    bool havesig = false;
 
     switch (filetype(filename)) {
         case FILE_NOEXIST:
@@ -333,10 +348,6 @@ main(int argc, char *argv[])
             }
             break;
     }
-done:
-    if (custom_seq)
-        seq_destroy (custom_seq);
-    exit(0);
 }
 
 static int progress_col (const sequence_t *seq)
