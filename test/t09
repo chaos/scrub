@@ -4,10 +4,10 @@
 
 EXPFILE=t09-`hostname`.exp
 TESTDEV=/dev/scrub-testdisk
-test -f $EXPFILE || exit 0
+test -f $EXPFILE || exit 77
 if ! test -b $TESTDEV && ! test -c $TESTDEV; then
     echo $TESTDEV is unavailable >&2
-    exit 1
+    exit 77
 fi
 $PATH_SCRUB -T $TESTDEV >t09.out 2>&1 || exit 1
 diff $EXPFILE t09.out >t09.diff
