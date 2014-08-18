@@ -18,6 +18,7 @@ t13 - Test scrubbing a directory, scrubbing -X with existing directory,
       and scrubbing a nonexistent file.
 t14 - Verify that content of a 4M reg file is fully overwritten
 t15 - Scrub a 400K reg file with 16ch custom pattern, and verify with od
+t16 - Make sure --dry-run doesn't write
 
 Note about test driver:
 
