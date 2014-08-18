@@ -1,3 +1,0 @@
-#!/bin/sh
-FILES="index.html scrubber.jpg"
-scp $FILES shell.sourceforge.net:/home/groups/d/di/diskscrub/htdocs/
