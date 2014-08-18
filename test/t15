@@ -1,0 +1,13 @@
+#!/bin/sh
+TEST=`basename $0 | cut -d- -f1`
+TESTFILE=${TMPDIR:-/tmp}/scrub-testfile.$$
+rm -f $TESTFILE
+./pad 400k $TESTFILE || exit 1
+
+$PATH_SCRUB -p custom="0123456789abcdef" $TESTFILE 2>&1 \
+		| sed -e "s!${TESTFILE}!file!" 2>&1 >$TEST.out|| exit 1
+
+od -c $TESTFILE >>$TEST.out || exit 1
+
+unlink $TESTFILE || exit 1
+diff $TEST.exp $TEST.out >$TEST.diff
