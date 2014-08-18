@@ -1,0 +1,33 @@
+Scrub unit tests:
+
+t00 - Verify AES code used to generate random sequences
+t01 - Verify large file support by scrubbing a 5G regular file
+      with default optins (use --test-sparse to make it fast)
+t02 - Scrub a 400K reg file with NNSA NAP-14.1-C
+t03 - Scrub a 400K reg file with DoD 5220.22-M
+t04 - Scrub a 400K reg file with BSI
+t05 - Scrub a 400k reg file with fastold (pre1.7 scrub, no random)
+t06 - Scrub a 400K reg file with old (pre1.7 scrub)
+t07 - Verify 'scrub signature' checksig()/writesig() functions
+t08 - Verify getsize() parsing with units
+t09 - Scrub a block device on test systems at LLNL (use --test-sparse)
+t10 - Verify size of various block devices on test systems at LLNL
+t11 - Scrub a 400K reg file with Gutmann
+t12 - Test --device-size on regular file (==, <, > orig size)
+t13 - Test scrubbing a directory, scrubbing -X with existing directory,
+      and scrubbing a nonexistent file.
+t14 - Verify that content of a 4M reg file is fully overwritten
+
+Note about test driver:
+
+We use automake's built-in test driver in a very simple way.
+Define TESTS as a list of tests to run.  Then "make check" will run
+them reporting PASS/FAIL/SKIP based on exit code.  The tests are
+named tNN, and usually as a last step in the test, captured output
+is compared against expected output in tNN.exp.
+
+These test are being run on buildfarms creating RPM's from the spec
+file, so we have to make sure these can run without root, and complete
+in a reasonably short time.  We can have exceptions to this for
+one-off testing as long as they exit 77 (SKIP exit code) when they are
+not being run with appropriate access (see t09, t10).
