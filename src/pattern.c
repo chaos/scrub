@@ -241,6 +241,12 @@ static const sequence_t fillff_seq = {
     },
 };
 
+static const sequence_t verify_seq = {
+    "verify", "Quick Fill with 0x00 and verify", 1, {
+        { PAT_VERIFY, 1, {0x00} },
+    },
+};
+
 static const sequence_t custom_seq = {
     "custom", "custom=\"str\" 16 chr max, C esc like \\r, \\xFF, \\377, \\\\", 1, {
     },
@@ -262,6 +268,7 @@ static const sequence_t *sequences[] = {
 	&dirent_seq,
 	&fillzero_seq,
 	&fillff_seq,
+	&verify_seq,
 };
 
 const int
