@@ -81,9 +81,9 @@ static void       scrub_resfork(char *path, const struct opt_struct *opt);
 #endif
 static void       scrub_disk(char *path, const struct opt_struct *opt);
 static int        scrub_object(char *path, const struct opt_struct *opt,
-                               bool noexec);
+                               bool noexec, bool dryrun);
 
-#define OPTIONS "p:D:Xb:s:fSrvTLRth"
+#define OPTIONS "p:D:Xb:s:fSrvTLRthn"
 #if HAVE_GETOPT_LONG
 #define GETOPT(ac,av,opt,lopt) getopt_long(ac,av,opt,lopt,NULL)
 static struct option longopts[] = {
@@ -100,6 +100,7 @@ static struct option longopts[] = {
     {"no-link",          no_argument,        0, 'L'},
     {"no-hwrand",        no_argument,        0, 'R'},
     {"no-threads",       no_argument,        0, 't'},
+    {"dry-run",          no_argument,        0, 'n'},
     {"help",             no_argument,        0, 'h'},
     {0, 0, 0, 0},
 };
@@ -126,6 +127,7 @@ usage(void)
 "  -L, --no-link           do not scrub link target\n"
 "  -R, --no-hwrand         do not use a hardware random number generator\n"
 "  -t, --no-threads        do not compute random data in a parallel thread\n"
+"  -n, --dry-run           verify file arguments, without writing\n"
 "  -h, --help              display this help message\n"
     , prog);
 
@@ -140,6 +142,7 @@ main(int argc, char *argv[])
     struct opt_struct opt;
     sequence_t *custom_seq = NULL;
     bool Xopt = false;
+    bool nopt = false;
     extern int optind;
     extern char *optarg;
     int c;
@@ -219,6 +222,9 @@ main(int argc, char *argv[])
         case 't':   /* --no-threads */
             opt.nothreads = true;
             break;
+        case 'n':   /* --dry-run */
+            nopt = true;
+            break;
         case 'h':   /* --help */
         default:
             usage();
@@ -256,26 +262,29 @@ main(int argc, char *argv[])
             fprintf(stderr, "%s: -D and -X cannot be used together\n", prog);
             exit(1);
         }
-        scrub_free(argv[optind], &opt);
+        if (nopt) {
+            printf("%s: (dryrun) scrub free space in %s\n", prog, argv[optind]);
+        } else {
+            scrub_free(argv[optind], &opt);
+        }
     /* Scrub multiple files/devices
      */
     } else if (argc - optind > 1) {
         int i, errcount = 0;
         for (i = optind; i < argc; i++)
-            errcount += scrub_object(argv[i], &opt, true);
+            errcount += scrub_object(argv[i], &opt, true, false);
         if (errcount > 0) {
             fprintf (stderr, "%s: no files were scrubbed\n", prog);
             exit(1); 
         }
         for (i = optind; i < argc; i++) {
-            if (scrub_object(argv[i], &opt, false) > 0)
+            if (scrub_object(argv[i], &opt, false, nopt) > 0)
                 exit(1);
         }
-        
     /* Scrub single file/device.
      */
     } else {
-        if (scrub_object(argv[optind], &opt, false) > 0)
+        if (scrub_object(argv[optind], &opt, false, nopt) > 0)
             exit(1);
     }
 
@@ -285,7 +294,7 @@ main(int argc, char *argv[])
 }
 
 static int scrub_object(char *filename, const struct opt_struct *opt,
-                         bool noexec)
+                         bool noexec, bool dryrun)
 {
     bool havesig = false;
     int errcount = 0;
@@ -318,17 +327,27 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 errcount++;
-            } else if (!noexec)
-                scrub_disk(filename, opt);
+            } else if (!noexec) {
+                if (dryrun) {
+                    printf("%s: (dryrun) scrub special file %s\n",
+                            prog, filename);
+                } else {
+                    scrub_disk(filename, opt);
+                }
+            }
             break;
         case FILE_LINK:
             if (opt->nofollow) {
                 if (opt->remove && !noexec) {
-                    printf("%s: unlinking %s\n", prog, filename);
-                    if (unlink(filename) != 0) {
-                        fprintf(stderr, "%s: unlink %s: %s\n", prog, filename,
-                            strerror(errno));
-                        exit(1);
+                    if (dryrun) {
+                        printf("%s: (dryrun) unlink %s\n", prog, filename);
+                    } else {
+                        printf("%s: unlinking %s\n", prog, filename);
+                        if (unlink(filename) != 0) {
+                            fprintf(stderr, "%s: unlink %s: %s\n", prog,
+                                    filename, strerror(errno));
+                            exit(1);
+                        }
                     }
                 }
                 break;
@@ -351,19 +370,38 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                         prog, opt->dirent, filename);
                 errcount++;
             } else if (!noexec) {
-                scrub_file(filename, opt);
+                if (dryrun) {
+                    printf("%s: (dryrun) scrub reg file %s\n", prog, filename);
+                } else {
+                    scrub_file(filename, opt);
+                }
 #if __APPLE__
-                scrub_resfork(filename, opt);
+                if (dryrun) {
+                    printf("%s: (dryrun) scrub res fork of %s\n",
+                           prog, filename);
+                } else {
+                    scrub_resfork(filename, opt);
+                }
 #endif
-                if (opt->dirent)
-                    scrub_dirent(filename, opt);
+                if (opt->dirent) {
+                    if (dryrun) {
+                        printf("%s: (dryrun) scrub dirent %s\n",
+                               prog, filename);
+                    } else {
+                        scrub_dirent(filename, opt);
+                    }
+                }
                 if (opt->remove) {
                     char *rmfile = opt->dirent ? opt->dirent : filename;
-                    printf("%s: unlinking %s\n", prog, rmfile);
-                    if (unlink(rmfile) != 0) {
-                        fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
-                                strerror(errno));
-                        exit(1);
+                    if (dryrun) {
+                        printf("%s: (dryrun) unlink %s\n", prog, rmfile);
+                    } else {
+                        printf("%s: unlinking %s\n", prog, rmfile);
+                        if (unlink(rmfile) != 0) {
+                            fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
+                                    strerror(errno));
+                            exit(1);
+                        }
                     }
                 }
             }

@@ -105,6 +105,9 @@ Don't use a hardware random number generator even if one is available.
 \fI-t\fR, \fI--no-threads\fR
 Don't generate random data in parallel with I/O.
 .TP
+\fI-n\fR, \fI--dry-run\fR
+Do everything but write to targets.
+.TP
 \fI-h\fR, \fI--help\fR
 Print a summary of command line options on stderr.
 .SH SCRUB METHODS
