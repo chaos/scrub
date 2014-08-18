@@ -3,7 +3,7 @@
 # This is a special test to be run on the author's test systems.
 
 EXPFILE=t10-`hostname`.exp
-test -f $EXPFILE || exit 0
+test -f $EXPFILE || exit 77
 
 case `hostname` in
     manbearpig)
