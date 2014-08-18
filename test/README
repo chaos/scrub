@@ -6,7 +6,7 @@ t01 - Verify large file support by scrubbing a 5G regular file
 t02 - Scrub a 400K reg file with NNSA NAP-14.1-C
 t03 - Scrub a 400K reg file with DoD 5220.22-M
 t04 - Scrub a 400K reg file with BSI
-t05 - Scrub a 400k reg file with fastold (pre1.7 scrub, no random)
+t05 - Scrub a 400K reg file with fastold (pre1.7 scrub, no random)
 t06 - Scrub a 400K reg file with old (pre1.7 scrub)
 t07 - Verify 'scrub signature' checksig()/writesig() functions
 t08 - Verify getsize() parsing with units
@@ -17,6 +17,7 @@ t12 - Test --device-size on regular file (==, <, > orig size)
 t13 - Test scrubbing a directory, scrubbing -X with existing directory,
       and scrubbing a nonexistent file.
 t14 - Verify that content of a 4M reg file is fully overwritten
+t15 - Scrub a 400K reg file with 16ch custom pattern, and verify with od
 
 Note about test driver:
 
