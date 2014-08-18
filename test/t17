@@ -1,0 +1,16 @@
+#!/bin/sh
+TEST=`basename $0 | cut -d- -f1`
+TESTDIR=`mktemp -d` || exit 1
+
+./pad 400k $TESTDIR/a || exit 1
+./pad 400k $TESTDIR/b || exit 1
+./pad 400k $TESTDIR/c || exit 1
+
+echo Created 3 files >$TEST.out
+
+$PATH_SCRUB $TESTDIR/* 2>&1 \
+	| sed -e "s!${TESTDIR}!file!" 2>&1 >>$TEST.out|| exit 1
+
+rm -r $TESTDIR
+
+diff $TEST.exp $TEST.out >$TEST.diff
