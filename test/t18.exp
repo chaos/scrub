@@ -1,0 +1,200 @@
+scrub: created directory testdir/foo
+scrub: using NNSA NAP-14.1-C patterns
+scrub: scrubbing testdir/foo/scrub.000 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.001 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.002 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.003 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.004 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.005 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.006 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.007 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.008 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.009 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.010 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.011 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.012 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.013 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.014 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.015 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.016 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.017 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.018 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.019 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.020 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.021 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.022 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.023 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.024 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.025 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.026 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.027 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.028 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.029 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.030 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.031 1048576 bytes (~1024KB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testdir/foo/scrub.032 1048576 bytes (~1024KB)
+scrub: random  |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+scrub: file system is full (0 bytes written)
+scrub: unlinked testdir/foo/scrub.032
+scrub: unlinked testdir/foo/scrub.031
+scrub: unlinked testdir/foo/scrub.030
+scrub: unlinked testdir/foo/scrub.029
+scrub: unlinked testdir/foo/scrub.028
+scrub: unlinked testdir/foo/scrub.027
+scrub: unlinked testdir/foo/scrub.026
+scrub: unlinked testdir/foo/scrub.025
+scrub: unlinked testdir/foo/scrub.024
+scrub: unlinked testdir/foo/scrub.023
+scrub: unlinked testdir/foo/scrub.022
+scrub: unlinked testdir/foo/scrub.021
+scrub: unlinked testdir/foo/scrub.020
+scrub: unlinked testdir/foo/scrub.019
+scrub: unlinked testdir/foo/scrub.018
+scrub: unlinked testdir/foo/scrub.017
+scrub: unlinked testdir/foo/scrub.016
+scrub: unlinked testdir/foo/scrub.015
+scrub: unlinked testdir/foo/scrub.014
+scrub: unlinked testdir/foo/scrub.013
+scrub: unlinked testdir/foo/scrub.012
+scrub: unlinked testdir/foo/scrub.011
+scrub: unlinked testdir/foo/scrub.010
+scrub: unlinked testdir/foo/scrub.009
+scrub: unlinked testdir/foo/scrub.008
+scrub: unlinked testdir/foo/scrub.007
+scrub: unlinked testdir/foo/scrub.006
+scrub: unlinked testdir/foo/scrub.005
+scrub: unlinked testdir/foo/scrub.004
+scrub: unlinked testdir/foo/scrub.003
+scrub: unlinked testdir/foo/scrub.002
+scrub: unlinked testdir/foo/scrub.001
+scrub: unlinked testdir/foo/scrub.000
+scrub: removed testdir/foo
+scrub exited with rc=0

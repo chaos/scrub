@@ -20,6 +20,7 @@ t14 - Verify that content of a 4M reg file is fully overwritten
 t15 - Scrub a 400K reg file with 16ch custom pattern, and verify with od
 t16 - Make sure --dry-run doesn't write
 t17 - Scrub mult. files using default options
+t18 - Scrub -X on a small tmpfs file system (Linux only)
 
 Note about test driver:
 
