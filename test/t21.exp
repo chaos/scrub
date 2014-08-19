@@ -1,0 +1,19 @@
+scrub: using NNSA NAP-14.1-C patterns
+scrub: please verify that device size below is correct!
+scrub: scrubbing loopfile1 33554432 bytes (~32MB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: please verify that device size below is correct!
+scrub: scrubbing loopfile2 67108864 bytes (~64MB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub: scrubbing testfile3 134217728 bytes (~128MB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+scrub exited with rc=0
