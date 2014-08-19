@@ -31,3 +31,22 @@ file, so we have to make sure these can run without root, and complete
 in a reasonably short time.  We can have exceptions to this for
 one-off testing as long as they exit 77 (SKIP exit code) when they are
 not being run with appropriate access (see t09, t10).
+
+Test utils:
+
+pad - create a sparse file of some size
+    Usage:   ./pad size filename
+    Example: ./pad 5g /tmp/foo
+
+tgetsize - get file size / parse file size
+    Usage:   ./tgetsize filename
+             ./tgetsize size
+    Example: ./tgetsize /dev/sda1
+             524288000 bytes (~500MB)
+             ./tgetsize 4k
+             4096 bytes
+
+tsize - stat a file and report its size in bytes
+    Usage:   ./tsize filename
+    Example: ./tsize /tmp/foo
+             5368709120
