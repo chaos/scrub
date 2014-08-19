@@ -2,25 +2,29 @@
 
 # This is a special test to be run on the author's test systems.
 
-EXPFILE=t10-`hostname`.exp
+TEST=`basename $0 | cut -d- -f1`
+# Test requires root
+test `id -u` == 0 || exit 77
+
+EXPFILE=${TEST}-`hostname`.exp
 test -f $EXPFILE || exit 77
 
 case `hostname` in
     manbearpig)
-        sudo ./tgetsize /dev/rhdisk0 >t10.out 2>&1
+        ./tgetsize /dev/rhdisk0 >t10.out 2>&1
         ;;
     cartman)
-        sudo ./tgetsize /dev/sda1 >t10.out 2>&1
-        sudo ./tgetsize /dev/mapper/VolGroup00-LogVol00 >>t10.out 2>&1
+        ./tgetsize /dev/sda1 >t10.out 2>&1
+        ./tgetsize /dev/mapper/VolGroup00-LogVol00 >>t10.out 2>&1
         ;;
     jimmy)
-        sudo ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
+        ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
         ;;
     timmy)
-        sudo ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
+        ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
         ;;
     marklar)
-        sudo ./tgetsize /dev/rdisk1s3 >t10.out 2>&1
+        ./tgetsize /dev/rdisk1s3 >t10.out 2>&1
         ;;
 esac
-diff $EXPFILE t10.out >t10.diff
+diff $EXPFILE $TEST.out >$TEST.diff
