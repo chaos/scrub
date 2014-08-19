@@ -10,20 +10,20 @@ EXPFILE=${TEST}-`hostname`.exp
 test -f $EXPFILE || exit 77
 
 case `hostname` in
-    manbearpig)
+    manbearpig)	# AIX
         ./tgetsize /dev/rhdisk0 >t10.out 2>&1
         ;;
-    cartman)
+    cartman)	# debian
         ./tgetsize /dev/sda1 >t10.out 2>&1
         ./tgetsize /dev/mapper/VolGroup00-LogVol00 >>t10.out 2>&1
         ;;
-    jimmy)
+    jimmy)	# Solaris
         ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
         ;;
-    timmy)
+    timmy)      # Solaris
         ./tgetsize /dev/rdsk/c1t0d0s0 >t10.out 2>&1
         ;;
-    marklar)
+    marklar)	# OS/X
         ./tgetsize /dev/rdisk1s3 >t10.out 2>&1
         ;;
 esac

@@ -1,0 +1,4 @@
+Created 3 files
+scrub: testdir/nonexistent does not exist
+scrub: no files were scrubbed
+scrub: using NNSA NAP-14.1-C patterns
