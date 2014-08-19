@@ -21,6 +21,7 @@ t15 - Scrub a 400K reg file with 16ch custom pattern, and verify with od
 t16 - Make sure --dry-run doesn't write
 t17 - Scrub mult. files using default options
 t18 - Scrub -X on a small tmpfs file system (Linux only)
+t19 - Scrub a small loopback device in /tmp (Linux only)
 
 Note about test driver:
 

@@ -1,0 +1,18 @@
+#!/bin/sh
+TEST=`basename $0 | cut -d- -f1`
+# Test requires root
+test `id -u` == 0 || exit 77
+LOOPFILE=`losetup -f` || exit 77
+TESTFILE=`mktemp` || exit 1
+
+./pad 4m $TESTFILE || exit 1
+losetup $LOOPFILE $TESTFILE || exit 1
+
+$PATH_SCRUB $LOOPFILE 2>&1 \
+	| sed -e "s!${LOOPFILE}!loopfile!" 2>&1 >$TEST.out
+echo "scrub exited with rc=$?" >>$TEST.out
+
+losetup --detach $LOOPFILE
+rm -f $TESTFILE
+
+diff $TEST.exp $TEST.out >$TEST.diff
