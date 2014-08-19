@@ -522,13 +522,12 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             isfull = true; 
             size = written;
             if (size == 0) {
-                fprintf(stderr, "%s: file system is full (0 bytes written)\n",
-                        prog);
+                printf("%s: file system is full (0 bytes written)\n", prog);
                 break;
             }
         }
     }
-    if (!nosig) {
+    if (!nosig && written > 0) {
         if (writesig(path) < 0) {
             fprintf(stderr, "%s: writing signature to %s: %s\n", prog,
                     path, strerror (errno));
@@ -604,12 +603,12 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
         if (unlink(path) < 0)
             fprintf(stderr, "%s: unlink %s: %s\n", prog, path, strerror(errno));
         else
-            fprintf(stderr, "%s: unlinked %s\n", prog, path);
+            printf("%s: unlinked %s\n", prog, path);
     }
     if (rmdir(dirpath) < 0)
         fprintf(stderr, "%s: rmdir %s: %s\n", prog, dirpath, strerror(errno));
     else
-        fprintf(stderr, "%s: removed %s\n", prog, dirpath);
+        printf("%s: removed %s\n", prog, dirpath);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
