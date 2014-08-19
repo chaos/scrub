@@ -24,6 +24,7 @@ t18 - Scrub -X on a small tmpfs file system (Linux only)
 t19 - Scrub a small loopback device in /tmp (Linux only)
 t20 - Scrub a 5G loopback device in /tmp with --test-sparse (Linux only)
 t21 - Scrub 2 loops and a reg on one command line (Linux only)
+t22 - Scrub 4 files, one nonexistent
 
 Note about test driver:
 
