@@ -22,6 +22,7 @@ t16 - Make sure --dry-run doesn't write
 t17 - Scrub mult. files using default options
 t18 - Scrub -X on a small tmpfs file system (Linux only)
 t19 - Scrub a small loopback device in /tmp (Linux only)
+t20 - Scrub a 5G loopback device in /tmp with --test-sparse (Linux only)
 
 Note about test driver:
 
