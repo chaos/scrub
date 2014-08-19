@@ -1,33 +1,23 @@
 # http://www.gnu.org/software/automake
 Makefile.in
 # http://www.gnu.org/software/autoconf
-/autom4te.cache
-/compile
-/configure
-/aclocal.m4
-/config/stamp-h1
-/config/aclocal.m4
-/config/config.guess
-/config/config.sub
-/config/depcomp
-/config/install-sh
-/config/ltmain.sh
-/config/missing
-/Makefile
-/config.log
-/config.status
-/config/config.h
-/libscrub/.deps/
-/libscrub/Makefile
-/libscrub/libscrub.pc
-/libtool
-/man/Makefile
-/man/scrub.1
-/scrub.spec
-/src/.deps/
-/src/Makefile
-/test/.deps/
-/test/Makefile
+autom4te.cache
+compile
+configure
+aclocal.m4
+stamp-h1
+aclocal.m4
+config.guess
+config.sub
+depcomp
+install-sh
+ltmain.sh
+missing
+config.log
+config.status
+config.h
+libtool
+.deps/
 
 # Object files
 *.o
@@ -52,11 +42,8 @@ Makefile.in
 *.x86_64
 *.hex
 
-# src subdir
+# Project specific build products
 scrub
-
-# test subdir
-*.diff
 aestest
 pad
 pat
@@ -65,3 +52,12 @@ tprogress
 trand
 tsig
 tsize
+
+# autoconf-preprocessed
+Makefile
+*.1
+*.spec
+*.pc
+
+
+*.diff
