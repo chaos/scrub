@@ -1,3 +1,5 @@
+# Scrub 
+
 Scrub  iteratively  writes  patterns  on  files or disk devices to make
 retrieving the data more difficult.
 
@@ -12,64 +14,48 @@ or block special file.  This is the most effective method.
 2)  A  regular  file  is  scrubbed  and only the data in the file (and
 optionally its name in the directory entry)  is destroyed.   The  file
 size  is  rounded up to fill out the last file system block.  This mode
-is selected if file is a regular file.  See CAVEATS below.
+is selected if file is a regular file.  See Caveats below.
 
 3) directory is created and filled with files until the file system  is
 full,  then the files are scrubbed as in 2). This mode is selected with
-the -X option.  See CAVEATS below.
+the -X option.  See Caveats below.
 
 ## Methods
 
 Scrub supports a number of standard overwrite methods.
 A subset is listed below:
 
-#### nnsa
-
-4-pass NNSA Policy  Letter  NAP-14.1-C  (XVI-8)  for  sanitizing
+*nnsa* - 4-pass NNSA Policy  Letter  NAP-14.1-C  (XVI-8)  for  sanitizing
 removable and non-removable hard disks, which requires overwrit-
 ing all locations with a pseudorandom  pattern  twice  and  then
 with a known pattern: random(x2), 0x00, verify.
 
-#### dod
-
-4-pass  DoD 5220.22-M section 8-306 procedure (d) for sanitizing
+*dod* - 4-pass  DoD 5220.22-M section 8-306 procedure (d) for sanitizing
 removable and non-removable rigid disks which requires overwrit-
 ing  all addressable locations with a character, its complement,
-a random character, then verify.	NOTE: scrub performs the  ran-
+a random character, then verify.  NOTE: scrub performs the  ran-
 dom  pass first to make verification easier: random, 0x00, 0xff,
 verify.
 
-#### bsi
-
-9-pass method recommended by the German Center  of  Security  in
+*bsi* - 9-pass method recommended by the German Center  of  Security  in
 Information  Technologies	 (http://www.bsi.bund.de): 0xff, 0xfe,
 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f.
 
-#### gutmann
+*gutmann* - The canonical 35-pass  sequence  described  in  Gutmann’s
+paper cited below.
 
-The canonical 35-pass  sequence  described  in  Gutmann’s	 paper
-cited below.
+*schneier* - 7-pass method described by Bruce Schneier in
+_Applied Cryptography_ (1996): 0x00, 0xff, random(x5)
 
-#### schneier
+*pfitzner7* - Roy Pfitzner’s 7-random-pass method: random(x7).
 
-7-pass method described by Bruce Schneier in "Applied Cryptogra-
-phy" (1996): 0x00, 0xff, random(x5)
+*pfitzner33* - Roy Pfitzner’s 33-random-pass method: random(x33).
 
-#### pfitzner7
+*usarmy* - US Army AR380-19 method: 0x00, 0xff, random.
+(Note:  identical to  DoD 522.22-M section 8-306 procedure (e)
+for sanitizing magnetic core memory).
 
-Roy Pfitzner’s 7-random-pass method: random(x7).
-
-#### pfitzner33
-
-Roy Pfitzner’s 33-random-pass method: random(x33).
-
-#### usarmy
-
-US Army AR380-19 method: 0x00, 0xff, random.   (Note:  identical
-to  DoD 522.22-M section 8-306 procedure (e) for sanitizing mag-
-netic core memory).
-
-## Cavests
+## Caveats 
 
 Scrub may be insufficient to thwart heroic efforts to recover  data  in
 an  appropriately  equipped lab.  If you need this level of protection,
