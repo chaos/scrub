@@ -1,0 +1,292 @@
+Scrub Quick Start
+
+For those in a rush, here's how to get scrub working.
+Download the latest release tarball and do the following to build scrub:
+
+$ tar xvf scrub-2.6.0.tar.gz
+scrub-2.6.0/
+scrub-2.6.0/NEWS
+scrub-2.6.0/test/
+scrub-2.6.0/test/t02
+scrub-2.6.0/test/t10.exp
+scrub-2.6.0/test/t07.exp
+scrub-2.6.0/test/t13.exp
+scrub-2.6.0/test/t15.exp
+scrub-2.6.0/test/t00.exp
+scrub-2.6.0/test/pat.c
+scrub-2.6.0/test/t05.exp
+scrub-2.6.0/test/t18.exp
+scrub-2.6.0/test/t17.exp
+scrub-2.6.0/test/t20.exp
+scrub-2.6.0/test/t03
+scrub-2.6.0/test/t04.exp
+scrub-2.6.0/test/t22.exp
+scrub-2.6.0/test/t02.exp
+scrub-2.6.0/test/t08
+scrub-2.6.0/test/t06.exp
+scrub-2.6.0/test/t04
+scrub-2.6.0/test/t14.exp
+scrub-2.6.0/test/t11.exp
+scrub-2.6.0/test/README
+scrub-2.6.0/test/Makefile.am
+scrub-2.6.0/test/t09
+scrub-2.6.0/test/tsig.c
+scrub-2.6.0/test/t21.exp
+scrub-2.6.0/test/t01.exp
+scrub-2.6.0/test/t03.exp
+scrub-2.6.0/test/t12
+scrub-2.6.0/test/t16
+scrub-2.6.0/test/t07
+scrub-2.6.0/test/t16.exp
+scrub-2.6.0/test/tgetsize.c
+scrub-2.6.0/test/tsize.c
+scrub-2.6.0/test/t15
+scrub-2.6.0/test/t19.exp
+scrub-2.6.0/test/tprogress.c
+scrub-2.6.0/test/t17
+scrub-2.6.0/test/t20
+scrub-2.6.0/test/Makefile.in
+scrub-2.6.0/test/t21
+scrub-2.6.0/test/trand.c
+scrub-2.6.0/test/t00
+scrub-2.6.0/test/t18
+scrub-2.6.0/test/t01
+scrub-2.6.0/test/t12.exp
+scrub-2.6.0/test/t19
+scrub-2.6.0/test/t08.exp
+scrub-2.6.0/test/t13
+scrub-2.6.0/test/t22
+scrub-2.6.0/test/t14
+scrub-2.6.0/test/pad.c
+scrub-2.6.0/test/t11
+scrub-2.6.0/test/t09.exp
+scrub-2.6.0/test/t05
+scrub-2.6.0/test/aestest.c
+scrub-2.6.0/test/t10
+scrub-2.6.0/test/t06
+scrub-2.6.0/scrub.spec
+scrub-2.6.0/AUTHORS
+scrub-2.6.0/aclocal.m4
+scrub-2.6.0/ChangeLog
+scrub-2.6.0/README
+scrub-2.6.0/configure.ac
+scrub-2.6.0/Makefile.am
+scrub-2.6.0/configure
+scrub-2.6.0/src/
+scrub-2.6.0/src/hwrand.h
+scrub-2.6.0/src/hwrand.c
+scrub-2.6.0/src/sig.c
+scrub-2.6.0/src/pattern.h
+scrub-2.6.0/src/genrand.h
+scrub-2.6.0/src/util.h
+scrub-2.6.0/src/fillfile.c
+scrub-2.6.0/src/getsize.c
+scrub-2.6.0/src/Makefile.am
+scrub-2.6.0/src/scrub.c
+scrub-2.6.0/src/aes.h
+scrub-2.6.0/src/sig.h
+scrub-2.6.0/src/getsize.h
+scrub-2.6.0/src/util.c
+scrub-2.6.0/src/fillfile.h
+scrub-2.6.0/src/filldentry.h
+scrub-2.6.0/src/Makefile.in
+scrub-2.6.0/src/pattern.c
+scrub-2.6.0/src/progress.c
+scrub-2.6.0/src/filldentry.c
+scrub-2.6.0/src/progress.h
+scrub-2.6.0/src/aes.c
+scrub-2.6.0/src/genrand.c
+scrub-2.6.0/man/
+scrub-2.6.0/man/Makefile.am
+scrub-2.6.0/man/scrub.1
+scrub-2.6.0/man/scrub.1.in
+scrub-2.6.0/man/Makefile.in
+scrub-2.6.0/scrub.spec.in
+scrub-2.6.0/INSTALL
+scrub-2.6.0/Makefile.in
+scrub-2.6.0/META
+scrub-2.6.0/COPYING
+scrub-2.6.0/DISCLAIMER
+scrub-2.6.0/libscrub/
+scrub-2.6.0/libscrub/libscrub.map
+scrub-2.6.0/libscrub/scrub.h
+scrub-2.6.0/libscrub/README
+scrub-2.6.0/libscrub/Makefile.am
+scrub-2.6.0/libscrub/Makefile.in
+scrub-2.6.0/libscrub/libscrub.c
+scrub-2.6.0/libscrub/libscrub.pc.in
+scrub-2.6.0/libscrub/tscrub.c
+scrub-2.6.0/config/
+scrub-2.6.0/config/ac_pkgconfig.m4
+scrub-2.6.0/config/ltmain.sh
+scrub-2.6.0/config/config.h.in
+scrub-2.6.0/config/depcomp
+scrub-2.6.0/config/config.sub
+scrub-2.6.0/config/x_ac_expand_install_dirs.m4
+scrub-2.6.0/config/x_ac_check_pthreads.m4
+scrub-2.6.0/config/x_ac_meta.m4
+scrub-2.6.0/config/config.guess
+scrub-2.6.0/config/install-sh
+scrub-2.6.0/config/missing
+$
+$ cd scrub-2.6.0
+$ ./configure
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking target system type... x86_64-unknown-linux-gnu
+checking metadata... yes
+checking installation directory variables... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking for style of include used by make... GNU
+checking dependency style of gcc... gcc3
+checking how to run the C preprocessor... gcc -E
+checking for grep that handles long lines and -e... /bin/grep
+checking for egrep... /bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for ANSI C header files... (cached) yes
+checking getopt.h usability... yes
+checking getopt.h presence... yes
+checking for getopt.h... yes
+checking stdbool.h usability... yes
+checking stdbool.h presence... yes
+checking for stdbool.h... yes
+checking pthread.h usability... yes
+checking pthread.h presence... yes
+checking for pthread.h... yes
+checking for a sed that does not truncate output... /bin/sed
+checking for fgrep... /bin/grep -F
+checking for ld used by gcc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 1966080
+checking whether the shell understands some XSI constructs... yes
+checking whether the shell understands "+="... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for ar... ar
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from gcc object... ok
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if gcc supports -fno-rtti -fno-exceptions... no
+checking for gcc option to produce PIC... -fPIC -DPIC
+checking if gcc PIC flag -fPIC -DPIC works... yes
+checking if gcc static flag -static works... yes
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.o... (cached) yes
+checking whether the gcc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking whether to install pkg-config *.pc files... ${libdir}/pkgconfig
+checking whether byte ordering is bigendian... no
+checking for an ANSI C-conforming const... yes
+checking for getopt_long... yes
+checking for posix_memalign... yes
+checking for memalign... yes
+checking for posix_fadvise... yes
+checking for rand_r... yes
+checking for random_r... yes
+checking how to link against pthreads... -lpthread
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating scrub.spec
+config.status: creating src/Makefile
+config.status: creating man/Makefile
+config.status: creating man/scrub.1
+config.status: creating test/Makefile
+config.status: creating libscrub/Makefile
+config.status: creating libscrub/libscrub.pc
+config.status: creating config/config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+$
+$ make
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT aes.o -MD -MP -MF .deps/aes.Tpo -c -o aes.o aes.c
+mv -f .deps/aes.Tpo .deps/aes.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT filldentry.o -MD -MP -MF .deps/filldentry.Tpo -c -o filldentry.o filldentry.c
+mv -f .deps/filldentry.Tpo .deps/filldentry.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT fillfile.o -MD -MP -MF .deps/fillfile.Tpo -c -o fillfile.o fillfile.c
+mv -f .deps/fillfile.Tpo .deps/fillfile.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT genrand.o -MD -MP -MF .deps/genrand.Tpo -c -o genrand.o genrand.c
+mv -f .deps/genrand.Tpo .deps/genrand.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT getsize.o -MD -MP -MF .deps/getsize.Tpo -c -o getsize.o getsize.c
+mv -f .deps/getsize.Tpo .deps/getsize.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT hwrand.o -MD -MP -MF .deps/hwrand.Tpo -c -o hwrand.o hwrand.c
+mv -f .deps/hwrand.Tpo .deps/hwrand.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT pattern.o -MD -MP -MF .deps/pattern.Tpo -c -o pattern.o pattern.c
+mv -f .deps/pattern.Tpo .deps/pattern.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT progress.o -MD -MP -MF .deps/progress.Tpo -c -o progress.o progress.c
+mv -f .deps/progress.Tpo .deps/progress.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT scrub.o -MD -MP -MF .deps/scrub.Tpo -c -o scrub.o scrub.c
+mv -f .deps/scrub.Tpo .deps/scrub.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT sig.o -MD -MP -MF .deps/sig.Tpo -c -o sig.o sig.c
+mv -f .deps/sig.Tpo .deps/sig.Po
+gcc -DHAVE_CONFIG_H -I. -I../config     -g -O2 -MT util.o -MD -MP -MF .deps/util.Tpo -c -o util.o util.c
+mv -f .deps/util.Tpo .deps/util.Po
+/bin/sh ../libtool --tag=CC   --mode=link gcc  -g -O2   -o scrub aes.o filldentry.o fillfile.o genrand.o getsize.o hwrand.o pattern.o progress.o scrub.o sig.o util.o -lpthread 
+libtool: link: gcc -g -O2 -o scrub aes.o filldentry.o fillfile.o genrand.o getsize.o hwrand.o pattern.o progress.o scrub.o sig.o util.o  -lpthread
+make[1]: Leaving directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0/src'
+Making all in man
+make[1]: Entering directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0/man'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0/man'
+Making all in test
+make[1]: Entering directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0/test'
+make[1]: Nothing to be done for `all'.
+make[1]: Leaving directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0/test'
+make[1]: Entering directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0'
+make[1]: Nothing to be done for `all-am'.
+make[1]: Leaving directory `/home/garlick/proj/scrub/scrub/scrub-2.6.0'
+$
+
+To scrub the second partition on Linux disk /dev/sda using default NNSA
+algorithm, do the following.  Note that for normal SATA disks this will
+take some time.
+
+$ src/scrub /dev/sda2
+scrub: using NNSA NAP-14.1-C patterns
+scrub: please verify that device size below is correct!
+scrub: scrubbing /dev/sda2 6234762240 bytes (~5GB)
+scrub: random  |................................................|
+scrub: random  |................................................|
+scrub: 0x00    |................................................|
+scrub: verify  |................................................|
+$
