@@ -26,4 +26,4 @@ tgetsize_SOURCES = tgetsize.c $(common_sources)
 tsig_SOURCES = tsig.c $(common_sources)
 pat_SOURCES = pat.c $(common_sources)
 
-EXTRA_DIST = $(TESTS) $(TESTS:%=%.exp) t10-cartman.exp t10-jimmy.exp t10-manbearpig.exp t10-marklar.exp t10-timmy.exp
+EXTRA_DIST = $(TESTS) $(TESTS:%=%.exp)
