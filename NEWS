@@ -1,4 +1,28 @@
 ========================================================================
+scrub-2.6.0 Release Notes                                     2014-08-20
+========================================================================
+
+* Added support for multiple file/device arguments [Peter Hyman]
+
+* Added --dry-run option
+
+* Handle incorrect octal esc in custom pattern (issue 28)
+
+* Dont truncate custom pattern in display (issue 27)
+
+* Add 'verify' pattern:  Quick Fill with 0x00 and verify (issue 22)
+
+* Add unit test coverage for -X, --dry-run, multiple files.
+
+* Untrack and ignore generated files in git (issue 15)
+
+* Project repository:  migrated source/releases to github, restored
+  pre-v2.2 history from sourceforge;  retain Google Code issue tracker
+  and wiki for now.
+
+* Doc update: README.md, tests/README, AUTHORS, source code headers.
+
+========================================================================
 scrub-2.5.3 Release Notes                                     2014-05-20
 ========================================================================
 
