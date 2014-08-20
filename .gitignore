@@ -61,3 +61,5 @@ Makefile
 
 
 *.diff
+*.swp
+*.tar.gz
