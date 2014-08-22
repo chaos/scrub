@@ -7,6 +7,7 @@ rm -f $TESTFILE
 od -c $TESTFILE >$TEST.out || exit 1
 
 $PATH_SCRUB --dry-run -p fillff $TESTFILE 2>&1 \
+		| sed -e "/res fork/d" \
 		| sed -e "s!${TESTFILE}!file!" 2>&1 >>$TEST.out|| exit 1
 
 od -c $TESTFILE >>$TEST.out || exit 1
