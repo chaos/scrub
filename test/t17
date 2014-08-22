@@ -1,6 +1,7 @@
 #!/bin/sh
 TEST=`basename $0 | cut -d- -f1`
-TESTDIR=`mktemp -d` || exit 1
+TMPLATE="${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"
+TESTDIR=`mktemp -d $TMPLATE` || exit 1
 
 ./pad 400k $TESTDIR/a || exit 1
 ./pad 400k $TESTDIR/b || exit 1

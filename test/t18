@@ -3,7 +3,8 @@ TEST=`basename $0 | cut -d- -f1`
 # Test requires root
 test `id -u` == 0 || exit 77
 
-TESTDIR=`mktemp -d` || exit 1
+TMPLATE="${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"
+TESTDIR=`mktemp -d $TMPLATE` || exit 1
 mount -t tmpfs -o size=32m scrubtest $TESTDIR || exit 77
 
 $PATH_SCRUB -s 1m -X $TESTDIR/foo 2>&1 \

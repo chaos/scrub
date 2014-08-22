@@ -12,4 +12,5 @@ $PATH_SCRUB --dry-run -p fillff $TESTFILE 2>&1 \
 od -c $TESTFILE >>$TEST.out || exit 1
 
 unlink $TESTFILE || exit 1
-diff $TEST.exp $TEST.out >$TEST.diff
+# -b is needed b/c od spacing is different on OS/X (issue 31)
+diff -b $TEST.exp $TEST.out >$TEST.diff
