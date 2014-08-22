@@ -701,7 +701,7 @@ scrub_resfork(char *path, const struct opt_struct *opt)
         printf("%s: padding %s with %d bytes to fill last fs block\n", 
                         prog, rpath, (int)(rsize - rsb.st_size)); 
     }
-    scrub(rpath, rsize, opt->seq, opt->bufsize, false, false, false);
+    scrub(rpath, rsize, opt->seq, opt->blocksize, false, false, false);
 }
 #endif
 
