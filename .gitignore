@@ -16,6 +16,8 @@ missing
 config.log
 config.status
 config.h
+config.h.in
+config.h.in~
 libtool
 .deps/
 
