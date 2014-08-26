@@ -34,6 +34,7 @@ AM_CONDITIONAL(LIBSCRUB, test x$libscrub = xtrue)
 # Checks for programs
 ##
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 ##
 # Checks for header files.
