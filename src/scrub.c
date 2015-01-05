@@ -577,12 +577,12 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
     off_t size = opt->devsize;
 
     if (mkdir(dirpath, 0755) < 0) {
-        fprintf(stderr, "%s: mkdir %s: %s\n", prog, path, strerror(errno));
+        fprintf(stderr, "%s: mkdir %s: %s\n", prog, dirpath, strerror(errno));
         exit(1);
     } 
     fprintf (stderr, "%s: created directory %s\n", prog, dirpath);
     if (stat(dirpath, &sb) < 0) {
-        fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));
+        fprintf(stderr, "%s: stat %s: %s\n", prog, dirpath, strerror(errno));
         exit(1);
     } 
     if (getuid() == 0)
