@@ -118,7 +118,7 @@ usage(void)
 "  -p, --pattern pat       select scrub pattern sequence\n"
 "  -b, --blocksize size    set I/O buffer size (default 4m)\n"
 "  -s, --device-size size  set device size manually\n"
-"  -X, --freespace dir     create tempdir under dir, fill with files and scrub until ENOSPC\n"
+"  -X, --freespace basedir create temporary dir under basedir, fill with files and scrub until ENOSPC\n"
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
 "  -f, --force             scrub despite signature from previous scrub\n"
 "  -S, --no-signature      do not write scrub signature after scrub\n"
