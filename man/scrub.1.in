@@ -9,7 +9,7 @@ scrub \- write patterns on disk/file
 .I "[OPTIONS] file [file ...]"
 .br
 .B scrub
-.I "-X [OPTIONS] directory"
+.I "-X basedir [OPTIONS]"
 .SH DESCRIPTION
 .B Scrub
 iteratively writes patterns on files or disk devices
@@ -30,9 +30,9 @@ This mode is selected if
 is a regular file.  
 See CAVEATS below.
 .LP
-3) 
-.I "directory"
-is created and filled with files until the file system is full, 
+3) A temporary directory is created under 
+.I "basedir"
+,which must exist, and is filled with files until the file system is full, 
 then the files are scrubbed as in 2). This mode is selected with the
 .I "-X" 
 option.  See CAVEATS below.

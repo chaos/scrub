@@ -118,7 +118,7 @@ usage(void)
 "  -p, --pattern pat       select scrub pattern sequence\n"
 "  -b, --blocksize size    set I/O buffer size (default 4m)\n"
 "  -s, --device-size size  set device size manually\n"
-"  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
+"  -X, --freespace basedir create temporary dir under basedir, fill with files and scrub until ENOSPC\n"
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
 "  -f, --force             scrub despite signature from previous scrub\n"
 "  -S, --no-signature      do not write scrub signature after scrub\n"
@@ -232,7 +232,7 @@ main(int argc, char *argv[])
     if (argc == optind)
         usage();
     if (Xopt && argc - optind > 1) {
-        fprintf(stderr, "%s: -X only takes one directory name\n", prog);
+        fprintf(stderr, "%s: -X only takes one directory name plus pattern\n", prog);
         exit(1);
     }
     if (opt.dirent && argc - optind > 1) {
@@ -251,10 +251,11 @@ main(int argc, char *argv[])
         disable_threads();
 
     /* Scrub free space
+     * Feb 2015: -X takes a base directory argument which must exist.
      */
     if (Xopt) {
-        if (filetype(argv[optind]) != FILE_NOEXIST) {
-            fprintf(stderr, "%s: -X directory already exists\n", prog);
+        if (filetype(argv[optind]) == FILE_NOEXIST) {
+            fprintf(stderr, "%s: -X base diirectory %s does not exists\n", prog, argv[optind]);
             exit(1);
         }
         if (opt.dirent) {
@@ -566,25 +567,35 @@ set_rlimit_fsize(off_t val)
 
 /* Scrub free space (-X) by creating a directory, then filling it
  * with opt->devsize length files (use RLIMIT_FSIZE if no opt->devsize).
+ * Feb 2015: scrub_free will now create a subdirectory under *dirpath.
  */
 static void
 scrub_free(char *dirpath, const struct opt_struct *opt)
 {
-    char path[MAXPATHLEN];
+    char path[MAXPATHLEN];      /* will hold path to free space dir */
+    char freespacedir[13];      /* Template Pattern */
     int fileno = 0;
     struct stat sb;
     bool isfull;
     off_t size = opt->devsize;
 
-    if (mkdir(dirpath, 0755) < 0) {
-        fprintf(stderr, "%s: mkdir %s: %s\n", prog, dirpath, strerror(errno));
+    /* Chdir to dirpath. Remain here throughout. */
+    if (chdir(dirpath) < 0) {
+        fprintf(stderr, "%s: chdir %s: %s\n", prog, dirpath, strerror(errno));
+        exit(1);
+    }
+    /* Create temp directory */
+    strcpy(freespacedir,"scrub.XXXXXX");
+    if (mkdtemp(freespacedir) == NULL) {
+        fprintf(stderr, "%s: mkdtemp %s: %s\n", prog, freespacedir, strerror(errno));
         exit(1);
     } 
-    fprintf (stderr, "%s: created directory %s\n", prog, dirpath);
-    if (stat(dirpath, &sb) < 0) {
-        fprintf(stderr, "%s: stat %s: %s\n", prog, dirpath, strerror(errno));
+    fprintf (stderr, "%s: created directory %s/%s\n", prog, dirpath, freespacedir);
+    if (stat(freespacedir, &sb) < 0) {
+        fprintf(stderr, "%s: stat %s: %s\n", prog, freespacedir, strerror(errno));
         exit(1);
     } 
+
     if (getuid() == 0)
         set_rlimit_fsize(RLIM_INFINITY);
     if (size == 0)
@@ -592,22 +603,24 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
     if (size == 0)
         size = 1024*1024*1024;
     size = blkalign(size, sb.st_blksize, DOWN);
+
+    /* construct relative path to temp directory in snprintf */
     do {
-        snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno++);
+        snprintf(path, sizeof(path), "%s/scrub.%.3d", freespacedir, fileno++);
         isfull = scrub(path, size, opt->seq, opt->blocksize, opt->nosig,
                        false, true);
     } while (!isfull);
     while (--fileno >= 0) {
-        snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno);
+        snprintf(path, sizeof(path), "%s/scrub.%.3d", freespacedir, fileno);
         if (unlink(path) < 0)
             fprintf(stderr, "%s: unlink %s: %s\n", prog, path, strerror(errno));
         else
             printf("%s: unlinked %s\n", prog, path);
     }
-    if (rmdir(dirpath) < 0)
-        fprintf(stderr, "%s: rmdir %s: %s\n", prog, dirpath, strerror(errno));
+    if (rmdir(freespacedir) < 0)
+        fprintf(stderr, "%s: rmdir %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
     else
-        printf("%s: removed %s\n", prog, dirpath);
+        printf("%s: removed %s/%s\n", prog, dirpath, freespacedir);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
