@@ -253,8 +253,8 @@ main(int argc, char *argv[])
     /* Scrub free space
      */
     if (Xopt) {
-        if (filetype(argv[optind]) != FILE_NOEXIST) {
-            fprintf(stderr, "%s: -X directory already exists\n", prog);
+        if (filetype(argv[optind]) == FILE_NOEXIST) {
+            fprintf(stderr, "%s: -X directory %s does not exist\n", prog, argv[optind]);
             exit(1);
         }
         if (opt.dirent) {
@@ -566,25 +566,34 @@ set_rlimit_fsize(off_t val)
 
 /* Scrub free space (-X) by creating a directory, then filling it
  * with opt->devsize length files (use RLIMIT_FSIZE if no opt->devsize).
+ * Feb 2015: scrub_free now creates a subdirectory under *dirpath.
  */
 static void
 scrub_free(char *dirpath, const struct opt_struct *opt)
 {
     char path[MAXPATHLEN];
+    char freespacedir[]="scrub.XXXXXX";
     int fileno = 0;
     struct stat sb;
     bool isfull;
     off_t size = opt->devsize;
 
-    if (mkdir(dirpath, 0755) < 0) {
-        fprintf(stderr, "%s: mkdir %s: %s\n", prog, dirpath, strerror(errno));
+    /* Chdir to dirpath. Remain here throughout. */
+    if (chdir(dirpath) < 0) {
+        fprintf(stderr, "%s: chdir %s: %s\n", prog, dirpath, strerror(errno));
+        exit(1);
+    }
+    /* Create temp directory */
+    if (mkdtemp(freespacedir) == NULL) {
+        fprintf(stderr, "%s: mkdtemp %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
         exit(1);
     } 
-    fprintf (stderr, "%s: created directory %s\n", prog, dirpath);
-    if (stat(dirpath, &sb) < 0) {
-        fprintf(stderr, "%s: stat %s: %s\n", prog, dirpath, strerror(errno));
+    fprintf (stderr, "%s: created directory %s/%s\n", prog, dirpath, freespacedir);
+    if (stat(freespacedir, &sb) < 0) {
+        fprintf(stderr, "%s: stat %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
         exit(1);
     } 
+    
     if (getuid() == 0)
         set_rlimit_fsize(RLIM_INFINITY);
     if (size == 0)
@@ -593,21 +602,21 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
         size = 1024*1024*1024;
     size = blkalign(size, sb.st_blksize, DOWN);
     do {
-        snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno++);
+        snprintf(path, sizeof(path), "%s/scrub.%.3d", freespacedir, fileno++);
         isfull = scrub(path, size, opt->seq, opt->blocksize, opt->nosig,
                        false, true);
     } while (!isfull);
     while (--fileno >= 0) {
-        snprintf(path, sizeof(path), "%s/scrub.%.3d", dirpath, fileno);
+        snprintf(path, sizeof(path), "%s/scrub.%.3d", freespacedir, fileno);
         if (unlink(path) < 0)
             fprintf(stderr, "%s: unlink %s: %s\n", prog, path, strerror(errno));
         else
             printf("%s: unlinked %s\n", prog, path);
     }
-    if (rmdir(dirpath) < 0)
-        fprintf(stderr, "%s: rmdir %s: %s\n", prog, dirpath, strerror(errno));
+    if (rmdir(freespacedir) < 0)
+        fprintf(stderr, "%s: rmdir %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
     else
-        printf("%s: removed %s\n", prog, dirpath);
+        printf("%s: removed %s/%s\n", prog, dirpath, freespacedir);
 }
 
 /* Scrub name component of a directory entry through succesive renames.
