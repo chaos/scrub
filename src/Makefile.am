@@ -23,4 +23,4 @@ scrub_SOURCES = \
 	util.c \
 	util.h
 
-scrub_LDADD = $(LIBPTHREAD)
+scrub_LDADD = $(LIBPTHREAD) $(LIBPROP)
