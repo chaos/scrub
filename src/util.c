@@ -230,11 +230,11 @@ read_conf( struct opt_struct *opt )
             else 
                 fprintf( stderr, "%s: Invalid Parameter in scrub.conf. Ignored: %s", "scrub", parameter ); 
         }
+        if ( fclose(fp) ) {
+            fprintf( stderr, "%s: Error closing %s.", "scrub", homeconf );
+            exit(1);
+        }
     } /* scrub.conf read complete */
-    if ( fclose(fp) ) {
-        fprintf( stderr, "%s: Error closing %s.", "scrub", homeconf );
-        exit(1);
-    }
     free( homeconf );
     free( line );
 }
