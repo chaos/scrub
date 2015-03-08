@@ -52,23 +52,9 @@
 #include "getsize.h"
 #include "progress.h"
 #include "sig.h"
-#include "pattern.h"
 
 #define BUFSIZE (4*1024*1024) /* default blocksize */
 
-struct opt_struct {
-    const sequence_t *seq;
-    int blocksize;
-    off_t devsize;
-    char *dirent;
-    bool force;
-    bool nosig;
-    bool remove;
-    bool sparse;
-    bool nofollow;
-    bool nohwrand;
-    bool nothreads;
-};
 
 static bool       scrub(char *path, off_t size, const sequence_t *seq,
                       int bufsize, bool nosig, bool sparse, bool enospc);
@@ -110,26 +96,32 @@ static struct option longopts[] = {
 char *prog;
 
 static void 
-usage(void)
+usage(struct opt_struct opt)
 {
     fprintf(stderr,
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
-"  -p, --pattern pat       select scrub pattern sequence\n"
+"  -p, --pattern pat       select scrub pattern sequence (default %s)\n"
 "  -b, --blocksize size    set I/O buffer size (default 4m)\n"
 "  -s, --device-size size  set device size manually\n"
 "  -X, --freespace dir     create dir+files, fill until ENOSPC, then scrub\n"
 "  -D, --dirent newname    after scrubbing file, scrub dir entry, rename\n"
-"  -f, --force             scrub despite signature from previous scrub\n"
-"  -S, --no-signature      do not write scrub signature after scrub\n"
-"  -r, --remove            remove file after scrub\n"
-"  -L, --no-link           do not scrub link target\n"
-"  -R, --no-hwrand         do not use a hardware random number generator\n"
-"  -t, --no-threads        do not compute random data in a parallel thread\n"
+"  -f, --force             scrub despite signature from previous scrub (default %s)\n"
+"  -S, --no-signature      do not write scrub signature after scrub (default %s)\n"
+"  -r, --remove            remove file after scrub (default %s)\n"
+"  -L, --no-link           do not scrub link target (default %s)\n"
+"  -R, --no-hwrand         do not use a hardware random number generator (default %s)\n"
+"  -t, --no-threads        do not compute random data in a parallel thread (default %s)\n"
 "  -n, --dry-run           verify file arguments, without writing\n"
 "  -h, --help              display this help message\n"
-    , prog);
-
+    , prog 
+    , opt.seq ? opt.seq->key:"nnsa"
+    , opt.force ? "True":"False"
+    , opt.nosig ? "True":"False"
+    , opt.remove ? "True":"False"
+    , opt.nofollow ? "True":"False"
+    , opt.nohwrand ? "True":"False"
+    , opt.nothreads ? "True":"False" );
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();
     exit(1);
@@ -142,6 +134,7 @@ main(int argc, char *argv[])
     sequence_t *custom_seq = NULL;
     bool Xopt = false;
     bool nopt = false;
+    bool Pconf = false; /* Pattern returned from Conf file */
     extern int optind;
     extern char *optarg;
     int c;
@@ -150,6 +143,11 @@ main(int argc, char *argv[])
 
     memset (&opt, 0, sizeof (opt));
     opt.blocksize = BUFSIZE;
+
+    /* Read scrub.conf file for constant settings */
+    read_conf( &opt );
+    if ( opt.seq )
+       Pconf = true; 
 
     /* Handle arguments.
      */
@@ -160,7 +158,8 @@ main(int argc, char *argv[])
             printf("scrub version %s\n", VERSION);
             exit(0);
         case 'p':   /* --pattern */
-            if (opt.seq != NULL) {
+                    /* can override if set in conf file */
+            if (opt.seq != NULL && !Pconf ) { 
                 fprintf(stderr, "%s: only one pattern can be selected\n", prog);
                 exit(1);
             }
@@ -226,11 +225,11 @@ main(int argc, char *argv[])
             break;
         case 'h':   /* --help */
         default:
-            usage();
+            usage(opt);
         }
     }
     if (argc == optind)
-        usage();
+        usage(opt);
     if (Xopt && argc - optind > 1) {
         fprintf(stderr, "%s: -X only takes one directory name\n", prog);
         exit(1);

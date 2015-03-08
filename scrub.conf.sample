@@ -1,0 +1,30 @@
+##### scrub.conf file #####
+# Must Reside in: $HOME/.scrub.conf
+# Lines beginning with # or space(s) ignored.
+#
+# Offers the following fixed parameters for scrub
+#  PATTERN = valid pattern name excl custom (-p pat)
+#  FORCE = 0,1,FALSE,TRUE (-f)
+#  NOSIGNATURE = 0,1,FALSE,TRUE (-S)
+#  REMOVE = 0,1,FALSE,TRUE (-r)
+#  NOLINK = 0,1,FALSE,TRUE (-L)
+#  NOHWRAND = 0,1,FALSE,TRUE (-R)
+#  NOTHREADS = 0,1,FALSE,TRUE (-t)
+# valid patterns are: nnsa, dod, bsi, usarmy, random, random2
+#  schneier, pfitzner7, pfitzner33, gutmann, fastold, old
+#  dirent, fillzero, fillff, verify 
+# custom pattern strings not accepted
+#
+# Parameter names are case sensitive.
+# Pattern value is case sensitive.
+# Boolean words TRUE and FALSE are not case sensitive.
+##### scrub.conf file #####
+# default values shown. can be overridden on command line
+
+#PATTERN=nnsa
+#FORCE=FALSE
+#NOSIGNATURE=FALSE
+#REMOVE=FALSE
+#NOLINK=FALSE
+#NOHWRAND=FALSE
+#NOTHREADS=FALSE

@@ -83,6 +83,7 @@ AC_CONFIG_FILES( \
   src/Makefile \
   man/Makefile \
   man/scrub.1 \
+  man/scrub.conf.5 \
   test/Makefile \
   libscrub/Makefile \
   libscrub/libscrub.pc \
