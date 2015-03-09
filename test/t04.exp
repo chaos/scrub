@@ -1,5 +1,5 @@
 scrub: using BSI patterns
-scrub: scrubbing file 409600 bytes (~400KB)
+scrub: scrubbing file 524288 bytes (~512KB)
 scrub: 0xff    |................................................|
 scrub: 0xfe    |................................................|
 scrub: 0xfd    |................................................|

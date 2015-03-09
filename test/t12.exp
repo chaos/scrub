@@ -1,22 +1,22 @@
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing file 409600 bytes (~400KB)
+scrub: scrubbing file 524288 bytes (~512KB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
-409600
+524288
 scrub: warning: -s size < file size
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing file 307200 bytes (~300KB)
+scrub: scrubbing file 262144 bytes (~256KB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
-409600
+524288
 scrub: using NNSA NAP-14.1-C patterns
-scrub: scrubbing file 512000 bytes (~500KB)
+scrub: scrubbing file 1048576 bytes (~1024KB)
 scrub: random  |................................................|
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: verify  |................................................|
-512000
+1048576
