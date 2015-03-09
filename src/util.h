@@ -4,6 +4,10 @@
 typedef enum { false, true } bool;
 #endif
 
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
+
 typedef enum {
     FILE_NOEXIST,
     FILE_REGULAR,
