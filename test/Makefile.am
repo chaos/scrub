@@ -26,4 +26,6 @@ tgetsize_SOURCES = tgetsize.c $(common_sources)
 tsig_SOURCES = tsig.c $(common_sources)
 pat_SOURCES = pat.c $(common_sources)
 
+LDADD = $(LIBPROP)
+
 EXTRA_DIST = $(TESTS) $(TESTS:%=%.exp)

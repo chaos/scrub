@@ -44,7 +44,15 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS( \
   getopt.h \
   stdbool.h \
+  stdint.h \
   pthread.h \
+  linux/fs.h \
+  sys/devinfo.h \
+  sys/disk.h \
+  sys/dkio.h \
+  sys/ioctl.h \
+  sys/scsi.h \
+  sys/mman.h \
 )
 
 AC_PROG_LIBTOOL
@@ -55,6 +63,12 @@ AC_PKGCONFIG
 ## 
 AC_C_BIGENDIAN
 AC_C_CONST
+
+##
+# Checks for libraries
+##
+AC_CHECK_LIB(prop, prop_dictionary_recv_ioctl, LIBPROP=-lprop)
+AC_SUBST(LIBPROP)
 
 ##
 # Checks for library functions

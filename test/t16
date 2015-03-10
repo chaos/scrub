@@ -2,7 +2,7 @@
 TEST=`basename $0 | cut -d- -f1`
 TESTFILE=${TMPDIR:-/tmp}/scrub-testfile.$$
 rm -f $TESTFILE
-./pad 400k $TESTFILE || exit 1
+./pad 512k $TESTFILE || exit 1
 
 od -c $TESTFILE >$TEST.out || exit 1
 

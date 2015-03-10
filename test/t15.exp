@@ -1,7 +1,7 @@
 scrub: using Custom single-pass patterns
-scrub: scrubbing file 409600 bytes (~400KB)
+scrub: scrubbing file 524288 bytes (~512KB)
 scrub: 0x30313233343536373839616263646566|......................|
 0000000 001 002 003   S   C   R   U   B   B   E   D   !  \0   d   e   f
 0000020   0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f
 *
-1440000
+2000000

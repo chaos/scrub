@@ -3,9 +3,9 @@ TEST=`basename $0 | cut -d- -f1`
 TMPLATE="${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"
 TESTDIR=`mktemp -d $TMPLATE` || exit 1
 
-./pad 400k $TESTDIR/a || exit 1
-./pad 400k $TESTDIR/b || exit 1
-./pad 400k $TESTDIR/c || exit 1
+./pad 512k $TESTDIR/a || exit 1
+./pad 512k $TESTDIR/b || exit 1
+./pad 512k $TESTDIR/c || exit 1
 
 echo Created 3 files >$TEST.out
 

@@ -4,6 +4,10 @@
 typedef enum { false, true } bool;
 #endif
 
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
+
 #include "pattern.h" 
 
 typedef enum {

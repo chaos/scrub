@@ -8,12 +8,13 @@ mkdir -p $TESTFILE || exit 1
 $PATH_SCRUB $TESTFILE >t13.out 2>&1
 test $? != 0 || exit 1
 
-# -X and existing file
+rmdir $TESTFILE || exit 1
+
+# -X and nonexistant directory
 $PATH_SCRUB -X $TESTFILE >>t13.out 2>&1
 test $? != 0 || exit 1
 
-# nonexistant
-rmdir $TESTFILE || exit 1
+# nonexistant file
 $PATH_SCRUB  $TESTFILE >>t13.out 2>&1
 test $? != 0 || exit 1
 

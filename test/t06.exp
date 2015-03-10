@@ -1,5 +1,5 @@
 scrub: using pre v1.7 scrub patterns
-scrub: scrubbing file 409600 bytes (~400KB)
+scrub: scrubbing file 524288 bytes (~512KB)
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|
 scrub: 0xaa    |................................................|

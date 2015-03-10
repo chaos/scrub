@@ -1,5 +1,5 @@
 scrub: using DoD 5220.22-M patterns
-scrub: scrubbing file 409600 bytes (~400KB)
+scrub: scrubbing file 524288 bytes (~512KB)
 scrub: random  |................................................|
 scrub: 0x00    |................................................|
 scrub: 0xff    |................................................|

@@ -31,7 +31,7 @@ is a regular file.
 See CAVEATS below.
 .LP
 3) A temporary directory is created under
- .I "directory"
+.I "directory"
 (which must exist) and is filled with files until the file system is full.
 Then the files are scrubbed as in 2). This mode is selected with the
 .I "-X" 
