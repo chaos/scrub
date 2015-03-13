@@ -113,6 +113,7 @@ static void
 usage(void)
 {
     fprintf(stderr,
+"scrub version: %s\n"
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence\n"
@@ -128,7 +129,8 @@ usage(void)
 "  -t, --no-threads        do not compute random data in a parallel thread\n"
 "  -n, --dry-run           verify file arguments, without writing\n"
 "  -h, --help              display this help message\n"
-    , prog);
+    , VERSION
+    ,prog);
 
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();
