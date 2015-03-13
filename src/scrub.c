@@ -99,6 +99,7 @@ static void
 usage(struct opt_struct opt)
 {
     fprintf(stderr,
+"scrub version: %s\n"
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence (default %s)\n"
@@ -114,6 +115,7 @@ usage(struct opt_struct opt)
 "  -t, --no-threads        do not compute random data in a parallel thread (default %s)\n"
 "  -n, --dry-run           verify file arguments, without writing\n"
 "  -h, --help              display this help message\n"
+    , VERSION
     , prog 
     , opt.seq ? opt.seq->key:"nnsa"
     , opt.force ? "True":"False"
