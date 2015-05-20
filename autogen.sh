@@ -2,12 +2,18 @@
 
 echo "Running aclocal ... "
 aclocal -I config
+
+if glibtoolize --version >/dev/null; then
+  LIBTOOLIZE=glibtoolize
+fi
+LIBTOOLIZE=${LIBTOOLIZE:-libtoolize}
 echo "Running libtoolize ... "
-libtoolize --force --automake --copy 
+"$LIBTOOLIZE" --force --automake --copy
+
 echo "Running autoheader ... "
 autoheader
 echo "Running automake ... "
-automake --copy --add-missing 
+automake --copy --add-missing
 echo "Running autoconf ... "
 autoconf
 echo "Cleaning up ..."
