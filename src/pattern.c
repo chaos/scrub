@@ -420,7 +420,7 @@ seq2str(const sequence_t *sp, char *buf, int len)
 }
 
 void
-seq_list(void)
+seq_list(FILE *fp)
 {
     const int len = seq_count();
     char buf[80];
@@ -428,10 +428,10 @@ seq_list(void)
 
     for (i = 0; i < len; i++) {
         seq2str(sequences[i], buf, sizeof(buf));
-        fprintf(stderr, "%s\n", buf);
+        fprintf(fp, "%s\n", buf);
     }
     seq2str(&custom_seq, buf, sizeof(buf));
-    fprintf(stderr, "%s\n", buf);
+    fprintf(fp, "%s\n", buf);
 }
 
 /*

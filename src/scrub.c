@@ -112,7 +112,8 @@ char *prog;
 static void 
 usage(int rc)
 {
-    fprintf(stderr,
+    FILE *fp = rc ? stderr : stdout;
+    fprintf(fp,
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence\n"
@@ -130,8 +131,8 @@ usage(int rc)
 "  -h, --help              display this help message\n"
     , prog);
 
-    fprintf(stderr, "Available patterns are:\n");
-    seq_list ();
+    fprintf(fp, "Available patterns are:\n");
+    seq_list (fp);
     exit(rc);
 }
 
