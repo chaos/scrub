@@ -619,7 +619,7 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
         printf("%s: removed %s/%s\n", prog, dirpath, freespacedir);
 }
 
-/* Scrub name component of a directory entry through succesive renames.
+/* Scrub name component of a directory entry through successive renames.
  */
 static void
 scrub_dirent(char *path, const struct opt_struct *opt)
