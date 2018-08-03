@@ -96,10 +96,11 @@ static struct option longopts[] = {
 char *prog;
 
 static void 
-usage(struct opt_struct opt)
+usage(struct opt_struct opt, bool Pconf)
 {
     fprintf(stderr,
 "scrub version: %s\n"
+"Using %s\n"
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence (default %s)\n"
@@ -117,6 +118,7 @@ usage(struct opt_struct opt)
 "  -h, --help              display this help message\n"
     , VERSION
     , prog 
+    , Pconf ? "options from scrub.conf":"program defaults"
     , opt.seq ? opt.seq->key:"nnsa"
     , opt.force ? "True":"False"
     , opt.nosig ? "True":"False"
@@ -124,7 +126,6 @@ usage(struct opt_struct opt)
     , opt.nofollow ? "True":"False"
     , opt.nohwrand ? "True":"False"
     , opt.nothreads ? "True":"False" );
-    ,prog);
 
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();
@@ -229,11 +230,11 @@ main(int argc, char *argv[])
             break;
         case 'h':   /* --help */
         default:
-            usage(opt);
+            usage(opt, Pconf);
         }
     }
     if (argc == optind)
-        usage(opt);
+        usage(opt, Pconf);
     if (Xopt && argc - optind > 1) {
         fprintf(stderr, "%s: -X only takes one directory name\n", prog);
         exit(1);
