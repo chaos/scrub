@@ -117,8 +117,8 @@ usage(struct opt_struct opt, bool Pconf)
 "  -n, --dry-run           verify file arguments, without writing\n"
 "  -h, --help              display this help message\n"
     , VERSION
-    , prog 
     , Pconf ? "options from scrub.conf":"program defaults"
+    , prog 
     , opt.seq ? opt.seq->key:"nnsa"
     , opt.force ? "True":"False"
     , opt.nosig ? "True":"False"
