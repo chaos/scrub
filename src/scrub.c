@@ -126,7 +126,6 @@ usage(struct opt_struct opt)
     , opt.nothreads ? "True":"False" );
     ,prog);
 
->>>>>>> master
     fprintf(stderr, "Available patterns are:\n");
     seq_list ();
     exit(1);
