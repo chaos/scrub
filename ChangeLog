@@ -330,7 +330,7 @@ See git log at https://code.google.com/p/diskscrub/
 	- Remove the -d option (debug).
 	- Remove the -x option (write one block past size of file).
 	- If file contains a partial fs block, round up to scrub full blocks.
-	- Write 8K blocks unless overriden by new -b command line option.
+	- Write 8K blocks unless overridden by new -b command line option.
 	- Determine the size of the device ahead of time using lseek instead
 	  of treating write failures as normal "end of file" while scrubbing.
 	- Remove the -r option (disable random pass).  Always do random pass.

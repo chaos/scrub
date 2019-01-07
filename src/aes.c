@@ -404,7 +404,7 @@ void aes_gen_tables( void )
 
 #endif
 
-/* platform-independant 32-bit integer manipulation macros */
+/* platform-independent 32-bit integer manipulation macros */
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \
