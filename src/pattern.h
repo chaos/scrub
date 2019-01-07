@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #define MAXPATBYTES 16
 #define MAXSEQPATTERNS 35
 typedef enum {
@@ -19,7 +21,7 @@ typedef struct {
 } sequence_t;
 
 const sequence_t *seq_lookup(char *name);
-void              seq_list(void);
+void              seq_list(FILE *fp);
 char             *pat2str(pattern_t p);
 void              memset_pat(void *s, pattern_t p, size_t n);
 

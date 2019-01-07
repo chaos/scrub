@@ -110,9 +110,10 @@ static struct option longopts[] = {
 char *prog;
 
 static void 
-usage(void)
+usage(int rc)
 {
-    fprintf(stderr,
+    FILE *fp = rc ? stderr : stdout;
+    fprintf(fp,
 "Usage: %s [OPTIONS] file [file...]\n"
 "  -v, --version           display scrub version and exit\n"
 "  -p, --pattern pat       select scrub pattern sequence\n"
@@ -130,9 +131,9 @@ usage(void)
 "  -h, --help              display this help message\n"
     , prog);
 
-    fprintf(stderr, "Available patterns are:\n");
-    seq_list ();
-    exit(1);
+    fprintf(fp, "Available patterns are:\n");
+    seq_list (fp);
+    exit(rc);
 }
 
 int 
@@ -225,12 +226,14 @@ main(int argc, char *argv[])
             nopt = true;
             break;
         case 'h':   /* --help */
+            usage(0);
+            break;
         default:
-            usage();
+            usage(1);
         }
     }
     if (argc == optind)
-        usage();
+        usage(1);
     if (Xopt && argc - optind > 1) {
         fprintf(stderr, "%s: -X only takes one directory name\n", prog);
         exit(1);
