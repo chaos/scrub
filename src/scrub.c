@@ -143,6 +143,7 @@ main(int argc, char *argv[])
     sequence_t *custom_seq = NULL;
     bool Xopt = false;
     bool nopt = false;
+    bool Dopt = false;  /* Rename flag */
     extern int optind;
     extern char *optarg;
     int c;
@@ -185,6 +186,7 @@ main(int argc, char *argv[])
             Xopt = true;
             break;
         case 'D':   /* --dirent */
+            Dopt = true;
             opt.dirent = optarg;
             break;
         case 'r':   /* --remove */
@@ -232,8 +234,11 @@ main(int argc, char *argv[])
             usage(1);
         }
     }
-    if (argc == optind)
+    if (argc == optind) {
+        if (Dopt)   /* -D specified but no newname specified */
+            fprintf( stderr, "%s: -D requires a rename argument\n\n", prog);
         usage(1);
+    }
     if (Xopt && argc - optind > 1) {
         fprintf(stderr, "%s: -X only takes one directory name\n", prog);
         exit(1);
