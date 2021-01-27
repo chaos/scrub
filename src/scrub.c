@@ -334,6 +334,10 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 errcount++;
+            } else if (is_symlink(filename) && opt->nofollow) {
+                fprintf(stderr, "%s: skipping symlink %s because --no-link (-L) option was set\n",
+                        prog, filename);
+                errcount++;
             } else if (!noexec) {
                 if (dryrun) {
                     printf("%s: (dryrun) scrub special file %s\n",
@@ -343,8 +347,8 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                 }
             }
             break;
-        case FILE_LINK:
-            if (opt->nofollow) {
+        case FILE_REGULAR:
+            if (is_symlink(filename) && opt->nofollow) {
                 if (opt->remove && !noexec) {
                     if (dryrun) {
                         printf("%s: (dryrun) unlink %s\n", prog, filename);
@@ -359,8 +363,7 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                 }
                 break;
             }
-            /* FALL THRU */
-        case FILE_REGULAR:
+
             if (access(filename, R_OK|W_OK) < 0) {
                 fprintf(stderr, "%s: no rw access to %s\n", prog, filename);
                 errcount++;
@@ -670,7 +673,7 @@ scrub_file(char *path, const struct opt_struct *opt)
     filetype_t ftype = filetype(path);
     off_t size = opt->devsize;
 
-    assert(ftype == FILE_REGULAR || ftype == FILE_LINK);
+    assert(ftype == FILE_REGULAR);
 
     if (stat(path, &sb) < 0) {
         fprintf(stderr, "%s: stat %s: %s\n", prog, path, strerror(errno));

@@ -71,6 +71,15 @@ write_all(int fd, const unsigned char *buf, int count)
     return n;
 }
 
+/* Indicates whether the file represented by 'path' is a symlink.
+ */
+int
+is_symlink(char *path)
+{
+    struct stat sb;
+    return lstat(path, &sb) == 0 && S_ISLNK(sb.st_mode);
+}
+
 /* Return the type of file represented by 'path'.
  */
 filetype_t
@@ -79,10 +88,6 @@ filetype(char *path)
     struct stat sb;
 
     filetype_t res = FILE_NOEXIST;
-
-    if (lstat(path, &sb) == 0 && S_ISLNK(sb.st_mode)) {
-        return FILE_LINK;
-    }
 
     if (stat(path, &sb) == 0) {
         if (S_ISREG(sb.st_mode))
