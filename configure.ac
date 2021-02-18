@@ -85,6 +85,25 @@ AC_CHECK_FUNCS( \
 X_AC_CHECK_PTHREADS
 
 ##
+# gcrypt library
+##
+have_libgcrypt=no
+AC_ARG_WITH(libgcrypt, AS_HELP_STRING([--without-libgcrypt], [build without libgcrypt;
+                                         fallback to custom AES implementation]))
+AS_IF([test "x$with_libgcrypt" != "xno"],
+  [AM_PATH_LIBGCRYPT([1.5.0],
+    [AC_DEFINE([HAVE_LIBGCRYPT], [1], [libgcrypt API available])
+      gcrypt_CFLAGS="$LIBGCRYPT_CFLAGS"
+      gcrypt_LIBS="$LIBGCRYPT_LIBS"
+      have_libgcrypt=yes
+    ]
+  )]
+)
+AM_CONDITIONAL([LIBGCRYPT], [test "$have_libgcrypt" = "yes"])
+AC_SUBST([gcrypt_CFLAGS])
+AC_SUBST([gcrypt_LIBS])
+
+##
 # Arrange for large file support
 ## 
 AC_SYS_LARGEFILE

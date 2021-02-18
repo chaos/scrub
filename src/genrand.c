@@ -37,20 +37,26 @@
 #include <assert.h>
 #include <libgen.h>
 
-#include "aes.h"
 #include "util.h"
 #include "genrand.h"
 #include "hwrand.h"
 
-#define PATH_URANDOM    "/dev/urandom"
-
-#define PAYLOAD_SZ  16
-#define KEY_SZ      16
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#else
+#include "aes.h"
+#endif /* HAVE_LIBGCRYPT. */
 
 extern char *prog;
 
 static bool no_hwrand = false;
 static hwrand_t gen_hwrand;
+
+#ifndef HAVE_LIBGCRYPT
+#define PATH_URANDOM    "/dev/urandom"
+
+#define PAYLOAD_SZ  16
+#define KEY_SZ      16
 
 static aes_context  ctx;
 static unsigned char ctr[PAYLOAD_SZ];
@@ -140,17 +146,26 @@ churnrand(void)
 error:
     return -1;
 }
+#endif /* HAVE_LIBGCRYPT. */
 
 /* Initialize the module.
  */
 int
 initrand(void)
 {
+#ifndef HAVE_LIBGCRYPT
     struct timeval tv;
+#else
+    if (!gcry_check_version(GCRYPT_VERSION)) {
+        goto error;
+    }
+    gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+#endif /* HAVE_LIBGCRYPT */
 
     if (!no_hwrand)
         gen_hwrand = init_hwrand();
 
+#ifndef HAVE_LIBGCRYPT
     /* Always initialize the software random number generator as backup */
 
     if (gettimeofday(&tv, NULL) < 0)
@@ -163,6 +178,7 @@ initrand(void)
 #endif
     if (churnrand() < 0)
         goto error;
+#endif /* HAVE_LIBGCRYPT. */
     return 0;
 error:
     return -1;
@@ -173,9 +189,11 @@ error:
 void 
 genrand(unsigned char *buf, int buflen)
 {
+#ifndef HAVE_LIBGCRYPT
     int i;
     unsigned char out[PAYLOAD_SZ];
     int cpylen = PAYLOAD_SZ;
+#endif /* HAVE_LIBGCRYPT. */
 
     if (gen_hwrand) {
         bool hwok = gen_hwrand(buf, buflen);
@@ -183,6 +201,7 @@ genrand(unsigned char *buf, int buflen)
             return;
     }
 
+#ifndef HAVE_LIBGCRYPT
     for (i = 0; i < buflen; i += cpylen) {
         aes_encrypt(&ctx, ctr, out);
         incr128(ctr);
@@ -191,6 +210,9 @@ genrand(unsigned char *buf, int buflen)
         memcpy(&buf[i], out, cpylen);
     }
     assert(i == buflen);
+#else
+    gcry_randomize(buf, buflen, GCRY_STRONG_RANDOM);
+#endif /* HAVE_LIBGCRYPT. */
 }
 
 /*

@@ -1,8 +1,6 @@
 bin_PROGRAMS = scrub
 
 scrub_SOURCES = \
-	aes.c \
-	aes.h \
 	filldentry.c \
 	filldentry.h \
 	fillfile.c \
@@ -24,3 +22,9 @@ scrub_SOURCES = \
 	util.h
 
 scrub_LDADD = $(LIBPTHREAD) $(LIBPROP)
+
+if LIBGCRYPT
+scrub_LDADD += $(gcrypt_LIBS)
+else
+scrub_SOURCES += aes.c aes.h
+endif
