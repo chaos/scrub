@@ -74,7 +74,7 @@ writesig(char *path)
         goto nomem;
     if ((fd = open(path, O_RDWR)) < 0)
         goto error;
-    if ((n = read_all(fd, buf, blocksize)) < 0)
+    if (read_all(fd, buf, blocksize) < 0)
         goto error;
     memcpy(buf, SCRUB_MAGIC, sizeof(SCRUB_MAGIC));
     if (lseek(fd, 0, SEEK_SET) < 0)
