@@ -116,10 +116,13 @@ refill_init(struct memstruct **mpp, refill_t refill, int memsize)
 
     if (!(mp = malloc(sizeof(struct memstruct))))
         goto nomem;
-    if (!(mp->buf = malloc(memsize)))
+    if (!(mp->buf = malloc(memsize))) {
+        free(mp);
         goto nomem;
+    }
     mp->size = memsize;
     mp->refill = refill;
+    mp->thd = 0;
 #if WITH_PTHREADS
     if (!no_threads) {
         if ((mp->err = pthread_create(&mp->thd, NULL, refill_thread, mp))) {

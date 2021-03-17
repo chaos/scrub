@@ -445,7 +445,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
     prog_t p;
     char sizestr[80];
     bool isfull = false;
-    off_t written, checked;
+    off_t written = (off_t)-1, checked = (off_t)-1;
     int pcol = progress_col(seq);
 
     if (!(buf = alloc_buffer(bufsize))) {
