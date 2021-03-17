@@ -262,4 +262,4 @@ http://cmrr.ucsd.edu/people/Hughes/DataSanitizationTutorial.pdf.
 "Guidelines for Media Sanitization", NIST special publication 800-88,
 Kissel et al, September, 2006.
 .LP
-shred(1), hdparm(8)
+shred(1), scrub.conf(5), hdparm(8)

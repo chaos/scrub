@@ -26,13 +26,16 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
 #include <libgen.h>
-#include <stdlib.h>
-
+#include <ctype.h>
+#include "getsize.h"
 #include "util.h"
 
 /* Handles short reads but otherwise just like read(2).
@@ -144,6 +147,110 @@ alloc_buffer(int bufsize)
 #endif
 
     return ptr;
+}
+
+/* check for scrub.conf in home directory only
+ * code inspiration from lrzip application
+ * by Con Kolivas
+ * Valid Parameters and Values are:
+ * PATTERN = valid pattern name excl custom (-p pat)
+ * FORCE = 0,1,FALSE,TRUE (-f)
+ * NOSIGNATURE = 0,1,FALSE,TRUE (-S)
+ * REMOVE = 0,1,FALSE,TRUE (-r)
+ * NOLINK = 0,1,FALSE,TRUE (-L)
+ * NOHWRAND = 0,1,FALSE,TRUE (-R)
+ * NOTHREADS = 0,1,FALSE,TRUE (-t)
+ *
+*/
+void
+read_conf( struct opt_struct *opt )
+{
+    char *HOME;
+    char *parameter;
+    char *parametervalue;
+    char *homeconf;
+    char *line;
+    int blocksize;
+    FILE *fp;
+
+    HOME=getenv("HOME");
+    if ( HOME == NULL )
+        return;
+
+    /* alloc sizeof HOME + len /.scrub.conf + 1 */
+    homeconf = malloc( strlen(HOME)+13 );
+    line = malloc( 255 );
+    if ( homeconf == NULL || line == NULL ) {
+        fprintf( stderr, "%s: Very Serious Memory Allocation Error: read_conf", "scrub" );
+        exit(1);
+    }
+
+    /* $HOME/.scrub.conf */
+    snprintf( homeconf, strlen(HOME)+13, "%s/.scrub.conf", HOME );
+
+    /* open $HOME/.scrub.conf if available */
+    fp = fopen( homeconf, "r" );
+    if ( fp ) {
+        while ( fgets(line, 255 , fp) != NULL ) {
+            if ( strlen(line) )
+                line[strlen(line) - 1] = '\0';
+            parameter = strtok(line, " =");
+            /* skip if blank line, space, or # */
+            if ( parameter == NULL || isspace(*parameter) || *parameter == '#' )
+                continue;
+
+            parametervalue = strtok(NULL, " =");
+            if ( parametervalue == NULL )
+                continue;
+
+            /* we have a valid parameter line */
+
+            if ( !strcmp(parameter, "BLOCKSIZE") ) {
+                if ( (blocksize = str2int(parametervalue)) > 0 )
+                    opt->blocksize = blocksize;
+                else
+                    fprintf( stderr, "%s: Invalid Block Size in scrub.conf. Ignored: %s. Default will be used: %d\n", "scrub", parameter, BUFSIZE );
+
+            }
+            else if ( !strcmp(parameter, "PATTERN") ) {
+                opt->seq = seq_lookup(parametervalue);
+                if ( opt->seq == NULL )
+                    fprintf( stderr, "%s: Invalid Pattern: %s. Ignored", "scrub", parametervalue );
+            }
+            else if ( !strcmp(parameter, "FORCE") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->force = true;
+            }
+            else if ( !strcmp(parameter, "NOSIGNATURE") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->nosig = true;
+            }
+            else if ( !strcmp(parameter, "REMOVE") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->remove = true;
+            }
+            else if ( !strcmp(parameter, "NOLINK") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->nofollow = true;
+            }
+            else if ( !strcmp(parameter, "NOHWRAND") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->nohwrand = true;
+            }
+            else if ( !strcmp(parameter, "NOTHREADS") ) {
+                if ( !strcmp(parametervalue, "1") || !strcasecmp(parametervalue,"TRUE") )
+                    opt->nothreads = true;
+            }
+            else
+                fprintf( stderr, "%s: Invalid Parameter in scrub.conf. Ignored: %s\n", "scrub", parameter );
+        }
+        if ( fclose(fp) ) {
+            fprintf( stderr, "%s: Error closing %s.", "scrub", homeconf );
+            exit(1);
+        }
+    } /* scrub.conf read complete */
+    free( homeconf );
+    free( line );
 }
 
 /*

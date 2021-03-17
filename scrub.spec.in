@@ -42,6 +42,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc ChangeLog NEWS DISCLAIMER COPYING INSTALL README
 %{_bindir}/scrub
 %{_mandir}/man1/*
+%{_mandir}/man5/*
 
 %changelog
 * Tue Feb 14 2006 Ben Woodard <woodard@redhat.com> 1.7-1

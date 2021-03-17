@@ -14,4 +14,7 @@ dist_doc_DATA = \
 	README \
 	README.md
 
+scrubdir = $(datadir)/scrub
+scrub_DATA = scrub.conf.sample
+
 EXTRA_DIST = META scrub.spec

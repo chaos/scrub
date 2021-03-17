@@ -1,0 +1,57 @@
+.TH scrub.conf 5 "@META_DATE@" "@META_ALIAS@" "@META_NAME@"
+.nh
+.SH NAME
+scrub.conf \- Local Settings File
+.SH SYNOPSIS
+.B $HOME/.scrub.conf
+.br
+.SH DESCRIPTION
+\fBscrub.conf\fR stores configuration information that may be
+used by \fBscrub\fR.
+.SH OPTIONS
+.B scrub.conf
+may contain any of the following Parameter=Value
+settings.
+.TP
+.B BLOCKSIZE\fR = {valid scrub block size, #[Kk|Mm|Gg]}
+Blocksize is a number followed by modifier: K|k for Kilobytes,
+M|m for Megabytes, G|g for Gigabytes. Default is 4 Megabytes. 
+.br
+(Note. limit is bounded by off_t, 2G)
+.TP
+.B PATTERN\fR = {valid scrub pattern}
+Valid patterns are: nnsa, dod, bsi, usarmy,
+random, random2, schneier, pfitzner7, pfitzner33, gutmann,
+fastold, old, dirent, fillzero, fillff, verify. Custom patterns
+may not be placed in conf file.
+.TP
+.B FORCE\fR = {0,1,FALSE,TRUE}
+Scrub device/file even if scrub signature is present.
+.TP
+.B NOSIGNATURE\fR = {0,1,FALSE,TRUE}
+Do not write scrub signature on device/file.
+.TP
+.B REMOVE\fR = {0,1,FALSE,TRUE}
+Remove file after scrub.
+.TP
+.B NOLINK\fR = {0,1,FALSE,TRUE}
+Do not follow links for scrub.
+.TP
+.B NOHWRAND\fR = {0,1,FALSE,TRUE}
+Do not use Hardware-based Randon Number Generator.
+.TP
+.B NOTHREADS\fR = {0,1,FALSE,TRUE}
+Do not use threading.
+\.TP
+
+Parameter names must be in column 1. Lines beginning with a \fI'#'\fR or \fI'space'\fR are ignored.
+.SH FILES
+.I $HOME/.scrub.conf
+.RS
+Local user configuration settings for
+.B scrub\fR.
+.SH AUTHOR
+Peter Hyman <pete@peterhyman.com>
+.SH SEE ALSO
+.BR scrub(1)
+
