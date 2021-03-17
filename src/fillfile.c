@@ -116,8 +116,10 @@ refill_init(struct memstruct **mpp, refill_t refill, int memsize)
 
     if (!(mp = malloc(sizeof(struct memstruct))))
         goto nomem;
-    if (!(mp->buf = malloc(memsize)))
+    if (!(mp->buf = malloc(memsize))) {
+        free(mp);
         goto nomem;
+    }
     mp->size = memsize;
     mp->refill = refill;
 #if WITH_PTHREADS
