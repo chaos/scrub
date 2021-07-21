@@ -1,8 +1,8 @@
 ##
 # Prologue
 ##
-AC_INIT(m4_esyscmd([awk '/Name:/ {printf "%s",$2; exit}' META]),
-        m4_esyscmd([awk '/Version:/ {printf "%s",$2; exit}' META]))
+AC_INIT([scrub],
+        m4_esyscmd([git describe --always | awk '/.*/ {sub(/^v/, ""); printf "%s",$1; exit}']))
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([NEWS])
