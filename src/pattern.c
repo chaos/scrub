@@ -415,8 +415,14 @@ pat2str(pattern_t p)
 void
 seq2str(const sequence_t *sp, char *buf, int len)
 {
+    int i;
+    int passes = sp->len;
+
+    for (i = 0; i < sp->len; i++)
+        if (sp->pat[i].ptype == PAT_VERIFY)
+            passes++;
     snprintf (buf, len, "  %-10.10s %4.d-pass   %s",
-              sp->key, sp->len, sp->desc);
+              sp->key, passes, sp->desc);
 }
 
 void
