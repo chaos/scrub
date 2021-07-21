@@ -72,7 +72,7 @@ static struct random_data rdata;
 
 /* Increment 128 bit counter.
  * NOTE: we are not concerned with endianness here since the counter is
- * just sixteen bytes of payload to AES and outside of this function isn't 
+ * just sixteen bytes of payload to AES and outside of this function isn't
  * operated upon numerically.
  */
 static void
@@ -186,7 +186,7 @@ error:
 
 /* Fill buf with random data.
  */
-void 
+void
 genrand(unsigned char *buf, int buflen)
 {
 #ifndef HAVE_LIBGCRYPT

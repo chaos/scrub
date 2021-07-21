@@ -74,7 +74,7 @@ error:
 static char *
 newname(char *old, int pat)
 {
-    char *new; 
+    char *new;
     char *base;
 
     assert(old != NULL);
@@ -84,7 +84,7 @@ newname(char *old, int pat)
 
     new = strdup(old);
     if (new) {
-        if ((base = strrchr(new, '/'))) 
+        if ((base = strrchr(new, '/')))
             base++;
         else
             base = new;

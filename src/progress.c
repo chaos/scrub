@@ -46,7 +46,7 @@ struct prog_struct {
     char bar;
 };
 
-void 
+void
 progress_create(prog_t *ctx, int width)
 {
     if ((*ctx = (prog_t)malloc(sizeof(struct prog_struct)))) {
@@ -63,10 +63,10 @@ progress_create(prog_t *ctx, int width)
                 printf("\b");
         }
         fflush(stdout);
-    } 
+    }
 }
 
-void 
+void
 progress_destroy(prog_t ctx)
 {
     if (ctx) {
@@ -82,7 +82,7 @@ progress_destroy(prog_t ctx)
     }
 }
 
-void 
+void
 progress_update(prog_t ctx, double complete)
 {
     assert(complete >= 0.0 && complete <= 1.0);

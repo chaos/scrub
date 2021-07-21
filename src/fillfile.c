@@ -160,7 +160,7 @@ refill_fini(struct memstruct *mp)
  */
 off_t
 fillfile(char *path, off_t filesize, unsigned char *mem, int memsize,
-         progress_t progress, void *arg, refill_t refill, 
+         progress_t progress, void *arg, refill_t refill,
          bool sparse, bool creat)
 {
     int fd = -1;

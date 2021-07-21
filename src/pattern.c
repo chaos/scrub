@@ -40,12 +40,12 @@ extern char *prog;
  * The number of patterns in a sequence is limited to MAXSEQPATTERNS.
  * The number of bytes in a pattern is limited to MAXPATBYTES.
  * Just change these constants in pattern.h if you need more.
- */ 
+ */
 
 /* See assertions in scrub.c::scrub_dirent() for limits
  * on this pattern sequence.
  */
-static const sequence_t dirent_seq = { 
+static const sequence_t dirent_seq = {
     "dirent", "dirent", 6, {
         { PAT_NORMAL, 1, {0x32} },
         { PAT_NORMAL, 1, {0x4d} },
@@ -56,51 +56,51 @@ static const sequence_t dirent_seq = {
     },
 };
 
-static const sequence_t old_seq = { 
+static const sequence_t old_seq = {
     "old", "pre v1.7 scrub", 5, {
-        { PAT_NORMAL, 1, {0x00} }, 
-        { PAT_NORMAL, 1, {0xff} }, 
-        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0xff} },
+        { PAT_NORMAL, 1, {0xaa} },
         { PAT_RANDOM, 0, {0x00} },
-        { PAT_VERIFY, 1, {0x55} }, 
+        { PAT_VERIFY, 1, {0x55} },
     },
 };
 
-static const sequence_t fastold_seq = { 
+static const sequence_t fastold_seq = {
     "fastold", "pre v1.7 scrub (skip random)", 4, {
-        { PAT_NORMAL, 1, {0x00} }, 
-        { PAT_NORMAL, 1, {0xff} }, 
-        { PAT_NORMAL, 1, {0xaa} }, 
-        { PAT_VERIFY, 1, {0x55} }, 
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0xff} },
+        { PAT_NORMAL, 1, {0xaa} },
+        { PAT_VERIFY, 1, {0x55} },
     },
 };
 
-static const sequence_t nnsa_seq = { 
+static const sequence_t nnsa_seq = {
     "nnsa", "NNSA NAP-14.1-C", 3, {
         { PAT_RANDOM, 0, {0x00} },
         { PAT_RANDOM, 0, {0x00} },
-        { PAT_VERIFY, 1, {0x00} }, 
+        { PAT_VERIFY, 1, {0x00} },
     },
 };
 
-static const sequence_t dod_seq = { 
+static const sequence_t dod_seq = {
     "dod", "DoD 5220.22-M", 3, {
         { PAT_RANDOM, 0, {0x00} },
-        { PAT_NORMAL, 1, {0x00} }, 
-        { PAT_VERIFY, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_VERIFY, 1, {0xff} },
     },
 };
 
-static const sequence_t bsi_seq = { 
+static const sequence_t bsi_seq = {
     "bsi", "BSI", 9, {
-        { PAT_NORMAL, 1, {0xff} }, 
-        { PAT_NORMAL, 1, {0xfe} }, 
-        { PAT_NORMAL, 1, {0xfd} }, 
-        { PAT_NORMAL, 1, {0xfb} }, 
+        { PAT_NORMAL, 1, {0xff} },
+        { PAT_NORMAL, 1, {0xfe} },
+        { PAT_NORMAL, 1, {0xfd} },
+        { PAT_NORMAL, 1, {0xfb} },
         { PAT_NORMAL, 1, {0xf7} },
-        { PAT_NORMAL, 1, {0xef} }, 
-        { PAT_NORMAL, 1, {0xdf} }, 
-        { PAT_NORMAL, 1, {0xbf} }, 
+        { PAT_NORMAL, 1, {0xef} },
+        { PAT_NORMAL, 1, {0xdf} },
+        { PAT_NORMAL, 1, {0xbf} },
         { PAT_NORMAL, 1, {0x7f} },
     },
 };
@@ -111,27 +111,27 @@ static const sequence_t gutmann_seq = {
         { PAT_RANDOM, 0, {0x00} },
         { PAT_RANDOM, 0, {0x00} },
         { PAT_RANDOM, 0, {0x00} },
-        { PAT_NORMAL, 1, {0x55} }, 
-        { PAT_NORMAL, 1, {0xaa} }, 
+        { PAT_NORMAL, 1, {0x55} },
+        { PAT_NORMAL, 1, {0xaa} },
         { PAT_NORMAL, 3, {0x92, 0x49, 0x24} },
         { PAT_NORMAL, 3, {0x49, 0x24, 0x92} },
         { PAT_NORMAL, 3, {0x24, 0x92, 0x49} },
-        { PAT_NORMAL, 1, {0x00} }, 
-        { PAT_NORMAL, 1, {0x11} }, 
-        { PAT_NORMAL, 1, {0x22} }, 
-        { PAT_NORMAL, 1, {0x33} }, 
-        { PAT_NORMAL, 1, {0x44} }, 
-        { PAT_NORMAL, 1, {0x55} }, 
-        { PAT_NORMAL, 1, {0x66} }, 
-        { PAT_NORMAL, 1, {0x77} }, 
-        { PAT_NORMAL, 1, {0x88} }, 
-        { PAT_NORMAL, 1, {0x99} }, 
-        { PAT_NORMAL, 1, {0xaa} }, 
-        { PAT_NORMAL, 1, {0xbb} }, 
-        { PAT_NORMAL, 1, {0xcc} }, 
-        { PAT_NORMAL, 1, {0xdd} }, 
-        { PAT_NORMAL, 1, {0xee} }, 
-        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0x11} },
+        { PAT_NORMAL, 1, {0x22} },
+        { PAT_NORMAL, 1, {0x33} },
+        { PAT_NORMAL, 1, {0x44} },
+        { PAT_NORMAL, 1, {0x55} },
+        { PAT_NORMAL, 1, {0x66} },
+        { PAT_NORMAL, 1, {0x77} },
+        { PAT_NORMAL, 1, {0x88} },
+        { PAT_NORMAL, 1, {0x99} },
+        { PAT_NORMAL, 1, {0xaa} },
+        { PAT_NORMAL, 1, {0xbb} },
+        { PAT_NORMAL, 1, {0xcc} },
+        { PAT_NORMAL, 1, {0xdd} },
+        { PAT_NORMAL, 1, {0xee} },
+        { PAT_NORMAL, 1, {0xff} },
         { PAT_NORMAL, 3, {0x92, 0x49, 0x24} },
         { PAT_NORMAL, 3, {0x49, 0x24, 0x92} },
         { PAT_NORMAL, 3, {0x24, 0x92, 0x49} },
@@ -145,13 +145,13 @@ static const sequence_t gutmann_seq = {
     },
 };
 
-static const sequence_t random_seq = { 
+static const sequence_t random_seq = {
     "random", "One Random Pass", 1, {
         { PAT_RANDOM, 0, {0x00} },
     },
 };
 
-static const sequence_t random2_seq = { 
+static const sequence_t random2_seq = {
     "random2", "Two Random Passes", 2, {
         { PAT_RANDOM, 0, {0x00} },
         { PAT_RANDOM, 0, {0x00} },
@@ -220,10 +220,10 @@ static const sequence_t pfitzner33_seq = {
     },
 };
 
-static const sequence_t usarmy_seq = { 
+static const sequence_t usarmy_seq = {
     "usarmy", "US Army AR380-19", 3, {
-        { PAT_NORMAL, 1, {0x00} }, 
-        { PAT_NORMAL, 1, {0xff} }, 
+        { PAT_NORMAL, 1, {0x00} },
+        { PAT_NORMAL, 1, {0xff} },
         { PAT_RANDOM, 0, {0x00} },
     },
 };
@@ -284,7 +284,7 @@ seq_count(void)
 
 /* Expand C style numerical escapes: \nnn (octal), \xnn (hex), and \\.
  */
-static int 
+static int
 strtomem (int *data, int len, char *s)
 {
     char tmp[16];

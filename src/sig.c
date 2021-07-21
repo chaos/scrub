@@ -43,7 +43,7 @@
 
 extern char *prog;
 
-/* AIX requires that we write even multiples of blocksize for raw 
+/* AIX requires that we write even multiples of blocksize for raw
  * devices, else EINVAL.
  */
 static int
@@ -64,12 +64,12 @@ error:
 int
 writesig(char *path)
 {
-    unsigned char *buf = NULL; 
+    unsigned char *buf = NULL;
     int fd = -1, n;
     off_t blocksize;
 
     if (sigbufsize(path, &blocksize) < 0)
-        goto error; 
+        goto error;
     if (!(buf = malloc(blocksize)))
         goto nomem;
     if ((fd = open(path, O_RDWR)) < 0)
@@ -102,13 +102,13 @@ error:
 int
 checksig(char *path, bool *status)
 {
-    unsigned char *buf = NULL;  
+    unsigned char *buf = NULL;
     int fd = -1, n;
     bool result = false;
     off_t blocksize;
 
     if (sigbufsize(path, &blocksize) < 0)
-        goto error; 
+        goto error;
     if (!(buf = malloc(blocksize)))
         goto nomem;
     if ((fd = open(path, O_RDONLY)) < 0)

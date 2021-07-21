@@ -40,7 +40,7 @@ scrub (scrub_ctx_t c, const char *path)
     }
 }
 
-void 
+void
 scrub_free (scrub_ctx_t c, const char *dirpath)
 {
     if (scrub_path_set (c, dirpath) < 0) {
@@ -94,7 +94,7 @@ main (int argc, char *argv[])
                 usage();
                 exit(1);
         }
-    } 
+    }
     if (dirpath && ((argc - optind) > 0))
         usage();
 

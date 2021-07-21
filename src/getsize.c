@@ -308,10 +308,10 @@ size2str(char *str, int len, off_t size)
         num = mb; unit = "MB";
     } else if (kb >= 10) {
         num = kb; unit = "KB";
-    } 
-   
+    }
+
     if (unit)
-        snprintf(str, len, "%lld bytes (~%lld%s)", (long long int)size, 
+        snprintf(str, len, "%lld bytes (~%lld%s)", (long long int)size,
                  (long long int)num, unit);
     else
         snprintf(str, len, "%lld bytes", (long long int)size);
