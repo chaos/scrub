@@ -5,7 +5,6 @@ SUBDIRS += libscrub
 endif
 
 dist_doc_DATA = \
-	AUTHORS \
 	ChangeLog \
 	COPYING \
 	DISCLAIMER \

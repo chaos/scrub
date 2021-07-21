@@ -8,13 +8,12 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([NEWS])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([config])
-X_AC_META
 X_AC_EXPAND_INSTALL_DIRS
 
 ##
 # Automake support
 ##
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
 AM_CONFIG_HEADER([config/config.h])
 AM_MAINTAINER_MODE
 
