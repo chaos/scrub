@@ -1,3 +1,14 @@
+/************************************************************\
+ * Copyright 2001 The Regents of the University of California.
+ * Copyright 2007 Lawrence Livermore National Security, LLC.
+ * (c.f. DISCLAIMER, COPYING)
+ *
+ * This file is part of Scrub.
+ * For details, see https://github.com/chaos/scrub.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+\************************************************************/
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -40,7 +51,7 @@ scrub (scrub_ctx_t c, const char *path)
     }
 }
 
-void 
+void
 scrub_free (scrub_ctx_t c, const char *dirpath)
 {
     if (scrub_path_set (c, dirpath) < 0) {
@@ -94,7 +105,7 @@ main (int argc, char *argv[])
                 usage();
                 exit(1);
         }
-    } 
+    }
     if (dirpath && ((argc - optind) > 0))
         usage();
 

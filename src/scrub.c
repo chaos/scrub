@@ -1,27 +1,13 @@
-/*****************************************************************************\
- *  Copyright (C) 2001-2007 The Regents of the University of California.
- *  Copyright (C) 2007-2014 Lawrence Livermore National Security, LLC.
- *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
- *  Written by Jim Garlick <garlick@llnl.gov> UCRL-CODE-2003-006
+/************************************************************\
+ * Copyright 2001 The Regents of the University of California.
+ * Copyright 2007 Lawrence Livermore National Security, LLC.
+ * (c.f. DISCLAIMER, COPYING)
  *
- *  This file is part of Scrub, a program for erasing disks.
- *  For details, see http://code.google.com/p/diskscrub.
+ * This file is part of Scrub.
+ * For details, see https://github.com/chaos/scrub.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the license, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation,
- *  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- *  See also: http://www.gnu.org/licenses
- *****************************************************************************/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+\************************************************************/
 
 /* Scrub a raw disk or plain file.
  */
@@ -109,7 +95,7 @@ static struct option longopts[] = {
 
 char *prog;
 
-static void 
+static void
 usage(int rc)
 {
     FILE *fp = rc ? stderr : stdout;
@@ -136,7 +122,7 @@ usage(int rc)
     exit(rc);
 }
 
-int 
+int
 main(int argc, char *argv[])
 {
     struct opt_struct opt;
@@ -282,7 +268,7 @@ main(int argc, char *argv[])
             errcount += scrub_object(argv[i], &opt, true, false);
         if (errcount > 0) {
             fprintf (stderr, "%s: no files were scrubbed\n", prog);
-            exit(1); 
+            exit(1);
         }
         for (i = optind; i < argc; i++) {
             if (scrub_object(argv[i], &opt, false, nopt) > 0)
@@ -437,7 +423,7 @@ static int progress_col (const sequence_t *seq)
  * If 'enospc', return true if first pass ended with ENOSPC error.
  */
 static bool
-scrub(char *path, off_t size, const sequence_t *seq, int bufsize, 
+scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
       bool nosig, bool sparse, bool enospc)
 {
     unsigned char *buf;
@@ -474,8 +460,8 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                     exit(1);
                 }
 #endif /* HAVE_LIBGCRYPT. */
-                written = fillfile(path, size, buf, bufsize, 
-                                   (progress_t)progress_update, p, 
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t)progress_update, p,
                                    (refill_t)genrand, sparse, enospc);
                 if (written == (off_t)-1) {
                     fprintf(stderr, "%s: %s: %s\n", prog, path,
@@ -488,8 +474,8 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
                 progress_create(&p, pcol);
                 memset_pat(buf, seq->pat[i], bufsize);
-                written = fillfile(path, size, buf, bufsize, 
-                                   (progress_t)progress_update, p, 
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t)progress_update, p,
                                    NULL, sparse, enospc);
                 if (written == (off_t)-1) {
                     fprintf(stderr, "%s: %s: %s\n", prog, path,
@@ -502,8 +488,8 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 printf("%s: %-8s", prog, pat2str(seq->pat[i]));
                 progress_create(&p, pcol);
                 memset_pat(buf, seq->pat[i], bufsize);
-                written = fillfile(path, size, buf, bufsize, 
-                                   (progress_t)progress_update, p, 
+                written = fillfile(path, size, buf, bufsize,
+                                   (progress_t)progress_update, p,
                                    NULL, sparse, enospc);
                 if (written == (off_t)-1) {
                     fprintf(stderr, "%s: %s: %s\n", prog, path,
@@ -513,7 +499,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
                 progress_destroy(p);
                 printf("%s: %-8s", prog, "verify");
                 progress_create(&p, pcol);
-                checked = checkfile(path, written, buf, bufsize, 
+                checked = checkfile(path, written, buf, bufsize,
                                     (progress_t)progress_update, p, sparse);
                 if (checked == (off_t)-1) {
                     fprintf(stderr, "%s: %s: %s\n", prog, path,
@@ -531,7 +517,7 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
         if (written < size) {
             assert(i == 0);
             assert(enospc == true);
-            isfull = true; 
+            isfull = true;
             size = written;
             if (size == 0) {
                 printf("%s: file system is full (0 bytes written)\n", prog);
@@ -600,13 +586,13 @@ scrub_free(char *dirpath, const struct opt_struct *opt)
     if (mkdtemp(freespacedir) == NULL) {
         fprintf(stderr, "%s: mkdtemp %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
         exit(1);
-    } 
+    }
     fprintf (stderr, "%s: created directory %s/%s\n", prog, dirpath, freespacedir);
     if (stat(freespacedir, &sb) < 0) {
         fprintf(stderr, "%s: stat %s/%s: %s\n", prog, dirpath, freespacedir, strerror(errno));
         exit(1);
-    } 
-    
+    }
+
     if (getuid() == 0)
         set_rlimit_fsize(RLIM_INFINITY);
     if (size == 0)
@@ -656,7 +642,7 @@ scrub_dirent(char *path, const struct opt_struct *opt)
         if (filldentry(path, seq->pat[i].pat[0]) < 0) {/* path: in/out */
             fprintf(stderr, "%s: filldentry: %s\n", prog, strerror(errno));
             exit(1);
-        } 
+        }
         progress_update(p, 1.0);
         progress_destroy(p);
     }
@@ -668,7 +654,7 @@ scrub_dirent(char *path, const struct opt_struct *opt)
 
 /* Scrub a regular file.
  */
-static void 
+static void
 scrub_file(char *path, const struct opt_struct *opt)
 {
     struct stat sb;
@@ -691,8 +677,8 @@ scrub_file(char *path, const struct opt_struct *opt)
         }
         size = blkalign(sb.st_size, sb.st_blksize, UP);
         if (size != sb.st_size) {
-            printf("%s: padding %s with %d bytes to fill last fs block\n", 
-                    prog, path, (int)(size - sb.st_size)); 
+            printf("%s: padding %s with %d bytes to fill last fs block\n",
+                    prog, path, (int)(size - sb.st_size));
         }
     }
     scrub(path, size, opt->seq, opt->blocksize, opt->nosig, opt->sparse, false);
@@ -706,7 +692,7 @@ scrub_resfork(char *path, const struct opt_struct *opt)
 {
     struct stat rsb;
     char rpath[MAXPATHLEN];
-    off_t rsize; 
+    off_t rsize;
     filetype_t ftype = filetype(path);
 
     assert(ftype == FILE_REGULAR);
@@ -720,8 +706,8 @@ scrub_resfork(char *path, const struct opt_struct *opt)
     printf("%s: scrubbing resource fork: %s\n", prog, rpath);
     rsize = blkalign(rsb.st_size, rsb.st_blksize, UP);
     if (rsize != rsb.st_size) {
-        printf("%s: padding %s with %d bytes to fill last fs block\n", 
-                        prog, rpath, (int)(rsize - rsb.st_size)); 
+        printf("%s: padding %s with %d bytes to fill last fs block\n",
+                        prog, rpath, (int)(rsize - rsb.st_size));
     }
     scrub(rpath, rsize, opt->seq, opt->blocksize, false, false, false);
 }

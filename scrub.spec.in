@@ -1,6 +1,6 @@
-Name: @META_NAME@
-Version: @META_VERSION@
-Release: @META_RELEASE@%{?dist}
+Name: @PACKAGE_NAME@
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
 
 Summary: Disk scrubbing program
 License: GPL
@@ -11,12 +11,12 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 
 %description
 Scrub writes patterns on files or disk devices to make
-retrieving the data more difficult.  It operates in one of three modes: 
-1) the special file corresponding to an entire disk is scrubbed 
+retrieving the data more difficult.  It operates in one of three modes:
+1) the special file corresponding to an entire disk is scrubbed
    and all data on it is destroyed.
-2) a regular file is scrubbed and only the data in the file 
+2) a regular file is scrubbed and only the data in the file
    (and optionally its name in the directory entry) is destroyed.
-3) a regular file is created, expanded until 
+3) a regular file is created, expanded until
    the file system is full, then scrubbed as in 2).
 
 %prep
@@ -24,7 +24,7 @@ retrieving the data more difficult.  It operates in one of three modes:
 
 %build
 %configure --program-prefix=%{?_program_prefix:%{_program_prefix}}
-make 
+make
 
 %check
 make check

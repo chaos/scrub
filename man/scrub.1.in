@@ -1,4 +1,4 @@
-.TH scrub 1 "@META_DATE@" "@META_ALIAS@" "@META_NAME@"
+.TH scrub 1 "" "@PACKAGE_NAME@-@PACKAGE_VERSION@"
 .SH NAME
 scrub \- write patterns on disk/file
 .SH SYNOPSIS
@@ -13,31 +13,31 @@ scrub \- write patterns on disk/file
 .SH DESCRIPTION
 .B Scrub
 iteratively writes patterns on files or disk devices
-to make retrieving the data more difficult.  
-.B Scrub 
-operates in one of three modes: 
+to make retrieving the data more difficult.
+.B Scrub
+operates in one of three modes:
 .LP
 1) The special file corresponding to an entire disk is scrubbed and
-all data on it is destroyed.  This mode is selected if 
+all data on it is destroyed.  This mode is selected if
 .I "file"
 is a character or block special file.  This is the most effective method.
 .LP
 2) A regular file is scrubbed and only the data in the file (and optionally
-its name in the directory entry) is destroyed.  
+its name in the directory entry) is destroyed.
 The file size is rounded up to fill out the last file system block.
-This mode is selected if 
+This mode is selected if
 .I "file"
-is a regular file.  
+is a regular file.
 See CAVEATS below.
 .LP
 3) A temporary directory is created under
 .I "directory"
 (which must exist) and is filled with files until the file system is full.
 Then the files are scrubbed as in 2). This mode is selected with the
-.I "-X" 
+.I "-X"
 option.  See CAVEATS below.
 .SH OPTIONS
-.B Scrub 
+.B Scrub
 accepts the following options:
 .TP
 \fI-v\fR, \fI--version\fR
@@ -52,10 +52,10 @@ The default, \fInnsa\fR, is reasonable for sanitizing modern
 PRML/EPRML encoded disk devices.
 .TP
 \fI-b\fR, \fI--blocksize\fR \fIblocksize\fR
-Perform read(2) and write(2) calls using the specified blocksize (in bytes).  
+Perform read(2) and write(2) calls using the specified blocksize (in bytes).
 .I "K,"
 .I "M,"
-or 
+or
 .I "G"
 may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
@@ -67,20 +67,20 @@ scrubbed.
 .TP
 \fI-S\fR, \fI--no-signature\fR
 Do not write scrub signature.  Later,
-.B scrub 
+.B scrub
 will not be able to ascertain if the disk has already been scrubbed.
 .TP
 \fI-X\fR, \fI--freespace\fR
-Create specified directory and fill it with files until 
+Create specified directory and fill it with files until
 write returns ENOSPC (file system full), then scrub the files as usual.
 The size of each file can be set with \fI-s\fR, otherwise it will be
-the maximum file size creatable given the user's file size limit or 
+the maximum file size creatable given the user's file size limit or
 1g if unlimited.
 .TP
 \fI-D\fR, \fI--dirent\fR \fInewname\fR
-After scrubbing the file, scrub its name in the directory entry, 
-then rename it to the new name.  
-The scrub patterns used on the directory entry are constrained by the 
+After scrubbing the file, scrub its name in the directory entry,
+then rename it to the new name.
+The scrub patterns used on the directory entry are constrained by the
 operating system and thus are not compliant with cited standards.
 This option only works with a single target.
 .TP
@@ -90,7 +90,7 @@ Override the device size (in bytes). Without this option,
 determines media capacity using OS-specific ioctl(2) calls.
 .I "K,"
 .I "M,"
-or 
+or
 .I "G"
 may be appended to the number to change the units to
 KiBytes, MiBytes, or GiBytes, respectively.
@@ -175,28 +175,28 @@ for sanitizing magnetic core memory).
 1-pass custom pattern.  String may contain C-style numerical escapes:
 \\nnn (octal) or \\xnn (hex).
 .SH CAVEATS
-.B Scrub 
-may be insufficient to thwart heroic efforts to recover data 
+.B Scrub
+may be insufficient to thwart heroic efforts to recover data
 in an appropriately equipped lab.  If you need this level of
 protection, physical destruction is your best bet.
 .PP
 The effectiveness of scrubbing regular files through a file system
 will be limited by the OS and file system.  File systems that are
-known to be problematic are journaled, log structured, copy-on-write, 
+known to be problematic are journaled, log structured, copy-on-write,
 versioned, and network file systems.  If in doubt, scrub the raw disk device.
 .PP
 Scrubbing free blocks in a file system with the
 .I "-X"
 method is subject to the same caveats as scrubbing regular files,
-and in addition, is only useful to the extent the file system allows 
+and in addition, is only useful to the extent the file system allows
 you to reallocate the target blocks as data blocks in a new file.
 If in doubt, scrub the raw disk device.
 .PP
 On MacOS X HFS file system,
-.B scrub 
+.B scrub
 attempts to overwrite a file's resource fork if it exists.
 Although MacOS X claims it will support additional named forks in the future,
-.B scrub 
+.B scrub
 is only aware of the traditional data and resource forks.
 .PP
 .B scrub
@@ -234,25 +234,25 @@ scrub: 0xffaa  |................................................|
 .SH AUTHOR
 Jim Garlick <garlick@llnl.gov>
 .LP
-This work was produced at the University of California, 
+This work was produced at the University of California,
 Lawrence Livermore National Laboratory under Contract
 No. W-7405-ENG-48 with the DOE.
-Designated UCRL-CODE-2003-006, scrub is licensed under terms of the GNU 
+Designated UCRL-CODE-2003-006, scrub is licensed under terms of the GNU
 General Public License.
 .SH SEE ALSO
-DoD 5220.22-M, "National Industrial Security Program Operating Manual", 
+DoD 5220.22-M, "National Industrial Security Program Operating Manual",
 Chapter 8, 01/1995.
 .LP
-NNSA Policy Letter: NAP-14.1-C, "Clearing, Sanitizing, and 
-Destroying Information System Storage Media, Memory Devices, and other 
+NNSA Policy Letter: NAP-14.1-C, "Clearing, Sanitizing, and
+Destroying Information System Storage Media, Memory Devices, and other
 Related Hardware", 05-02-08, page XVI-8.
 .LP
-"Secure Deletion of Data from Magnetic and Solid-State Memory", by Peter 
+"Secure Deletion of Data from Magnetic and Solid-State Memory", by Peter
 Gutmann, Sixth USENIX Security Symposium, San Jose, CA, July 22-25, 1996.
 .LP
 "Gutmann Method", Wikipedia, http://en.wikipedia.org/wiki/Gutmann_method.
 .LP
-Darik's boot and Nuke FAQ: 
+Darik's boot and Nuke FAQ:
 http://dban.sourceforge.net/faq/index.html
 .LP
 "Tutorial on Disk Drive Data Sanitization", by Gordon Hugues and Tom Coughlin,

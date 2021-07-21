@@ -14,4 +14,4 @@ dist_doc_DATA = \
 	README \
 	README.md
 
-EXTRA_DIST = META scrub.spec
+EXTRA_DIST = scrub.spec

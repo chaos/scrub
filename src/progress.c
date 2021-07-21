@@ -1,27 +1,13 @@
-/*****************************************************************************\
- *  Copyright (C) 2001-2007 The Regents of the University of California.
- *  Copyright (C) 2007-2014 Lawrence Livermore National Security, LLC.
- *  Produced at Lawrence Livermore National Laboratory (cf, DISCLAIMER).
- *  Written by Jim Garlick <garlick@llnl.gov> UCRL-CODE-2003-006
+/************************************************************\
+ * Copyright 2001 The Regents of the University of California.
+ * Copyright 2007 Lawrence Livermore National Security, LLC.
+ * (c.f. DISCLAIMER, COPYING)
  *
- *  This file is part of Scrub, a program for erasing disks.
- *  For details, see http://code.google.com/p/diskscrub.
+ * This file is part of Scrub.
+ * For details, see https://github.com/chaos/scrub.
  *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the GNU General Public License as published by the Free
- *  Software Foundation; either version 2 of the license, or (at your option)
- *  any later version.
- *
- *  This program is distributed in the hope that it will be useful, but
- *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- *  for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation,
- *  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- *  See also: http://www.gnu.org/licenses
- *****************************************************************************/
+ * SPDX-License-Identifier: GPL-2.0-or-later
+\************************************************************/
 
 /* ASCII progress bar thingie.
  */
@@ -46,7 +32,7 @@ struct prog_struct {
     char bar;
 };
 
-void 
+void
 progress_create(prog_t *ctx, int width)
 {
     if ((*ctx = (prog_t)malloc(sizeof(struct prog_struct)))) {
@@ -63,10 +49,10 @@ progress_create(prog_t *ctx, int width)
                 printf("\b");
         }
         fflush(stdout);
-    } 
+    }
 }
 
-void 
+void
 progress_destroy(prog_t ctx)
 {
     if (ctx) {
@@ -82,7 +68,7 @@ progress_destroy(prog_t ctx)
     }
 }
 
-void 
+void
 progress_update(prog_t ctx, double complete)
 {
     assert(complete >= 0.0 && complete <= 1.0);
