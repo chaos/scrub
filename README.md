@@ -122,3 +122,9 @@ Coughlin](http://cmrr.ucsd.edu/people/Hughes/documents/DataSanitizationTutorial.
 
 [_Guidelines  for	 Media Sanitization_, NIST special publication 800-88,
 Kissel et al, September, 2006](http://csrc.nist.gov/publications/nistpubs/800-88/NISTSP800-88_with-errata.pdf)
+
+## License
+
+SPDX-License-Identifier: GPL-2.0-or-later
+
+UCRL-CODE-2003-006
