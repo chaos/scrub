@@ -2,19 +2,19 @@
 # Prologue
 ##
 AC_INIT([scrub],
-        m4_esyscmd([git describe --always | awk '/.*/ {sub(/^v/, ""); printf "%s",$1; exit}']))
+        m4_esyscmd([git describe --tags --always | awk '/.*/ {sub(/^v/, ""); printf "%s",$1; exit}']))
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([NEWS])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_MACRO_DIR([config])
-X_AC_META
 X_AC_EXPAND_INSTALL_DIRS
 
 ##
 # Automake support
 ##
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
+AM_SILENT_RULES([yes])
 AM_CONFIG_HEADER([config/config.h])
 AM_MAINTAINER_MODE
 

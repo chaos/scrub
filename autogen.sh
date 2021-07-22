@@ -3,7 +3,7 @@
 echo "Running aclocal ... "
 aclocal -I config
 
-if glibtoolize --version >/dev/null; then
+if glibtoolize --version 1>/dev/null 2>&1; then
   LIBTOOLIZE=glibtoolize
 fi
 LIBTOOLIZE=${LIBTOOLIZE:-libtoolize}
