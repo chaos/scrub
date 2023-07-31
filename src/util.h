@@ -31,7 +31,7 @@ typedef enum { UP, DOWN } round_t;
 
 int         read_all(int fd, unsigned char *buf, int count);
 int         write_all(int fd, const unsigned char *buf, int count);
-int         is_symlink(char *path);
+char *      is_symlink(char *path);
 filetype_t  filetype(char *path);
 off_t       blkalign(off_t offset, int blocksize, round_t rtype);
 void *      alloc_buffer(int bufsize);

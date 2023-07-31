@@ -58,12 +58,23 @@ write_all(int fd, const unsigned char *buf, int count)
 }
 
 /* Indicates whether the file represented by 'path' is a symlink.
+ * and if so, return a pointer to the realpath.
  */
-int
+char *
 is_symlink(char *path)
 {
     struct stat sb;
-    return lstat(path, &sb) == 0 && S_ISLNK(sb.st_mode);
+    int error;
+    char *resolved_path;
+
+    if ((error = lstat(path, &sb)) != 0)
+        return NULL;	/* not a link */
+    if ((resolved_path=realpath(path,NULL)) == NULL)
+        return NULL;	/* some error in determining absolute path */
+    if (!S_ISLNK(sb.st_mode))  /* if it's not a link */
+	return NULL;
+
+    return resolved_path;
 }
 
 /* Return the type of file represented by 'path'.

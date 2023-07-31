@@ -291,7 +291,9 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
 {
     bool havesig = false;
     int errcount = 0;
+    char *absolute_path;     /* store absolute path if symlink */
 
+    absolute_path = is_symlink(filename);     /* get absolute path. If NULL not a symlink */
     switch (filetype(filename)) {
         case FILE_NOEXIST:
             fprintf(stderr, "%s: %s does not exist\n", prog, filename);
@@ -320,7 +322,7 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
                 fprintf(stderr, "%s: %s already scrubbed? (-f to force)\n",
                         prog, filename);
                 errcount++;
-            } else if (is_symlink(filename) && opt->nofollow) {
+            } else if (absolute_path && opt->nofollow) {
                 fprintf(stderr, "%s: skipping symlink %s because --no-link (-L) option was set\n",
                         prog, filename);
                 errcount++;
@@ -334,7 +336,7 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
             }
             break;
         case FILE_REGULAR:
-            if (is_symlink(filename) && opt->nofollow) {
+            if (absolute_path && opt->nofollow) {    /* symlink, don't remove target */
                 if (opt->remove && !noexec) {
                     if (dryrun) {
                         printf("%s: (dryrun) unlink %s\n", prog, filename);
@@ -381,22 +383,42 @@ static int scrub_object(char *filename, const struct opt_struct *opt,
 #endif
                 if (opt->dirent) {
                     if (dryrun) {
-                        printf("%s: (dryrun) scrub dirent %s\n",
-                               prog, filename);
+			if (absolute_path) {
+                            printf("%s: (dryrun) scrub dirent target %s\n",
+                                  prog, absolute_path);
+			} else {
+                            printf("%s: (dryrun) scrub dirent %s\n",
+                                  prog, filename);
+			}
                     } else {
-                        scrub_dirent(filename, opt);
+			if (absolute_path) {
+                            scrub_dirent(absolute_path, opt);
+			} else {
+                            scrub_dirent(filename, opt);
+			}
                     }
                 }
                 if (opt->remove) {
                     char *rmfile = opt->dirent ? opt->dirent : filename;
                     if (dryrun) {
                         printf("%s: (dryrun) unlink %s\n", prog, rmfile);
+                        if (absolute_path) {    /* link target */
+                            printf("%s: (dryrun) unlink target %s\n", prog, absolute_path);
+                        }
                     } else {
                         printf("%s: unlinking %s\n", prog, rmfile);
                         if (unlink(rmfile) != 0) {
                             fprintf(stderr, "%s: unlink %s: %s\n", prog, rmfile,
                                     strerror(errno));
                             exit(1);
+                        }
+                        if (absolute_path) {    /* link target */
+                            if (unlink(filename) != 0) {
+                                printf("%s: unlinking target %s\n", prog, absolute_path);
+                                fprintf(stderr, "%s: unlink %s: %s\n", prog, absolute_path,
+                                        strerror(errno));
+                                exit(1);
+                            }
                         }
                     }
                 }
