@@ -1,0 +1,25 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: installing dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y autoconf automake libtool
+    - name: configure
+      run: |
+        ./autogen.sh
+        ./configure --disable-dependency-tracking
+    - name: build
+      run: |
+        make
+        make check
