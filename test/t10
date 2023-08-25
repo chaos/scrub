@@ -4,7 +4,7 @@
 
 TEST=`basename $0 | cut -d- -f1`
 # Test requires root
-test `id -u` == 0 || exit 77
+test `id -u` = 0 || exit 77
 
 EXPFILE=${TEST}-`hostname`.exp
 test -f $EXPFILE || exit 77
