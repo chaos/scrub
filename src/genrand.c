@@ -27,18 +27,20 @@
 #include "genrand.h"
 #include "hwrand.h"
 
-#ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
-#else
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
 #include "aes.h"
-#endif /* HAVE_LIBGCRYPT. */
+#elif defined(HAVE_LIBGCRYPT)
+#include <gcrypt.h>
+#elif defined(HAVE_OPENSSL)
+#include <openssl/rand.h>
+#endif /* !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL) */
 
 extern char *prog;
 
 static bool no_hwrand = false;
 static hwrand_t gen_hwrand;
 
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
 #define PATH_URANDOM    "/dev/urandom"
 
 #define PAYLOAD_SZ  16
@@ -132,26 +134,26 @@ churnrand(void)
 error:
     return -1;
 }
-#endif /* HAVE_LIBGCRYPT. */
+#endif /* !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL) */
 
 /* Initialize the module.
  */
 int
 initrand(void)
 {
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
     struct timeval tv;
-#else
+#elif defined(HAVE_LIBCRYPT)
     if (!gcry_check_version(GCRYPT_VERSION)) {
         goto error;
     }
     gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-#endif /* HAVE_LIBGCRYPT */
+#endif /* !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL) */
 
     if (!no_hwrand)
         gen_hwrand = init_hwrand();
 
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
     /* Always initialize the software random number generator as backup */
 
     if (gettimeofday(&tv, NULL) < 0)
@@ -164,7 +166,7 @@ initrand(void)
 #endif
     if (churnrand() < 0)
         goto error;
-#endif /* HAVE_LIBGCRYPT. */
+#endif /* !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL) */
     return 0;
 error:
     return -1;
@@ -175,11 +177,11 @@ error:
 void
 genrand(unsigned char *buf, int buflen)
 {
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
     int i;
     unsigned char out[PAYLOAD_SZ];
     int cpylen = PAYLOAD_SZ;
-#endif /* HAVE_LIBGCRYPT. */
+#endif
 
     if (gen_hwrand) {
         bool hwok = gen_hwrand(buf, buflen);
@@ -187,7 +189,7 @@ genrand(unsigned char *buf, int buflen)
             return;
     }
 
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
     for (i = 0; i < buflen; i += cpylen) {
         aes_encrypt(&ctx, ctr, out);
         incr128(ctr);
@@ -196,8 +198,10 @@ genrand(unsigned char *buf, int buflen)
         memcpy(&buf[i], out, cpylen);
     }
     assert(i == buflen);
-#else
+#elif defined(HAVE_LIBGCRYPT)
     gcry_randomize(buf, buflen, GCRY_STRONG_RANDOM);
+#elif defined(HAVE_OPENSSL)
+    assert(RAND_bytes(buf, buflen) == 1);
 #endif /* HAVE_LIBGCRYPT. */
 }
 
