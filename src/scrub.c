@@ -475,13 +475,13 @@ scrub(char *path, off_t size, const sequence_t *seq, int bufsize,
             case PAT_RANDOM:
                 printf("%s: %-8s", prog, "random");
                 progress_create(&p, pcol);
-#ifndef HAVE_LIBGCRYPT
+#if !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL)
                 if (churnrand() < 0) {
                     fprintf(stderr, "%s: churnrand: %s\n", prog,
                              strerror(errno));
                     exit(1);
                 }
-#endif /* HAVE_LIBGCRYPT. */
+#endif /* !defined(HAVE_LIBGCRYPT) && !defined(HAVE_OPENSSL) */
                 written = fillfile(path, size, buf, bufsize,
                                    (progress_t)progress_update, p,
                                    (refill_t)genrand, sparse, enospc);
